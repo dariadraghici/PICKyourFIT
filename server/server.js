@@ -1,7 +1,3 @@
-// server.js
-// Tiny backend that holds the remove.bg API key and proxies requests to it.
-// The browser NEVER sees this key — it only ever talks to our own /api/remove-bg route.
-
 require('dotenv').config();
 
 const express = require('express');
@@ -18,7 +14,6 @@ if (!REMOVE_BG_API_KEY) {
   process.exit(1);
 }
 
-// Serve your existing frontend (index.html and friends) as static files
 app.use(express.static(path.join(__dirname, '..')));
 
 app.post('/api/remove-bg', upload.single('image_file'), async (req, res) => {
@@ -60,5 +55,5 @@ app.post('/api/remove-bg', upload.single('image_file'), async (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`What A Blouse server running at http://localhost:${PORT}`);
+  console.log(`PICKyourFIT server running at http://localhost:${PORT}`);
 });
