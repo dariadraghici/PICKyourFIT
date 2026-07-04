@@ -184,7 +184,7 @@
     </div>
     <p class="subtitle">Log in to your account and continue organizing your style.</p>
 
-    <form onsubmit="return false;">
+    <form id="loginForm">
       <div class="field">
         <label for="email">Email address</label>
         <div class="input-wrap">
@@ -201,12 +201,16 @@
         </div>
       </div>
 
+      <div class="field-error" id="emailError" style="display:none;margin-top:-8px;margin-bottom:12px;font-size:11.5px;color:#c1402f;">Introdu o adresă de email validă.</div>
+
       <div class="row-between">
-        <label class="remember"><input type="checkbox" /> Remember me</label>
+        <label class="remember"><input type="checkbox" id="rememberMe" /> Remember me</label>
         <a href="#" class="forgot">Forgot password?</a>
       </div>
 
-      <button class="btn-login" type="submit">Log in</button>
+      <div class="form-msg" id="formMsg" style="display:none;margin-bottom:14px;padding:10px 12px;border-radius:8px;font-size:12.5px;line-height:1.5;"></div>
+
+      <button class="btn-login" type="submit" id="loginBtn">Log in</button>
 
       <div class="divider">OR</div>
 
@@ -264,6 +268,73 @@
     const pw = document.getElementById('password');
     pw.type = pw.type === 'password' ? 'text' : 'password';
   }
+
+  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  const form = document.getElementById('loginForm');
+  const formMsg = document.getElementById('formMsg');
+  const loginBtn = document.getElementById('loginBtn');
+  const emailInput = document.getElementById('email');
+  const emailError = document.getElementById('emailError');
+
+  function showMsg(text, type){
+    formMsg.style.display = 'block';
+    formMsg.textContent = text;
+    formMsg.style.background = type === 'error' ? '#fbe9e6' : '#e8f3e7';
+    formMsg.style.color = type === 'error' ? '#a3372a' : '#356a34';
+    formMsg.style.border = '1px solid ' + (type === 'error' ? '#f0c9c2' : '#c9e3c6');
+  }
+
+  emailInput.addEventListener('input', () => { emailError.style.display = 'none'; });
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    formMsg.style.display = 'none';
+    emailError.style.display = 'none';
+
+    const email = emailInput.value.trim();
+    const password = document.getElementById('password').value;
+
+    if (!EMAIL_RE.test(email)) {
+      emailError.style.display = 'block';
+      emailInput.focus();
+      return;
+    }
+    if (!password) {
+      showMsg('Introdu parola.', 'error');
+      return;
+    }
+
+    loginBtn.disabled = true;
+    loginBtn.textContent = 'Se conectează...';
+
+    try {
+      const res = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        showMsg(data.error || 'Email sau parolă incorectă.', 'error');
+        loginBtn.disabled = false;
+        loginBtn.textContent = 'Log in';
+        return;
+      }
+
+      localStorage.setItem('pyf_idToken', data.idToken);
+      localStorage.setItem('pyf_uid', data.uid);
+      showMsg('Autentificare reușită! Te redirecționăm...', 'success');
+      setTimeout(() => { window.location.href = 'index.html'; }, 700);
+
+    } catch (err) {
+      console.error(err);
+      showMsg('Nu s-a putut contacta serverul. Încearcă din nou.', 'error');
+      loginBtn.disabled = false;
+      loginBtn.textContent = 'Log in';
+    }
+  });
 </script>
 
 </body>

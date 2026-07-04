@@ -1,3 +1,5 @@
+*
+!.gitkeep
 # Secrets — never commit real env files
 .env
 server/.env

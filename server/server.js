@@ -4,13 +4,24 @@ const express = require('express');
 const multer = require('multer');
 const path = require('path');
 
+const authRoutes = require('./authRoutes');
+const wardrobeRoutes = require('./wardrobeRoutes');
+
 const app = express();
 const upload = multer(); // keeps uploaded file in memory, doesn't write to disk
+
+app.set('trust proxy', true);
+
+app.use(express.json());
 
 const REMOVE_BG_API_KEY = process.env.REMOVE_BG_API_KEY;
 
 if (!REMOVE_BG_API_KEY) {
   console.error('ERROR: REMOVE_BG_API_KEY is not set. Create a .env file (see .env.example).');
+  process.exit(1);
+}
+if (!process.env.FIREBASE_WEB_API_KEY) {
+  console.error('ERROR: FIREBASE_WEB_API_KEY is not set. Create a .env file (see .env.example).');
   process.exit(1);
 }
 
@@ -21,6 +32,12 @@ app.get('/', (req, res) => {
 
 // index: false so express.static doesn't fall back to index.html on '/'
 app.use(express.static(path.join(__dirname, '..'), { index: false }));
+
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+app.use('/api', authRoutes);
+
+app.use('/api/wardrobe', wardrobeRoutes);
 
 app.post('/api/remove-bg', upload.single('image_file'), async (req, res) => {
   try {

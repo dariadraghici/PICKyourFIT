@@ -26,7 +26,6 @@
   .serif{font-family:'Fraunces',serif;}
   button{font-family:inherit;}
 
-  /* ---------- Header ---------- */
   header{
     display:flex;align-items:center;justify-content:space-between;
     padding:18px 40px;
@@ -56,10 +55,8 @@
   .btn-outline{background:transparent;color:var(--ink);border-color:var(--line);}
   .btn-outline:hover{background:rgba(0,0,0,0.03);}
 
-  /* ---------- Layout ---------- */
   .layout{display:grid;grid-template-columns:520px 1fr;min-height:calc(100vh - 63px);}
 
-  /* ---------- Left / form ---------- */
   .form-panel{
     display:flex;flex-direction:column;justify-content:center;
     padding:44px 56px;width:100%;
@@ -85,6 +82,7 @@
   .input-wrap input:focus{outline:none;border-color:var(--rust);}
   .toggle-eye{left:auto !important;right:13px;cursor:pointer;}
   .field-hint{margin-top:7px;font-size:11.5px;color:var(--ink-soft);line-height:1.4;}
+  .field-error{margin-top:7px;font-size:11.5px;color:#c1402f;line-height:1.4;display:none;}
 
   .checks{margin:16px 0 18px;}
   .check-row{
@@ -101,6 +99,14 @@
     font-size:14px;font-weight:600;border:none;cursor:pointer;
   }
   .btn-primary:hover{opacity:0.9;}
+  .btn-primary:disabled{opacity:0.6;cursor:not-allowed;}
+
+  .form-msg{
+    margin-top:14px;padding:10px 12px;border-radius:8px;font-size:12.5px;
+    display:none;line-height:1.5;
+  }
+  .form-msg.error{display:block;background:#fbe9e6;color:#a3372a;border:1px solid #f0c9c2;}
+  .form-msg.success{display:block;background:#e8f3e7;color:#356a34;border:1px solid #c9e3c6;}
 
   .divider{display:flex;align-items:center;gap:12px;margin:18px 0;font-size:11px;color:#a9a49a;letter-spacing:0.05em;}
   .divider::before,.divider::after{content:"";flex:1;height:1px;background:var(--line-soft);}
@@ -112,12 +118,12 @@
     gap: 8px;
     }
   .btn-social {
-    flex: 1 1 auto; /* Permite ajustarea flexibilă a lățimii */
+    flex: 1 1 auto;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 7px;
-    padding: 10px 12px; /* Spațiere ușor ajustată */
+    padding: 10px 12px;
     border: 1px solid var(--line);
     border-radius: 8px;
     background: #fdfcf9;
@@ -133,7 +139,6 @@
   .legal-note a{color:var(--rust);font-weight:600;}
   .legal-note a:hover{text-decoration:underline;}
 
-  /* ---------- Right / visual panel ---------- */
   .visual-panel{
     position:relative;overflow:hidden;
     background:var(--cream-alt);
@@ -144,14 +149,6 @@
     object-fit:cover;object-position:center;
   }
 
-  @media (max-width: 900px){
-    .layout{grid-template-columns:1fr;}
-    .visual-panel{display:none;}
-    .form-panel{padding:32px 24px;}
-    .social-row{flex-direction:column;}
-  }
-
-    /* ---------- Footer ---------- */
   footer{
     display:flex;align-items:center;justify-content:space-between;
     padding:14px 40px;border-top:1px solid var(--line-soft);
@@ -166,6 +163,7 @@
     .layout{grid-template-columns:1fr;}
     .visual-panel{display:none;}
     .form-panel{padding:36px 24px;}
+    .social-row{flex-direction:column;}
     footer{flex-direction:column;gap:8px;text-align:center;}
   }
 </style>
@@ -196,33 +194,34 @@
     </div>
     <p class="subtitle">Sign up to start organizing your wardrobe and getting personalized outfit ideas.</p>
 
-    <form onsubmit="return false;">
+    <form id="signupForm">
       <div class="field">
         <label for="firstName">First name</label>
         <div class="input-wrap">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5" r="2.7" stroke="currentColor" stroke-width="1.3"/><path d="M2.5 14c0-3 2.5-4.5 5.5-4.5s5.5 1.5 5.5 4.5" stroke="currentColor" stroke-width="1.3"/></svg>
-          <input id="firstName" type="text" placeholder="Enter your first name" />
+          <input id="firstName" type="text" placeholder="Enter your first name" required />
         </div>
       </div>
       <div class="field">
         <label for="lastName">Last Name</label>
         <div class="input-wrap">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5" r="2.7" stroke="currentColor" stroke-width="1.3"/><path d="M2.5 14c0-3 2.5-4.5 5.5-4.5s5.5 1.5 5.5 4.5" stroke="currentColor" stroke-width="1.3"/></svg>
-          <input id="lastName" type="text" placeholder="Enter your last name" />
+          <input id="lastName" type="text" placeholder="Enter your last name" required />
         </div>
       </div>
       <div class="field">
         <label for="email">Email address</label>
         <div class="input-wrap">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 4h12v8H2z" stroke="currentColor" stroke-width="1.3"/><path d="M2 4l6 5 6-5" stroke="currentColor" stroke-width="1.3"/></svg>
-          <input id="email" type="email" placeholder="Enter your email" />
+          <input id="email" type="email" placeholder="Enter your email" required />
         </div>
+        <div class="field-error" id="emailError">Introdu o adresă de email validă.</div>
       </div>
       <div class="field">
         <label for="password">Password</label>
         <div class="input-wrap">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="3" y="7" width="10" height="7" rx="1.3" stroke="currentColor" stroke-width="1.3"/><path d="M5 7V5a3 3 0 0 1 6 0v2" stroke="currentColor" stroke-width="1.3"/></svg>
-          <input id="password" type="password" placeholder="Create a password" />
+          <input id="password" type="password" placeholder="Create a password" required minlength="8" />
           <svg class="toggle-eye" id="eyeIcon" width="17" height="17" viewBox="0 0 17 17" fill="none" onclick="togglePw()"><path d="M1 8.5S3.7 3 8.5 3 16 8.5 16 8.5 13.3 14 8.5 14 1 8.5 1 8.5Z" stroke="currentColor" stroke-width="1.2"/><circle cx="8.5" cy="8.5" r="2.2" stroke="currentColor" stroke-width="1.2"/></svg>
         </div>
         <div class="field-hint">Password must be at least 8 characters long and include a number and a letter.</div>
@@ -230,16 +229,18 @@
 
       <div class="checks">
         <label class="check-row">
-          <input type="checkbox" />
+          <input type="checkbox" id="dataConsent" required />
           <span>I agree that my photos and data will be processed to provide personalized outfit suggestions and improve my experience.<br/><b>Your data will never be sold or shared with third parties.</b></span>
         </label>
         <label class="check-row">
-          <input type="checkbox" />
+          <input type="checkbox" id="termsConsent" required />
           <span>I agree to the <a href="#">Terms &amp; Conditions</a> and <a href="#">Privacy Policy</a>.</span>
         </label>
       </div>
 
-      <button class="btn-primary" type="submit">Sign up</button>
+      <div class="form-msg" id="formMsg"></div>
+
+      <button class="btn-primary" type="submit" id="submitBtn">Sign up</button>
 
       <div class="divider">OR</div>
 
@@ -280,6 +281,81 @@
     const pw = document.getElementById('password');
     pw.type = pw.type === 'password' ? 'text' : 'password';
   }
+
+  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  const form = document.getElementById('signupForm');
+  const formMsg = document.getElementById('formMsg');
+  const submitBtn = document.getElementById('submitBtn');
+  const emailInput = document.getElementById('email');
+  const emailError = document.getElementById('emailError');
+
+  function showMsg(text, type){
+    formMsg.textContent = text;
+    formMsg.className = 'form-msg ' + type;
+  }
+
+  emailInput.addEventListener('input', () => {
+    emailError.style.display = 'none';
+  });
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    formMsg.className = 'form-msg';
+    emailError.style.display = 'none';
+
+    const firstName = document.getElementById('firstName').value.trim();
+    const lastName = document.getElementById('lastName').value.trim();
+    const email = emailInput.value.trim();
+    const password = document.getElementById('password').value;
+    const dataConsent = document.getElementById('dataConsent').checked;
+    const termsConsent = document.getElementById('termsConsent').checked;
+
+    if (!EMAIL_RE.test(email)) {
+      emailError.style.display = 'block';
+      emailInput.focus();
+      return;
+    }
+    if (password.length < 8 || !/[0-9]/.test(password) || !/[a-zA-Z]/.test(password)) {
+      showMsg('Parola trebuie să aibă minim 8 caractere și să conțină cel puțin o literă și o cifră.', 'error');
+      return;
+    }
+    if (!dataConsent || !termsConsent) {
+      showMsg('Trebuie să bifezi ambele acorduri pentru a continua.', 'error');
+      return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Se creează contul...';
+
+    try {
+      const res = await fetch('/api/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ firstName, lastName, email, password, dataConsent, termsConsent })
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        showMsg(data.error || 'A apărut o eroare. Încearcă din nou.', 'error');
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Sign up';
+        return;
+      }
+
+      // salvăm tokenul de sesiune local și redirecționăm către dulap
+      localStorage.setItem('pyf_idToken', data.idToken);
+      localStorage.setItem('pyf_uid', data.uid);
+      showMsg('Cont creat cu succes! Te redirecționăm...', 'success');
+      setTimeout(() => { window.location.href = 'index.html'; }, 900);
+
+    } catch (err) {
+      console.error(err);
+      showMsg('Nu s-a putut contacta serverul. Încearcă din nou.', 'error');
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Sign up';
+    }
+  });
 </script>
 
 </body>
