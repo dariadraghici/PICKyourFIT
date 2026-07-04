@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Log in - Pick Your Fit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --cream: #f5f2ea;
+    --cream-alt: #f3efe6;
+    --ink: #1c1a17;
+    --ink-soft: #57544d;
+    --rust: #c1603c;
+    --line: #ddd6c9;
+    --line-soft: #e6e0d3;
+    --tan: #e3d3ba;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{
+    color:var(--ink);font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased;height:100%;
+    background:var(--cream);
+  }
+  a{color:inherit;text-decoration:none;}
+  .serif{font-family:'Fraunces',serif;}
+  button{font-family:inherit;}
+
+  /* ---------- Header ---------- */
+  header{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:18px 40px;
+    border-bottom:1px solid var(--line-soft);
+    background:var(--cream);
+    position:relative;z-index:3;
+  }
+  .logo{
+    font-family:'Fraunces',serif;
+    font-size:13px;font-weight:600;letter-spacing:0.14em;
+    text-transform:uppercase;color:var(--rust);
+  }
+  nav{display:flex;gap:28px;}
+  nav a{font-size:13px;color:var(--ink-soft);transition:color .15s ease;}
+  nav a:hover{color:var(--ink);}
+  .header-actions{display:flex;align-items:center;gap:10px;}
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;
+    padding:7px 16px;border-radius:7px;font-size:13px;font-weight:500;
+    cursor:pointer;border:1px solid var(--line);background:transparent;color:var(--ink);
+    transition:transform .15s ease, opacity .15s ease;
+    white-space:nowrap;
+  }
+  .btn:hover{background:rgba(0,0,0,0.03);}
+  .btn-dark{background:var(--ink);color:#fdfcf9;}
+  .btn-outline{background:transparent;color:var(--ink);border-color:var(--line);}
+  .btn-outline:hover{background:rgba(0,0,0,0.03);}
+
+  /* ---------- Layout ---------- */
+  .layout{display:grid;grid-template-columns:520px 1fr;min-height:calc(100vh - 63px - 46px);}
+
+  /* ---------- Left / form ---------- */
+  .form-panel{
+    display:flex;flex-direction:column;justify-content:center;
+    padding:50px 56px;width:100%;
+    background:var(--cream);
+    position:relative;z-index:3;
+  }
+  .welcome-row{display:flex;align-items:center;gap:14px;margin-bottom:18px;}
+  .logo-mark{height:44px;width:auto;flex-shrink:0;}
+  .form-panel h1{font-size:32px;font-weight:500;}
+  .form-panel .subtitle{margin-top:12px;font-size:13.5px;color:var(--ink-soft);line-height:1.55;}
+
+  form{margin-top:26px;}
+  .field{margin-bottom:16px;}
+  .field label{display:block;font-size:12.5px;font-weight:600;margin-bottom:7px;}
+  .input-wrap{position:relative;}
+  .input-wrap svg{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:#9a958a;}
+  .input-wrap input{
+    width:100%;padding:11px 14px 11px 38px;
+    border:1px solid var(--line);border-radius:8px;
+    background:#fdfcf9;font-size:13.5px;color:var(--ink);
+  }
+  .input-wrap input::placeholder{color:#a9a49a;}
+  .input-wrap input:focus{outline:none;border-color:var(--rust);}
+  .toggle-eye{left:auto !important;right:13px;cursor:pointer;}
+
+  .row-between{display:flex;align-items:center;justify-content:space-between;margin:16px 0 20px;font-size:12.5px;}
+  .remember{display:flex;align-items:center;gap:7px;color:var(--ink-soft);}
+  .remember input{width:14px;height:14px;accent-color:var(--ink);}
+  .forgot{color:var(--rust);font-weight:500;}
+  .forgot:hover{text-decoration:underline;}
+
+  .btn-login{
+    width:100%;padding:12px;border-radius:8px;background:var(--ink);color:#fdfcf9;
+    font-size:14px;font-weight:600;border:none;cursor:pointer;
+  }
+  .btn-login:hover{opacity:0.9;}
+
+  .divider{display:flex;align-items:center;gap:12px;margin:20px 0;font-size:11px;color:#a9a49a;letter-spacing:0.05em;}
+  .divider::before,.divider::after{content:"";flex:1;height:1px;background:var(--line-soft);}
+
+  .btn-social{
+    width:100%;display:flex;align-items:center;justify-content:center;gap:10px;
+    padding:10px;border:1px solid var(--line);border-radius:8px;
+    background:#fdfcf9;font-size:13.5px;font-weight:500;color:var(--ink);
+    cursor:pointer;margin-bottom:10px;
+  }
+  .btn-social:hover{background:rgba(0,0,0,0.02);}
+
+  .signup-note{margin-top:22px;text-align:center;font-size:13px;color:var(--ink-soft);}
+  .signup-note a{color:var(--rust);font-weight:600;}
+  .signup-note a:hover{text-decoration:underline;}
+
+  /* ---------- Right / visual panel ---------- */
+  .visual-panel{
+    position:relative;overflow:hidden;
+    background:var(--cream-alt);
+  }
+  .bg-photo{
+    position:absolute;inset:0;z-index:0;
+    width:100%;height:100%;
+    object-fit:cover;object-position:center;
+  }
+  .visual-panel::before{
+    content:"";position:absolute;inset:0;z-index:1;
+    background:linear-gradient(180deg, rgba(20,15,10,0.18) 0%, rgba(20,15,10,0.02) 35%, rgba(20,15,10,0.30) 100%);
+  }
+  .visual-copy{position:absolute;top:60px;left:56px;max-width:320px;z-index:2;}
+  .visual-copy h2{font-size:26px;font-weight:500;line-height:1.2;color:#fff;text-shadow:0 2px 12px rgba(0,0,0,0.25);}
+  .visual-copy h2 em{font-style:italic;color:#f0a87a;display:block;}
+  .visual-copy p{margin-top:12px;font-size:13.5px;color:#f3efe6;line-height:1.55;text-shadow:0 1px 8px rgba(0,0,0,0.25);}
+
+  .feature-card{
+    position:absolute;left:56px;right:56px;bottom:56px;
+    background:#fdfcf9;border-radius:14px;padding:22px 26px;
+    display:grid;grid-template-columns:repeat(3,1fr);gap:20px;
+    box-shadow:0 12px 30px rgba(60,45,25,0.10);
+    z-index:2;
+  }
+  .feature-card .item{text-align:center;}
+  .feature-card .item svg{color:var(--ink-soft);margin:0 auto 10px;width:22px;height:22px;}
+  .feature-card .item h4{font-size:13px;font-weight:600;margin-bottom:5px;}
+  .feature-card .item p{font-size:11.5px;color:var(--ink-soft);line-height:1.4;}
+
+  /* ---------- Footer ---------- */
+  footer{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:14px 40px;border-top:1px solid var(--line-soft);
+    font-size:12px;color:var(--ink-soft);
+    background:var(--cream);
+    position:relative;z-index:3;
+  }
+  footer .links{display:flex;gap:26px;}
+  footer a:hover{color:var(--ink);}
+
+  @media (max-width: 900px){
+    .layout{grid-template-columns:1fr;}
+    .visual-panel{display:none;}
+    .form-panel{padding:36px 24px;}
+    footer{flex-direction:column;gap:8px;text-align:center;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Pick Your Fit</div>
+  <nav>
+    <a href="landing.html#features">Features</a>
+    <a href="landing.html#how">How It Works</a>
+    <a href="landing.html#pricing">Pricing</a>
+    <a href="landing.html#blog">Blog</a>
+    <a href="landing.html#about">About</a>
+  </nav>
+  <a href="signup.html" class="btn">Sign up</a>
+</header>
+
+<div class="layout">
+
+  <div class="form-panel">
+    <div class="welcome-row">
+      <img class="logo-mark" src="frontend_photos/logo.png" alt="Pick Your Fit" />
+      <h1 class="serif">Welcome back</h1>
+    </div>
+    <p class="subtitle">Log in to your account and continue organizing your style.</p>
+
+    <form onsubmit="return false;">
+      <div class="field">
+        <label for="email">Email address</label>
+        <div class="input-wrap">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 4h12v8H2z" stroke="currentColor" stroke-width="1.3"/><path d="M2 4l6 5 6-5" stroke="currentColor" stroke-width="1.3"/></svg>
+          <input id="email" type="email" placeholder="Enter your email" />
+        </div>
+      </div>
+      <div class="field">
+        <label for="password">Password</label>
+        <div class="input-wrap">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="3" y="7" width="10" height="7" rx="1.3" stroke="currentColor" stroke-width="1.3"/><path d="M5 7V5a3 3 0 0 1 6 0v2" stroke="currentColor" stroke-width="1.3"/></svg>
+          <input id="password" type="password" placeholder="Enter your password" />
+          <svg class="toggle-eye" id="eyeIcon" width="17" height="17" viewBox="0 0 17 17" fill="none" onclick="togglePw()"><path d="M1 8.5S3.7 3 8.5 3 16 8.5 16 8.5 13.3 14 8.5 14 1 8.5 1 8.5Z" stroke="currentColor" stroke-width="1.2"/><circle cx="8.5" cy="8.5" r="2.2" stroke="currentColor" stroke-width="1.2"/></svg>
+        </div>
+      </div>
+
+      <div class="row-between">
+        <label class="remember"><input type="checkbox" /> Remember me</label>
+        <a href="#" class="forgot">Forgot password?</a>
+      </div>
+
+      <button class="btn-login" type="submit">Log in</button>
+
+      <div class="divider">OR</div>
+
+      <button type="button" class="btn-social">
+        <svg width="17" height="17" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.6 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.9c1.7-1.57 2.66-3.87 2.66-6.62z"/><path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.9-2.26c-.8.54-1.84.86-3.06.86-2.35 0-4.34-1.59-5.05-3.72H.98v2.33A9 9 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.95 10.7A5.4 5.4 0 0 1 3.67 9c0-.59.1-1.16.28-1.7V4.97H.98A9 9 0 0 0 0 9c0 1.45.35 2.83.98 4.03l2.97-2.33z"/><path fill="#EA4335" d="M9 3.58c1.32 0 2.51.45 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0A9 9 0 0 0 .98 4.97l2.97 2.33C4.66 5.17 6.65 3.58 9 3.58z"/></svg>
+        Continue with Google
+      </button>
+      <button type="button" class="btn-social">
+        <svg width="15" height="17" viewBox="0 0 15 17" fill="currentColor"><path d="M12.3 8.9c0-2 1.6-3 1.7-3.1-.9-1.4-2.3-1.6-2.8-1.6-1.2-.1-2.3.7-2.9.7-.6 0-1.5-.7-2.5-.7-1.3 0-2.5.7-3.1 1.9-1.3 2.3-.3 5.8.9 7.7.6.9 1.4 2 2.4 1.9.9 0 1.3-.6 2.5-.6s1.5.6 2.5.6c1 0 1.7-.9 2.3-1.9.7-1.1 1-2.1 1-2.2-.1 0-2-.8-2-3.1zM10.4 2.7c.5-.6.8-1.5.7-2.3-.7 0-1.6.5-2.1 1.1-.5.5-.9 1.4-.8 2.2.8.1 1.7-.4 2.2-1z"/></svg>
+        Continue with Apple
+      </button>
+      <button type="button" class="btn-social">
+        <svg width="17" height="17" viewBox="0 0 18 18"><circle cx="9" cy="9" r="9" fill="#1877F2"/><path fill="#fff" d="M12.3 9h-2v6H8V9H6.5V7.3H8V6c0-1.4.8-2.3 2.3-2.3h1.6v1.8h-1c-.5 0-.6.3-.6.7v1.1h1.7L12.3 9z"/></svg>
+        Continue with Facebook
+      </button>
+
+      <p class="signup-note">Don't have an account? <a href="signup.html">Sign up</a></p>
+    </form>
+  </div>
+
+  <div class="visual-panel">
+    <img class="bg-photo" src="frontend_photos/background_login.png" alt="" />
+    <div class="feature-card">
+      <div class="item">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 2 L15 5 L12 7 L9 5 Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M12 7 L4 11 L4 12 L20 12 L20 11 Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+        <h4>Digital Closet</h4>
+        <p>Store and organize all your clothes</p>
+      </div>
+      <div class="item">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 4 l1.4 3 3 1.4 -3 1.4 -1.4 3 -1.4 -3 -3 -1.4 3 -1.4z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M19 14 l0.7 1.6 1.6 0.7 -1.6 0.7 -0.7 1.6 -0.7 -1.6 -1.6 -0.7 1.6 -0.7z" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round"/></svg>
+        <h4>AI Outfit Creator</h4>
+        <p>Get personalized outfit ideas</p>
+      </div>
+      <div class="item">
+        <svg viewBox="0 0 24 24" fill="none"><rect x="4" y="5" width="16" height="15" rx="2" stroke="currentColor" stroke-width="1.5"/><line x1="4" y1="9.5" x2="20" y2="9.5" stroke="currentColor" stroke-width="1.5"/><line x1="8" y1="3" x2="8" y2="6.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="16" y1="3" x2="16" y2="6.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        <h4>Plan Ahead</h4>
+        <p>Plan your looks with ease</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <div>© 2026 Pick Your Fit. All rights reserved.</div>
+  <div class="links">
+    <a href="#">Terms of Service</a>
+    <a href="#">Privacy Policy</a>
+    <a href="#">Contact</a>
+  </div>
+</footer>
+
+<script>
+  function togglePw(){
+    const pw = document.getElementById('password');
+    pw.type = pw.type === 'password' ? 'text' : 'password';
+  }
+</script>
+
+</body>
+</html>

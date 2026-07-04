@@ -14,7 +14,13 @@ if (!REMOVE_BG_API_KEY) {
   process.exit(1);
 }
 
-app.use(express.static(path.join(__dirname, '..')));
+// Serve landing.html when the site root is opened, instead of index.html
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'landing.html'));
+});
+
+// index: false so express.static doesn't fall back to index.html on '/'
+app.use(express.static(path.join(__dirname, '..'), { index: false }));
 
 app.post('/api/remove-bg', upload.single('image_file'), async (req, res) => {
   try {
