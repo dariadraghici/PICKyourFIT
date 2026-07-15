@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Wardrobe - Pick Your Fit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --linen: #F3EEE3;
+    --linen-card: #FAF7EF;
+    --ink: #22222b;
+    --ink-soft: #6B6258;
+    --thread: #B5442F;
+    --sage: #7C8C72;
+    --line: #D9D0BD;
+    --side-bg: rgba(42, 34, 27, 0.85);
+  }
+
+  *{ box-sizing: border-box; margin: 0; padding: 0; }
+  body{
+    background: var(--linen);
+    background-image: repeating-linear-gradient(0deg, rgba(0,0,0,0.018) 0px, rgba(0,0,0,0.018) 1px, transparent 1px, transparent 3px);
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    min-height:100vh;
+    display: flex;
+  }
+
+  a { text-decoration: none; color: inherit; }
+  button { font-family: inherit; cursor: pointer; }
+
+  /* ---------- Sidebar ---------- */
+  .sidebar{
+    position:fixed;top:0;left:0;bottom:0;z-index:5;
+    width:88px; display:flex;flex-direction:column;align-items:center;
+    padding:22px 0 20px; background:var(--side-bg);
+    backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+    border-right:1px solid rgba(255,255,255,0.08);
+  }
+  .side-logo{ width:44px;height:44px;border-radius:12px; display:flex;align-items:center;justify-content:center; color:#fff;margin-bottom:26px; }
+  .side-logo svg{width:24px;height:24px;}
+  .side-nav{ display:flex;flex-direction:column;gap:8px; flex:1; }
+  .side-link{
+    width:46px;height:46px;border-radius:12px; display:flex;align-items:center;justify-content:center;
+    color:rgba(255,255,255,0.62); transition:background .15s ease, color .15s ease;
+  }
+  .side-link svg{width:20px;height:20px;}
+  .side-link:hover{color:#fff;background:rgba(255,255,255,0.08);}
+  .side-link.active{background:#fdfcf9;color:var(--ink);}
+  .side-bottom{ display:flex;flex-direction:column;align-items:center;gap:16px; margin-top:auto; }
+  .side-avatar{
+    width:38px;height:38px;border-radius:50%; overflow:hidden; border:1.5px solid rgba(255,255,255,0.5);
+    display:flex;align-items:center;justify-content:center; background:#c9c2b4; color:#5b5346;
+  }
+  .side-avatar img{width:100%;height:100%;object-fit:cover;display:block;}
+  .side-avatar svg{width:22px;height:22px;}
+
+  /* ---------- Main Layout & Header ---------- */
+  .main-content { flex: 1; margin-left: 88px; display: flex; flex-direction: column; }
+  header{ display:flex;align-items:center;justify-content:space-between; padding:26px 44px; position:relative; z-index:4; }
+  .logo{ font-family:'Fraunces',serif; font-size:14px;font-weight:600;letter-spacing:0.16em; text-transform:uppercase;color:var(--ink); }
+  nav.main-nav{display:flex;gap:34px;}
+  nav.main-nav a{ font-size:12.5px;font-weight:600;letter-spacing:0.03em; text-transform:uppercase;color:var(--ink-soft); transition:color .15s ease; }
+  nav.main-nav a:hover{color:var(--ink);}
+  
+  .header-actions{display:flex;align-items:center;gap:12px;}
+  .btn-header {
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    padding:10px 20px;border-radius:8px;font-size:12.5px;font-weight:600;
+    letter-spacing:0.02em;text-transform:uppercase; border:1px solid var(--ink);
+    background:transparent;color:var(--ink); transition:background .15s ease, opacity .15s ease;
+  }
+  .btn-header:hover{background:rgba(0,0,0,0.05);}
+  .btn-header-dark{background:var(--ink);color:var(--linen-card);}
+  .btn-header-dark:hover{opacity:0.9;background:var(--ink);}
+
+  /* ---------- Wardrobe Area ---------- */
+  .wardrobe-container { padding: 30px 44px 80px; max-width: 1000px; margin: 0 auto; width: 100%; }
+  .wardrobe-heading{ font-family:'Fraunces', serif; font-weight:600; font-size:32px; margin:0 0 40px; text-align:center; }
+  
+  .login-prompt { text-align: center; margin-top: 50px; font-size: 16px; color: var(--ink-soft); }
+  .login-prompt a { color: var(--thread); text-decoration: underline; font-weight: 600; }
+
+  .wardrobe-group{ margin-bottom:48px; }
+  .wardrobe-group-label{
+    font-family:'JetBrains Mono', monospace; font-size:11px; letter-spacing:0.1em;
+    text-transform:uppercase; color: var(--sage); margin:0 0 16px; display:flex; align-items:center; gap:10px;
+  }
+  .wardrobe-group-label::after{ content:''; flex:1; height:1px; background: var(--line); }
+  
+  .subcat-tabs{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:18px; }
+  .subcat-tab{
+    font-family:'JetBrains Mono', monospace; font-size:10.5px; letter-spacing:0.06em;
+    text-transform:uppercase; color: var(--ink-soft); border:1px solid var(--line);
+    background: transparent; padding:5px 12px; border-radius:20px; transition: all 0.15s;
+  }
+  .subcat-tab:hover{ border-color: var(--thread); color: var(--thread); }
+  .subcat-tab.active{ background: var(--thread); border-color: var(--thread); color: var(--linen-card); }
+  .subcat-tab .subcat-count{ display:inline-block; margin-left:4px; font-size:9px; opacity:0.7; }
+  
+  .wardrobe-grid{ display:grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap:18px; }
+  .wardrobe-empty{ font-size:14px; color: var(--ink-soft); font-style: italic; }
+
+  .wardrobe-card{
+    display:flex; flex-direction:column; background: var(--linen-card);
+    border:1px solid var(--line); border-radius:6px; overflow:hidden;
+  }
+  .wardrobe-thumb{ width:100%; height:160px; background:#EFE8D9; border-bottom:1px dashed var(--line); }
+  .wardrobe-thumb img{ width: 100%; height: 100%; object-fit: contain; padding: 12px; display: block; }
+  
+  .wardrobe-card-body{ padding:12px 14px; display:flex; flex-direction:column; gap:8px; }
+  .wardrobe-input{
+    width: 100%; border: none; border-bottom: 1px solid var(--line); background: transparent;
+    font-family: 'Inter', sans-serif; color: var(--ink); padding: 4px 0; outline: none;
+  }
+  .wardrobe-input::placeholder{ color: var(--ink-soft); opacity:0.7; }
+  .wardrobe-input.brand-input{ font-weight:600; font-size:11px; }
+  .wardrobe-input.desc-input { font-size: 11px; border-bottom: none; color: var(--ink-soft); resize: none; line-height: 1.4; }
+  .wardrobe-input:focus{ border-bottom-color: var(--thread); }
+  .wardrobe-input.saved{ border-bottom-color: var(--sage); transition: border-color 0.3s ease;}
+
+  @media (max-width: 980px){
+    .sidebar{width:64px;}
+    .main-content{margin-left:64px;}
+    header{padding:22px 24px;}
+    nav.main-nav{display:none;}
+  }
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="side-logo">
+    <svg viewBox="0 0 24 24" fill="none"><path d="M12 3 L15.5 5.5 L12 8 L8.5 5.5 Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M12 8 L3 13 L3 14 L21 14 L21 13 Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+  </div>
+  <nav class="side-nav">
+    <a href="landing.html" class="side-link" title="Home">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M4 11.5 L12 5 L20 11.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 10.5 V19 a1 1 0 0 0 1 1 h10 a1 1 0 0 0 1 -1 V10.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
+    <a href="#" class="side-link" title="Favorites">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M12 20 C6.5 15.8, 3.5 12, 3.5 8.2 C3.5 5.1, 5.8 3, 8.5 3 C10.3 3, 11.7 4, 12 5.6 C12.3 4, 13.7 3, 15.5 3 C18.2 3, 20.5 5.1, 20.5 8.2 C20.5 12, 17.5 15.8, 12 20 Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+    </a>
+    <a href="#" class="side-link" title="Planner">
+      <svg viewBox="0 0 24 24" fill="none"><rect x="4" y="5.5" width="16" height="14.5" rx="2" stroke="currentColor" stroke-width="1.6"/><line x1="4" y1="10" x2="20" y2="10" stroke="currentColor" stroke-width="1.6"/><line x1="8.3" y1="3" x2="8.3" y2="7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><line x1="15.7" y1="3" x2="15.7" y2="7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+    </a>
+    <a href="wardrobe.html" class="side-link active" title="Wardrobe">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M8.5 4 L10 6 h4 l1.5 -2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M8.5 4 L4 7.5 L6.5 10.5 L8 9.3 V20 h8 V9.3 l1.5 1.2 L20 7.5 L15.5 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
+    <a href="index.html" class="side-link" title="Scan an item">
+      <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/><path d="M9.3 9.5a2.7 2.7 0 0 1 5.2-1c0 1.7-2.5 1.9-2.5 3.7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="16.3" r="0.9" fill="currentColor"/></svg>
+    </a>
+  </nav>
+  <div class="side-bottom">
+    <a href="login.html" id="sideAvatarLink" class="side-avatar" title="Account">
+      <svg id="defaultAvatarIcon" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8.5" r="3.6" stroke="currentColor" stroke-width="1.6"/><path d="M4.5 20 c0 -4.2 3.4 -6.3 7.5 -6.3 s7.5 2.1 7.5 6.3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      <img id="userAvatarImg" src="" alt="" style="display:none;" />
+    </a>
+  </div>
+</aside>
+
+<main class="main-content">
+  <header>
+    <div class="logo">Pick Your Fit</div>
+    <nav class="main-nav">
+      <a href="landing.html#features">Features</a>
+      <a href="landing.html#about">About</a>
+      <a href="landing.html">Home</a>
+      <a href="landing.html#contact">Contact</a>
+    </nav>
+    <div class="header-actions" id="headerActions">
+      <a href="login.html" class="btn-header">Log in</a>
+      <a href="signup.html" class="btn-header btn-header-dark">Register</a>
+    </div>
+  </header>
+
+  <div class="wardrobe-container" id="wardrobeContainer">
+    </div>
+</main>
+
+<script>
+  // Auth logic
+  const idToken = localStorage.getItem('pyf_idToken');
+  const userPhoto = localStorage.getItem('pyf_userPhoto');
+  const isLoggedIn = !!idToken;
+  const wardrobeContainer = document.getElementById('wardrobeContainer');
+
+  if (isLoggedIn) {
+    const avatarLink = document.getElementById('sideAvatarLink');
+    if(userPhoto) {
+      document.getElementById('userAvatarImg').src = userPhoto;
+      document.getElementById('userAvatarImg').style.display = 'block';
+      document.getElementById('defaultAvatarIcon').style.display = 'none';
+    }
+    avatarLink.href = 'profile.html';
+    document.getElementById('headerActions').innerHTML = '<a href="index.html" class="btn-header btn-header-dark">Scan New Item</a>';
+  } else {
+    wardrobeContainer.innerHTML = '<div class="login-prompt"><h2>Your Wardrobe is Locked</h2><p>Please <a href="login.html">Log In</a> or <a href="signup.html">Register</a> to view and manage your items.</p></div>';
+  }
+
+  // Render logic (only if logged in)
+  if (isLoggedIn) {
+    const SECTION_ORDER = ['upper-body', 'lower-body', 'body', 'shoes', 'head'];
+    const SECTION_LABELS = {
+      'upper-body': 'Upper body', 'lower-body': 'Lower body', 'body': 'Body', 'shoes': 'Shoes', 'head': 'Head'
+    };
+    const SECTION_CATEGORIES = {
+      'upper-body': ['T-shirt', 'Crop Top', 'Turtle Neck', 'Tank top', 'Blouse', 'Shirt', 'Jacket', 'Blazer', 'Pullovers', 'Hoodie'],
+      'lower-body': ['Shorts', 'Pants', 'Skirt', 'Tights', 'Leggings'],
+      'body': ['Dress', 'Bodysuit', 'Jumpsuit', 'Purse'],
+      'shoes': ['Socks', 'Boots', 'Sneakers', 'Heels'],
+      'head': ['Glasses']
+    };
+
+    let wardrobe = JSON.parse(localStorage.getItem('pyf_wardrobe') || '{"upper-body":[], "lower-body":[], "body":[], "shoes":[], "head":[]}');
+    
+    const activeCatFilter = {
+      'upper-body': null, 'lower-body': null, 'body': null, 'shoes': null, 'head': null
+    };
+
+    function saveWardrobe() {
+      localStorage.setItem('pyf_wardrobe', JSON.stringify(wardrobe));
+    }
+
+    function renderWardrobe() {
+      wardrobeContainer.innerHTML = '<p class="wardrobe-heading">Your Wardrobe</p>';
+
+      SECTION_ORDER.forEach(sectionKey => {
+        const items = wardrobe[sectionKey] || [];
+        const cats  = SECTION_CATEGORIES[sectionKey];
+
+        const group = document.createElement('div');
+        group.className = 'wardrobe-group';
+
+        const label = document.createElement('p');
+        label.className = 'wardrobe-group-label';
+        label.textContent = SECTION_LABELS[sectionKey];
+        group.appendChild(label);
+
+        // Sub-category tabs
+        const tabsRow = document.createElement('div');
+        tabsRow.className = 'subcat-tabs';
+
+        const allTab = document.createElement('button');
+        allTab.className = 'subcat-tab' + (activeCatFilter[sectionKey] === null ? ' active' : '');
+        allTab.innerHTML = 'All <span class="subcat-count">' + items.length + '</span>';
+        allTab.onclick = () => { activeCatFilter[sectionKey] = null; renderWardrobe(); };
+        tabsRow.appendChild(allTab);
+
+        cats.forEach(cat => {
+          const count = items.filter(i => i.category === cat).length;
+          if(count > 0 || activeCatFilter[sectionKey] === cat) {
+            const tab = document.createElement('button');
+            tab.className = 'subcat-tab' + (activeCatFilter[sectionKey] === cat ? ' active' : '');
+            tab.innerHTML = cat + (count > 0 ? ' <span class="subcat-count">' + count + '</span>' : '');
+            tab.onclick = () => { activeCatFilter[sectionKey] = cat; renderWardrobe(); };
+            tabsRow.appendChild(tab);
+          }
+        });
+        group.appendChild(tabsRow);
+
+        const filtered = activeCatFilter[sectionKey] ? items.filter(i => i.category === activeCatFilter[sectionKey]) : items;
+
+        if(filtered.length === 0){
+          const empty = document.createElement('p');
+          empty.className = 'wardrobe-empty';
+          empty.textContent = activeCatFilter[sectionKey] ? 'No ' + activeCatFilter[sectionKey] + ' items yet.' : 'No items yet.';
+          group.appendChild(empty);
+        } else {
+          const grid = document.createElement('div');
+          grid.className = 'wardrobe-grid';
+          filtered.forEach((item, index) => {
+             grid.appendChild(buildWardrobeCard(item, sectionKey, index));
+          });
+          group.appendChild(grid);
+        }
+        wardrobeContainer.appendChild(group);
+      });
+    }
+
+    function buildWardrobeCard(item, sectionKey, index){
+      const card = document.createElement('div');
+      card.className = 'wardrobe-card';
+      
+      const thumb = document.createElement('div');
+      thumb.className = 'wardrobe-thumb';
+      const img = document.createElement('img');
+      img.src = item.image;
+      thumb.appendChild(img);
+      card.appendChild(thumb);
+
+      const body = document.createElement('div');
+      body.className = 'wardrobe-card-body';
+
+      const brandInput = document.createElement('input');
+      brandInput.type = 'text';
+      brandInput.className = 'wardrobe-input brand-input';
+      brandInput.placeholder = 'Brand';
+      brandInput.value = item.brand || '';
+      brandInput.onchange = (e) => {
+        item.brand = e.target.value.trim();
+        saveWardrobe();
+        brandInput.classList.add('saved');
+        setTimeout(() => brandInput.classList.remove('saved'), 700);
+      };
+      body.appendChild(brandInput);
+
+      const descInput = document.createElement('textarea');
+      descInput.className = 'wardrobe-input desc-input';
+      descInput.placeholder = 'Short description';
+      descInput.value = item.description || '';
+      descInput.rows = 2;
+      descInput.onchange = (e) => {
+        item.description = e.target.value.trim();
+        saveWardrobe();
+        descInput.classList.add('saved');
+        setTimeout(() => descInput.classList.remove('saved'), 700);
+      };
+      body.appendChild(descInput);
+
+      card.appendChild(body);
+      return card;
+    }
+
+    renderWardrobe();
+  }
+</script>
+
+</body>
+</html>

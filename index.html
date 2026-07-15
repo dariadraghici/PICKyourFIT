@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PICK YOUR FIT</title>
+<title>Scan an item - Pick Your Fit</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.20.0/dist/tf.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8.5/dist/teachablemachine-image.min.js"></script>
@@ -19,38 +19,121 @@
     --sage: #7C8C72;
     --denim: #46566B;
     --line: #D9D0BD; /* border lines */
+    
+    /* Variables from landing */
+    --side-bg: rgba(42, 34, 27, 0.85);
   }
 
-  *{ box-sizing: border-box; }
+  *{ box-sizing: border-box; margin: 0; padding: 0; }
   body{
-    margin:0;
     background: var(--linen);
     background-image: repeating-linear-gradient(0deg, rgba(0,0,0,0.018) 0px, rgba(0,0,0,0.018) 1px, transparent 1px, transparent 3px);
     color: var(--ink);
     font-family: 'Inter', sans-serif;
     min-height:100vh;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:flex-start;
-    padding: 220px 20px 48px; 
-    transition: padding 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
   }
 
-  body.has-results {
-    padding: 64px 20px 48px;
+  a { text-decoration: none; color: inherit; }
+  button { font-family: inherit; }
+
+  /* ---------- Sidebar ---------- */
+  .sidebar{
+    position:fixed;top:0;left:0;bottom:0;z-index:5;
+    width:88px;
+    display:flex;flex-direction:column;align-items:center;
+    padding:22px 0 20px;
+    background:var(--side-bg);
+    backdrop-filter:blur(14px);
+    -webkit-backdrop-filter:blur(14px);
+    border-right:1px solid rgba(255,255,255,0.08);
+  }
+  .side-logo{
+    width:44px;height:44px;border-radius:12px;
+    display:flex;align-items:center;justify-content:center;
+    color:#fff;margin-bottom:26px;
+  }
+  .side-logo svg{width:24px;height:24px;}
+  .side-nav{
+    display:flex;flex-direction:column;gap:8px;
+    flex:1;
+  }
+  .side-link{
+    width:46px;height:46px;border-radius:12px;
+    display:flex;align-items:center;justify-content:center;
+    color:rgba(255,255,255,0.62);
+    transition:background .15s ease, color .15s ease;
+  }
+  .side-link svg{width:20px;height:20px;}
+  .side-link:hover{color:#fff;background:rgba(255,255,255,0.08);}
+  .side-link.active{background:#fdfcf9;color:var(--ink);}
+  .side-bottom{
+    display:flex;flex-direction:column;align-items:center;gap:16px;
+    margin-top:auto;
+  }
+  .side-avatar{
+    width:38px;height:38px;border-radius:50%;
+    overflow:hidden;
+    border:1.5px solid rgba(255,255,255,0.5);
+    display:flex;align-items:center;justify-content:center;
+    background:#c9c2b4;
+    color:#5b5346;
+    cursor:pointer;
+  }
+  .side-avatar img{width:100%;height:100%;object-fit:cover;display:block;}
+  .side-avatar svg{width:22px;height:22px;}
+
+  /* ---------- Main Layout ---------- */
+  .main-content {
+    flex: 1;
+    margin-left: 88px;
+    display: flex;
+    flex-direction: column;
   }
 
-  .wrap{ max-width: 620px; width:100%; min-height: 560px; display:flex; flex-direction:column; }
-
-  .wrap.wardrobe-section{
-    max-width: 100%;
-    width: 100%;
-    min-height: 0;
-    padding-left: 32px;
-    padding-right: 32px;
-    box-sizing: border-box;
+  /* ---------- Header ---------- */
+  header{
+    position:relative;z-index:4;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:26px 44px;
   }
+  .logo{
+    font-family:'Fraunces',serif;
+    font-size:14px;font-weight:600;letter-spacing:0.16em;
+    text-transform:uppercase;color:var(--ink);
+  }
+  nav.main-nav{display:flex;gap:34px;}
+  nav.main-nav a{
+    font-size:12.5px;font-weight:600;letter-spacing:0.03em;
+    text-transform:uppercase;color:var(--ink-soft);
+    transition:color .15s ease;
+  }
+  nav.main-nav a:hover{color:var(--ink);}
+  .header-actions{display:flex;align-items:center;gap:12px;}
+  
+  .btn-header {
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    padding:10px 20px;border-radius:8px;font-size:12.5px;font-weight:600;
+    letter-spacing:0.02em;text-transform:uppercase;
+    cursor:pointer;border:1px solid var(--ink);
+    background:transparent;color:var(--ink);
+    transition:background .15s ease, opacity .15s ease, transform .15s ease;
+    white-space:nowrap;
+  }
+  .btn-header:hover{background:rgba(0,0,0,0.05);}
+  .btn-header-dark{background:var(--ink);border-color:var(--ink);color:var(--linen-card);}
+  .btn-header-dark:hover{opacity:0.9;background:var(--ink);}
+
+  /* ---------- App Content ---------- */
+  .app-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 60px 20px 48px;
+  }
+
+  .wrap{ max-width: 620px; width:100%; display:flex; flex-direction:column; }
 
   .eyebrow{
     font-family:'JetBrains Mono', monospace;
@@ -86,7 +169,7 @@
     max-width:100%;
   }
   
-  /* dropzone styled as a stitched fabric swatch */
+  /* dropzone */
   .dropzone{
     position:relative;
     background: var(--linen-card);
@@ -117,24 +200,9 @@
     border-style: solid;
   }
 
-  .spool{
-    width:80px; height:80px;
-    margin:0 auto 18px;
-    display: block;
-    object-fit: contain;
-  }
-
-  .dz-title{
-    font-family:'Fraunces', serif;
-    font-size:19px;
-    font-weight:500;
-    margin:0 0 6px;
-  }
-  .dz-sub{
-    font-size:13.5px;
-    color: var(--ink-soft);
-    margin:0 0 22px;
-  }
+  .spool{ width:80px; height:80px; margin:0 auto 18px; display: block; object-fit: contain; }
+  .dz-title{ font-family:'Fraunces', serif; font-size:19px; font-weight:500; margin:0 0 6px; }
+  .dz-sub{ font-size:13.5px; color: var(--ink-soft); margin:0 0 22px; }
   .dz-sub b{ color:var(--ink); font-weight:600; }
 
   .browse-btn{
@@ -149,661 +217,195 @@
     cursor:pointer;
     transition: background 0.15s ease, color 0.15s ease;
   }
-  .browse-btn:hover{
-    background: var(--ink);
-    color: var(--linen-card);
-  }
-
-  .formats{
-    margin-top:18px;
-    display:flex;
-    justify-content:center;
-    gap:8px;
-  }
+  .browse-btn:hover{ background: var(--ink); color: var(--linen-card); }
+  .formats{ margin-top:18px; display:flex; justify-content:center; gap:8px; }
   .formats span{
-    font-family:'JetBrains Mono', monospace;
-    font-size:10.5px;
-    letter-spacing:0.06em;
-    color: var(--ink-soft);
-    border:1px solid var(--line);
-    padding:3px 8px;
-    border-radius:20px;
+    font-family:'JetBrains Mono', monospace; font-size:10.5px; letter-spacing:0.06em;
+    color: var(--ink-soft); border:1px solid var(--line); padding:3px 8px; border-radius:20px;
   }
-
   .error-msg{
-    margin-top:16px;
-    font-size:13px;
-    color: var(--thread-dark);
-    background: #FBE9E4;
-    border:1px solid #ECC4B8;
-    padding:10px 14px;
-    border-radius:3px;
-    display:none;
+    margin-top:16px; font-size:13px; color: var(--thread-dark); background: #FBE9E4;
+    border:1px solid #ECC4B8; padding:10px 14px; border-radius:3px; display:none;
   }
   .error-msg.show{ display:block; }
 
-  /* preview + result, styled like a garment tag */
+  /* preview + result */
   .result-card{
-    margin-top:28px;
-    display:flex;
-    align-items:flex-start;
-    background: var(--linen-card);
-    border:1px solid var(--line);
-    border-radius:4px;
-    overflow:hidden;
+    margin-top:28px; display:flex; align-items:flex-start; background: var(--linen-card);
+    border:1px solid var(--line); border-radius:4px; overflow:hidden;
     transition: max-height 0.35s cubic-bezier(0.4,0,0.2,1);
   }
-  .result-card.empty{
-    visibility: hidden;
-    max-height: 0;
-    margin-top: 0;
-    border: none;
-  }
-
-  /* ambiguity picker shown instead of single result when confidence is low */
-  .ambiguity-picker{
-    display:none;
-    flex-direction:column;
-    gap:0;
-    margin-top:6px;
-  }
-  .ambiguity-picker.show{ display:flex; }
-
-  .amb-header{
-    font-family:'JetBrains Mono', monospace;
-    font-size:10px;
-    letter-spacing:0.09em;
-    text-transform:uppercase;
-    color: var(--ink-soft);
-    margin:0 0 10px;
-  }
-
-  .amb-option{
-    display:flex;
-    align-items:center;
-    gap:10px;
-    padding:5px 0;
-    cursor:default;
-  }
-
-  .amb-label{
-    font-family:'Fraunces', serif;
-    font-size:13px;
-    font-weight:500;
-    color: var(--ink);
-    min-width:90px;
-    flex-shrink:0;
-  }
-
-  .amb-bar-wrap{
-    flex:1;
-    height:5px;
-    background:#E7DECB;
-    border-radius:10px;
-    overflow:hidden;
-  }
-  .amb-bar-fill{
-    height:100%;
-    border-radius:10px;
-    transition: width 0.55s cubic-bezier(0.4,0,0.2,1);
-    width:0%;
-  }
-  .amb-bar-fill.top{ background: var(--denim); }
-  .amb-bar-fill.alt{ background: var(--sage); }
-
-  .amb-pct{
-    font-family:'JetBrains Mono', monospace;
-    font-size:11px;
-    color: var(--ink-soft);
-    min-width:36px;
-    text-align:right;
-  }
-
-  .amb-pick-btn{
-    font-family:'JetBrains Mono', monospace;
-    font-size:10px;
-    letter-spacing:0.03em;
-    background: transparent;
-    border:1px solid var(--line);
-    color: var(--ink-soft);
-    padding:3px 9px;
-    border-radius:2px;
-    cursor:pointer;
-    flex-shrink:0;
-    transition: border-color 0.13s, color 0.13s, background 0.13s;
-    white-space: nowrap;
-  }
-  .amb-pick-btn:hover{
-    border-color: var(--thread);
-    color: var(--thread);
-  }
-  .amb-pick-btn.chosen{
-    background: var(--thread);
-    border-color: var(--thread);
-    color: var(--linen-card);
-  }
-
+  .result-card.empty{ visibility: hidden; max-height: 0; margin-top: 0; border: none; }
   .preview-pane{
-    width:160px;
-    height:160px;
-    flex-shrink:0;
-    align-self:flex-start;
-    background:#EFE8D9;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    overflow:hidden;
-    border-right:1px dashed var(--line);
+    width:160px; height:160px; flex-shrink:0; align-self:flex-start; background:#EFE8D9;
+    display:flex; align-items:center; justify-content:center; overflow:hidden; border-right:1px dashed var(--line);
   }
-  .preview-pane img{
-    width:100%;
-    height:100%;
-    object-fit:contain;
-    padding:8px;
-    display:block;
-  }
-
-  .result-body{
-    padding:18px 24px;
-    flex:1;
-    min-width:0;
-    display:flex;
-    flex-direction:column;
-    justify-content:center;
-    overflow:hidden;
-  }
-  .tag-label{
-    font-family:'JetBrains Mono', monospace;
-    font-size:11px;
-    letter-spacing:0.1em;
-    text-transform:uppercase;
-    color: var(--sage);
-    margin:0 0 4px;
-  }
-  .tag-value{
-    font-family:'Fraunces', serif;
-    font-weight:600;
-    font-size:20px;
-    margin:0 0 8px;
-    color: var(--ink);
-  }
-  .tag-value.loading{
-    color: var(--ink-soft);
-    font-style: italic;
-    font-size:18px;
-  }
-
-  .confidence-row{
-    display:flex;
-    align-items:center;
-    gap:10px;
-    margin-bottom:0;
-  }
-  .confidence-bar{
-    flex:1;
-    height:6px;
-    background:#E7DECB;
-    border-radius:10px;
-    overflow:hidden;
-  }
-  .confidence-fill{
-    height:100%;
-    background: var(--denim);
-    border-radius:10px;
-    width:0%;
-    transition: width 0.5s ease;
-  }
-  .confidence-pct{
-    font-family:'JetBrains Mono', monospace;
-    font-size:12px;
-    color: var(--ink-soft);
-    min-width:40px;
-    text-align:right;
-  }
-
-  .filename{
-    display:none;
-  }
-  .reset-link{
-    margin-top:0;
-    background:none;
-    border:none;
-    padding:0;
-    font-family:'Inter',sans-serif;
-    font-size:12px;
-    color: var(--thread);
-    text-decoration:underline;
-    cursor:pointer;
-  }
+  .preview-pane img{ width:100%; height:100%; object-fit:contain; padding:8px; display:block; }
+  .result-body{ padding:18px 24px; flex:1; min-width:0; display:flex; flex-direction:column; justify-content:center; overflow:hidden; }
+  .tag-label{ font-family:'JetBrains Mono', monospace; font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color: var(--sage); margin:0 0 4px; }
+  .tag-value{ font-family:'Fraunces', serif; font-weight:600; font-size:20px; margin:0 0 8px; color: var(--ink); }
+  .tag-value.loading{ color: var(--ink-soft); font-style: italic; font-size:18px; }
+  .confidence-row{ display:flex; align-items:center; gap:10px; margin-bottom:0; }
+  .confidence-bar{ flex:1; height:6px; background:#E7DECB; border-radius:10px; overflow:hidden; }
+  .confidence-fill{ height:100%; background: var(--denim); border-radius:10px; width:0%; transition: width 0.5s ease; }
+  .confidence-pct{ font-family:'JetBrains Mono', monospace; font-size:12px; color: var(--ink-soft); min-width:40px; text-align:right; }
 
   input[type=file]{ display:none; }
 
-  /* post-classification actions */
-  .post-actions{
-    margin-top:8px;
-    padding-top:8px;
-    border-top:1px dashed var(--line);
-    display:none;
-    flex-direction:column;
-    gap:10px;
-  }
+  /* actions */
+  .post-actions{ margin-top:14px; padding-top:14px; border-top:1px dashed var(--line); display:none; flex-direction:column; gap:10px; }
   .post-actions.show{ display:flex; }
-
-  .post-actions-row{
-    display:flex;
-    flex-direction:row;
-    align-items:center;
-    gap:12px;
-  }
+  .post-actions-row{ display:flex; flex-direction:row; align-items:center; gap:12px; flex-wrap:wrap; }
 
   .btn-primary{
-    font-family:'JetBrains Mono', monospace;
-    font-size:11px;
-    letter-spacing:0.04em;
-    background: var(--thread);
-    border:1px solid var(--thread);
-    color: var(--linen-card);
-    padding:7px 14px;
-    border-radius:2px;
-    cursor:pointer;
-    transition: background 0.15s ease;
-    white-space:nowrap;
+    font-family:'JetBrains Mono', monospace; font-size:11px; letter-spacing:0.04em;
+    background: var(--thread); border:1px solid var(--thread); color: var(--linen-card);
+    padding:7px 14px; border-radius:2px; cursor:pointer; transition: background 0.15s ease; white-space:nowrap;
   }
   .btn-primary:hover{ background: var(--thread-dark); border-color: var(--thread-dark); }
-
-  .or-text{
-    font-size:12px;
-    color: var(--ink-soft);
-    font-style: italic;
-  }
-
-  .wrong-cat-row{
-    display:flex;
-    justify-content:flex-end;
-  }
-  .wrong-cat-btn{
-    font-family:'JetBrains Mono', monospace;
-    font-size:10.5px;
-    letter-spacing:0.03em;
-    background: transparent;
-    border:none;
-    color: var(--ink-soft);
-    padding:2px 0;
-    cursor:pointer;
-    text-decoration:underline;
-    white-space:nowrap;
-    transition: color 0.15s ease;
-  }
-  .wrong-cat-btn:hover{
-    color: var(--thread);
-  }
-  .wrong-cat-btn.open{
-    color: var(--thread);
-  }
-
-  /* scrollable category correction panel */
-  .category-picker{
-    display:none;
-    flex-direction:column;
-    margin-top:2px;
-    border:1px solid var(--line);
-    border-radius:3px;
-    background:#EFE8D9;
-    overflow:hidden;
-  }
-  .category-picker.show{ display:flex; }
-
-  .cat-picker-header{
-    font-family:'JetBrains Mono', monospace;
-    font-size:10px;
-    letter-spacing:0.08em;
-    text-transform:uppercase;
-    color: var(--ink-soft);
-    padding:9px 12px 7px;
-    border-bottom:1px solid var(--line);
-  }
-
-  .cat-picker-scroll{
-    max-height:160px;
-    overflow-y:auto;
-  }
-  .cat-picker-scroll::-webkit-scrollbar{ width:7px; }
-  .cat-picker-scroll::-webkit-scrollbar-track{ background: transparent; }
-  .cat-picker-scroll::-webkit-scrollbar-thumb{ background: var(--line); border-radius:10px; }
-  .cat-picker-scroll::-webkit-scrollbar-thumb:hover{ background: var(--ink-soft); }
-
-  .cat-picker-group-label{
-    font-family:'JetBrains Mono', monospace;
-    font-size:9.5px;
-    letter-spacing:0.07em;
-    text-transform:uppercase;
-    color: var(--sage);
-    padding:8px 12px 3px;
-  }
-
-  .cat-picker-option{
-    display:block;
-    width:100%;
-    text-align:left;
-    font-family:'Fraunces', serif;
-    font-size:13px;
-    color: var(--ink);
-    background: transparent;
-    border:none;
-    padding:7px 12px;
-    cursor:pointer;
-    transition: background 0.12s ease;
-  }
-  .cat-picker-option:hover{
-    background: rgba(181,68,47,0.08);
-    color: var(--thread);
-  }
-  .cat-picker-option.current{
-    color: var(--thread);
-    font-weight:600;
-  }
-  .cat-picker-option.current::after{
-    content:' ✓';
-  }
-
-  /* scroll cue in flow between upload section and wardrobe */
-  .scroll-cue{
-    display: block;
-    padding: 28px 0 32px;
-    text-align:center;
-    cursor:pointer;
-    user-select:none;
-    width: 100%;
-  }
-  .scroll-cue p{
-    font-family:'JetBrains Mono', monospace;
-    font-size:11.5px;
-    letter-spacing:0.08em;
-    text-transform:uppercase;
-    color: var(--ink-soft);
-    margin:0 0 8px;
-  }
-  .scroll-cue svg{
-    color: var(--thread);
-    animation: bounce-down 1.6s ease-in-out infinite;
-  }
   
-  .scroll-cue.up-cue {
-    padding: 48px 0 64px;
+  .btn-register-cta {
+    font-family:'JetBrains Mono', monospace; font-size:11px; letter-spacing:0.04em;
+    background: transparent; border:1px solid var(--ink); color: var(--ink);
+    padding:7px 14px; border-radius:2px; cursor:pointer; transition: background 0.15s ease, color 0.15s ease;
+    text-decoration: none; display: inline-block;
   }
-  .scroll-cue.up-cue p {
-    margin: 8px 0 0 0;
-  }
-  .scroll-cue.up-cue svg {
-    animation: bounce-up 1.6s ease-in-out infinite;
-  }
+  .btn-register-cta:hover { background: var(--ink); color: var(--linen-card); }
 
-  @keyframes bounce-down{
-    0%, 100% { transform: translateY(0); opacity:0.55; }
-    50% { transform: translateY(8px); opacity:1; }
+  .reset-link{
+    background:none; border:none; padding:0; font-family:'Inter',sans-serif;
+    font-size:12px; color: var(--thread); text-decoration:underline; cursor:pointer;
   }
-  @keyframes bounce-up{
-    0%, 100% { transform: translateY(0); opacity:0.55; }
-    50% { transform: translateY(-8px); opacity:1; }
-  }
+  .or-text{ font-size:12px; color: var(--ink-soft); font-style: italic; }
 
-  /* wardrobe section */
-  .wardrobe-section{
-    margin-top:64px;
-    padding-top:36px;
-    border-top:1px solid var(--line);
+  @media (max-width: 980px){
+    .sidebar{width:64px;}
+    .main-content{margin-left:64px;}
+    header{padding:22px 24px;}
+    nav.main-nav{display:none;}
   }
-  .wardrobe-heading{
-    font-family:'Fraunces', serif;
-    font-weight:600;
-    font-size:24px;
-    margin:0 0 28px;
-    text-align:center;
-  }
-  .wardrobe-group{
-    margin-bottom:32px;
-  }
-  .wardrobe-group-label{
-    font-family:'JetBrains Mono', monospace;
-    font-size:11px;
-    letter-spacing:0.1em;
-    text-transform:uppercase;
-    color: var(--sage);
-    margin:0 0 12px;
-    display:flex;
-    align-items:center;
-    gap:10px;
-  }
-  .wardrobe-group-label::after{
-    content:'';
-    flex:1;
-    height:1px;
-    background: var(--line);
-  }
-  .wardrobe-grid{
-    display:grid;
-    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-    gap:14px;
-  }
-  .wardrobe-thumb{
-    width:100%;
-    height:160px;
-    flex-shrink:0;
-    background:#EFE8D9;
-    border-bottom:1px dashed var(--line);
-  }
-  .wardrobe-thumb img{
-    width:100%;
-    height:100%;
-    object-fit:contain;
-    padding: 10px;
-    display:block;
-  }
-  .wardrobe-empty{
-    font-size:13px;
-    color: var(--ink-soft);
-    font-style: italic;
-  }
-
-  /* sub-category tabs */
-  .subcat-tabs{
-    display:flex;
-    flex-wrap:wrap;
-    gap:6px;
-    margin-bottom:14px;
-  }
-  .subcat-tab{
-    font-family:'JetBrains Mono', monospace;
-    font-size:10.5px;
-    letter-spacing:0.06em;
-    text-transform:uppercase;
-    color: var(--ink-soft);
-    border:1px solid var(--line);
-    background: transparent;
-    padding:4px 10px;
-    border-radius:20px;
-    cursor:pointer;
-    transition: background 0.15s, color 0.15s, border-color 0.15s;
-    position:relative;
-  }
-  .subcat-tab:hover{
-    border-color: var(--thread);
-    color: var(--thread);
-  }
-  .subcat-tab.active{
-    background: var(--thread);
-    border-color: var(--thread);
-    color: var(--linen-card);
-  }
-  .subcat-tab .subcat-count{
-    display:inline-block;
-    margin-left:4px;
-    font-size:9px;
-    opacity:0.7;
-  }
-  .wardrobe-card{
-    display:flex;
-    flex-direction:column;
-    background: var(--linen-card);
-    border:1px solid var(--line);
-    border-radius:4px;
-    overflow:hidden;
-  }
-  .wardrobe-thumb{
-    width:100%;
-    height:160px;
-    flex-shrink:0;
-    background:#EFE8D9;
-    border-bottom:1px dashed var(--line);
-  }
-  .wardrobe-thumb img{
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    padding: 10px;
-    display: block;
-  }
-  .wardrobe-card-body{
-    padding:12px 14px;
-    flex:1;
-    min-width:0;
-    display:flex;
-    flex-direction:column;
-    gap:6px;
-  }
-  .wardrobe-card-category{
-    font-family:'JetBrains Mono', monospace;
-    font-size:10px;
-    letter-spacing:0.06em;
-    text-transform:uppercase;
-    color: var(--thread);
-  }
-  .wardrobe-input{
-    width:100%;
-    border:none;
-    border-bottom:1px solid var(--line);
-    background:transparent;
-    font-family:'Inter', sans-serif;
-    color: var(--ink);
-    padding:3px 0;
-    outline:none;
-  }
-  .wardrobe-input, textarea.wardrobe-input {
-  width: 100%;
-  border: none;
-  border-bottom: 1px solid var(--line);
-  background: transparent;
-  font-family: 'Inter', sans-serif;
-  color: var(--ink);
-  padding: 3px 0;
-  outline: none;
-}
-  .wardrobe-input::placeholder{ color: var(--ink-soft); opacity:0.7; }
-  .wardrobe-input.brand-input{
-    font-weight:600;
-    font-size:10px;
-  }
-  .wardrobe-input.desc-input {
-    font-size: 10px;
-    border-bottom: none;
-    color: var(--ink-soft);
-    resize: none;
-    line-height: 1.4;
-    overflow: hidden;
-  }
-  .wardrobe-input:focus{ border-bottom-color: var(--thread); }
-  .wardrobe-input.saved{ border-bottom-color: var(--sage); }
-
   @media (max-width:480px){
     h1{ font-size:30px; }
-    body { padding: 160px 16px 48px; }
-    body.has-results { padding: 48px 16px 48px; }
     .dropzone{ padding:36px 18px; }
-    .result-card.show{ flex-direction:column; }
+    .result-card{ flex-direction:column; }
     .preview-pane{ width:100%; height:160px; border-right:none; border-bottom:1px dashed var(--line); }
-    .wardrobe-grid{ grid-template-columns: repeat(2, 1fr); }
-    .wardrobe-thumb{ height:120px; }
-    .wrap.wardrobe-section{ padding-left:16px; padding-right:16px; }
   }
 </style>
 </head>
 <body>
 
-<div class="wrap">
-  <div class="eyebrow">Your digital wardrobe</div>
-  <h1>PICK YOUR FIT</h1>
-  <p class="lead">Transform your chaotic shopping screenshots into a beautifully organized digital wardrobe. Every item is automatically categorized, making it easier than ever to compare, rediscover, and decide what to buy.</p>
+<aside class="sidebar">
+  <div class="side-logo">
+    <svg viewBox="0 0 24 24" fill="none"><path d="M12 3 L15.5 5.5 L12 8 L8.5 5.5 Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M12 8 L3 13 L3 14 L21 14 L21 13 Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+  </div>
+  <nav class="side-nav">
+    <a href="landing.html" class="side-link" title="Home">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M4 11.5 L12 5 L20 11.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 10.5 V19 a1 1 0 0 0 1 1 h10 a1 1 0 0 0 1 -1 V10.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
+    <a href="#" class="side-link" title="Favorites">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M12 20 C6.5 15.8, 3.5 12, 3.5 8.2 C3.5 5.1, 5.8 3, 8.5 3 C10.3 3, 11.7 4, 12 5.6 C12.3 4, 13.7 3, 15.5 3 C18.2 3, 20.5 5.1, 20.5 8.2 C20.5 12, 17.5 15.8, 12 20 Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+    </a>
+    <a href="#" class="side-link" title="Planner">
+      <svg viewBox="0 0 24 24" fill="none"><rect x="4" y="5.5" width="16" height="14.5" rx="2" stroke="currentColor" stroke-width="1.6"/><line x1="4" y1="10" x2="20" y2="10" stroke="currentColor" stroke-width="1.6"/><line x1="8.3" y1="3" x2="8.3" y2="7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><line x1="15.7" y1="3" x2="15.7" y2="7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+    </a>
+    <a href="wardrobe.html" class="side-link" title="Wardrobe">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M8.5 4 L10 6 h4 l1.5 -2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M8.5 4 L4 7.5 L6.5 10.5 L8 9.3 V20 h8 V9.3 l1.5 1.2 L20 7.5 L15.5 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
+    <a href="index.html" class="side-link active" title="Scan an item">
+      <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/><path d="M9.3 9.5a2.7 2.7 0 0 1 5.2-1c0 1.7-2.5 1.9-2.5 3.7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="16.3" r="0.9" fill="currentColor"/></svg>
+    </a>
+  </nav>
+  <div class="side-bottom">
+    <a href="login.html" id="sideAvatarLink" class="side-avatar" title="Account">
+      <svg id="defaultAvatarIcon" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8.5" r="3.6" stroke="currentColor" stroke-width="1.6"/><path d="M4.5 20 c0 -4.2 3.4 -6.3 7.5 -6.3 s7.5 2.1 7.5 6.3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      <img id="userAvatarImg" src="" alt="" style="display:none;" />
+    </a>
+  </div>
+</aside>
 
-  <div class="dropzone" id="dropzone" tabindex="0" role="button" aria-label="Drag and drop an image here, or browse files from your computer">
-    <img src="frontend_photos/logo.png" alt="" class="spool" onerror="this.style.display='none'">
-    <p class="dz-title">Drag and drop your image here</p>
-    <p class="dz-sub">or click to browse files from your <b>computer</b></p>
-    <button type="button" class="browse-btn" id="browseBtn">Browse Files</button>
-    <input type="file" id="fileInput" accept=".png,.jpg,.jpeg,image/png,image/jpeg">
-    <div class="formats">
-      <span>.PNG</span><span>.JPG</span><span>.JPEG</span>
+<main class="main-content">
+  <header>
+    <div class="logo">Pick Your Fit</div>
+    <nav class="main-nav">
+      <a href="landing.html#features">Features</a>
+      <a href="landing.html#about">About</a>
+      <a href="landing.html">Home</a>
+      <a href="landing.html#contact">Contact</a>
+    </nav>
+    <div class="header-actions" id="headerActions">
+      <a href="login.html" class="btn-header">Log in</a>
+      <a href="signup.html" class="btn-header btn-header-dark">Register</a>
+    </div>
+  </header>
+
+  <div class="app-container">
+    <div class="wrap">
+      <div class="eyebrow">Smart Scanner</div>
+      <h1>Scan your item</h1>
+      <p class="lead">Upload an image to automatically classify your clothing and add it to your digital wardrobe.</p>
+
+      <div class="dropzone" id="dropzone" tabindex="0">
+        <img src="frontend_photos/logo.png" alt="" class="spool" onerror="this.style.display='none'">
+        <p class="dz-title">Drag and drop your image here</p>
+        <p class="dz-sub">or click to browse files from your <b>computer</b></p>
+        <button type="button" class="browse-btn" id="browseBtn">Browse Files</button>
+        <input type="file" id="fileInput" accept=".png,.jpg,.jpeg,image/png,image/jpeg">
+        <div class="formats">
+          <span>.PNG</span><span>.JPG</span><span>.JPEG</span>
+        </div>
+      </div>
+
+      <div class="error-msg" id="errorMsg"></div>
+
+      <div class="result-card empty" id="resultCard">
+        <div class="preview-pane">
+          <img id="previewImg" src="" alt="Preview">
+        </div>
+        <div class="result-body">
+          <p class="tag-label">Predicted Category</p>
+          <p class="tag-value" id="resultLabel">—</p>
+          <div class="confidence-row">
+            <div class="confidence-bar"><div class="confidence-fill" id="confFill"></div></div>
+            <span class="confidence-pct" id="confPct">0%</span>
+          </div>
+          
+          <div class="post-actions" id="postActions">
+            <div class="post-actions-row">
+              <button type="button" class="btn-primary" id="addToWardrobeBtn" style="display:none;">Add to wardrobe</button>
+              <a href="signup.html" class="btn-register-cta" id="registerToSaveBtn" style="display:none;">Want to remember it? Register now</a>
+              
+              <span class="or-text" id="orText">or</span>
+              <button type="button" class="reset-link" id="resetBtn">Upload another image</button>
+            </div>
+            <div id="successMsg" style="display:none; font-size:12px; color:var(--sage); margin-top:8px;">
+              Item saved! <a href="wardrobe.html" style="text-decoration:underline; font-weight:600;">Go to Wardrobe</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
-
-  <div class="error-msg" id="errorMsg"></div>
-
-  <div class="result-card empty" id="resultCard">
-    <div class="preview-pane">
-      <img id="previewImg" src="" alt="Preview of uploaded image">
-    </div>
-    <div class="result-body">
-      <p class="tag-label">Predicted Category</p>
-      <p class="tag-value" id="resultLabel">—</p>
-      <div class="confidence-row">
-        <div class="confidence-bar"><div class="confidence-fill" id="confFill"></div></div>
-        <span class="confidence-pct" id="confPct">0%</span>
-      </div>
-      <p class="filename" id="fileName"></p>
-      <!-- ambiguity picker: visible only when top confidence < threshold -->
-      <div class="ambiguity-picker" id="ambiguityPicker">
-        <p class="amb-header">Looks like it could be…</p>
-        <div id="ambOptions"></div>
-      </div>
-
-      <div class="post-actions" id="postActions">
-        <div class="post-actions-row">
-          <button type="button" class="btn-primary" id="addToWardrobeBtn">Add to wardrobe</button>
-          <span class="or-text" id="orText">or</span>
-          <button type="button" class="reset-link" id="resetBtn">Upload another image</button>
-        </div>
-        <div class="wrong-cat-row">
-          <button type="button" class="wrong-cat-btn" id="wrongCatBtn">Not the right category?</button>
-        </div>
-        <div class="category-picker" id="categoryPicker">
-          <p class="cat-picker-header">Pick the correct category</p>
-          <div class="cat-picker-scroll" id="catPickerScroll"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-</div>
-
-<div class="scroll-cue" id="scrollCue">
-  <p>Scroll down to your wardrobe</p>
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M12 4 V20 M5 13 L12 20 L19 13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-  </svg>
-</div>
-
-<div class="wrap wardrobe-section" id="wardrobeSection">
-  <p class="wardrobe-heading">Your wardrobe</p>
-  <div id="wardrobeGroups"></div>
-</div>
-
-<div class="scroll-cue up-cue" id="scrollTopCue">
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M12 20 V4 M5 11 L12 4 L19 11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-  </svg>
-  <p>Try a new item</p>
-</div>
+</main>
 
 <script>
+  // Check Login Status
+  const idToken = localStorage.getItem('pyf_idToken');
+  const userPhoto = localStorage.getItem('pyf_userPhoto');
+  const isLoggedIn = !!idToken;
+
+  if (isLoggedIn) {
+    const avatarLink = document.getElementById('sideAvatarLink');
+    if(userPhoto) {
+      document.getElementById('userAvatarImg').src = userPhoto;
+      document.getElementById('userAvatarImg').style.display = 'block';
+      document.getElementById('defaultAvatarIcon').style.display = 'none';
+    }
+    avatarLink.href = 'profile.html';
+    document.getElementById('headerActions').innerHTML = '<a href="wardrobe.html" class="btn-header btn-header-dark">My Wardrobe</a>';
+  }
+
+  // File Upload & Classification Logic
   const dropzone = document.getElementById('dropzone');
   const fileInput = document.getElementById('fileInput');
   const browseBtn = document.getElementById('browseBtn');
@@ -813,28 +415,14 @@
   const resultLabel = document.getElementById('resultLabel');
   const confFill = document.getElementById('confFill');
   const confPct = document.getElementById('confPct');
-  const fileNameEl = document.getElementById('fileName');
-  const resetBtn = document.getElementById('resetBtn');
   const postActions = document.getElementById('postActions');
   const addToWardrobeBtn = document.getElementById('addToWardrobeBtn');
-  const wrongCatBtn = document.getElementById('wrongCatBtn');
-  const categoryPicker = document.getElementById('categoryPicker');
-  const catPickerScroll = document.getElementById('catPickerScroll');
-  const scrollCue = document.getElementById('scrollCue');
-  const scrollTopCue = document.getElementById('scrollTopCue');
-  const wardrobeSection = document.getElementById('wardrobeSection');
-  const wardrobeGroups = document.getElementById('wardrobeGroups');
+  const registerToSaveBtn = document.getElementById('registerToSaveBtn');
+  const orText = document.getElementById('orText');
+  const resetBtn = document.getElementById('resetBtn');
+  const successMsg = document.getElementById('successMsg');
 
-  const ALLOWED_TYPES = ['image/png', 'image/jpeg'];
-  const ALLOWED_EXT = ['.png', '.jpg', '.jpeg'];
   const NOT_CLOTHING = 'NOT A CLOTHING ITEM';
-
-  const SIGNATURES = [
-    { type: 'image/png', bytes: [0x89, 0x50, 0x4E, 0x47] }, 
-    { type: 'image/jpeg', bytes: [0xFF, 0xD8, 0xFF] } 
-  ];
-
-  // Maps each predicted category to the wardrobe section it belongs to.
   const SECTION_MAP = {
     'T-shirt':'upper-body', 'Crop Top':'upper-body', 'Tank top':'upper-body', 'Turtle Neck':'upper-body', 'Blouse':'upper-body', 'Shirt':'upper-body', 'Pullovers':'upper-body', 'Hoodies':'upper-body',
     'Jacket':'upper-body', 'Blazer':'upper-body',
@@ -844,633 +432,141 @@
     'Dress':'body', 'Bodysuit':'body', 'Jumpsuit':'body', 'Purse':'body',
   };
 
-  const SECTION_ORDER = ['upper-body', 'lower-body', 'body', 'shoes', 'head'];
-  const SECTION_LABELS = {
-    'upper-body': 'Upper body',
-    'lower-body': 'Lower body',
-    'body': 'Body',
-    'shoes': 'Shoes',
-    'head': 'Head'
-  };
-
-  // In-memory wardrobe { id, image, category, brand, description }
-  const wardrobe = {
-    'upper-body': [], 'lower-body': [], 'body': [], 'shoes': [], 'head': []
-  };
-  let itemIdCounter = 0;
-  let currentResult = null; 
-
-  function showError(msg){
-    errorMsg.textContent = msg;
-    errorMsg.classList.add('show');
-  }
-  function clearError(){
-    errorMsg.classList.remove('show');
-    errorMsg.textContent = '';
-  }
-
-  function hasValidExtension(file){
-    const nameLower = file.name.toLowerCase();
-    return ALLOWED_EXT.some(ext => nameLower.endsWith(ext));
-  }
-
-  function hasValidMimeType(file){
-    return ALLOWED_TYPES.includes(file.type);
-  }
-
-  function readFileSignature(file, byteCount){
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = (e) => resolve(new Uint8Array(e.target.result));
-      reader.onerror = () => reject(new Error('Nu am putut citi fișierul.'));
-      reader.readAsArrayBuffer(file.slice(0, byteCount));
-    });
-  }
-
-  async function hasValidSignature(file){
-    try{
-      const header = await readFileSignature(file, 4);
-      return SIGNATURES.some(sig =>
-        sig.bytes.every((byte, i) => header[i] === byte)
-      );
-    }catch(err){
-      return false;
-    }
-  }
-
-  async function isValidImageFile(file){
-    if(!file || !hasValidExtension(file) || !hasValidMimeType(file) || !(await hasValidSignature(file)))
-      return false;
-
-    return true;
-  }
-
-  async function removeBackgroundAPI(imageFile) {
-    const formData = new FormData();
-    formData.append('size', 'auto');
-    formData.append('image_file', imageFile);
-
-    try {
-      const response = await fetch('/api/remove-bg', {
-        method: 'POST',
-        body: formData
-      });
-
-      if (!response.ok) {
-        throw new Error('Eroare API Remove.bg: ' + response.statusText);
-      }
-
-      return await response.blob();
-    } catch (error) {
-      console.error('A apărut o problemă la eliminarea fundalului:', error);
-      return null;
-    }
-  }
-
-  async function handleFile(file){
-    clearError();
-
-    const valid = await isValidImageFile(file);
-    if(!valid){
-      showError('Unacceptable file type. Please upload a valid PNG, JPG or JPEG image.');
-      fileInput.value = '';
-      return;
-    }
-
-    document.body.classList.add('has-results');
-    previewImg.src = '';
-    fileNameEl.textContent = file.name;
-    resultCard.classList.remove('empty');
-    
-    resultLabel.textContent = 'Analyzing...';
-    resultLabel.classList.add('loading');
-    confFill.style.width = '0%';
-    confPct.textContent = '0%';
-    postActions.classList.remove('show');
-    ambiguityPicker.classList.remove('show');
-    ambOptions.innerHTML = '';
-    categoryPicker.classList.remove('show');
-    wrongCatBtn.classList.remove('open');
-    currentResult = null;
-    addToWardrobeBtn.textContent = 'Add to wardrobe';
-    addToWardrobeBtn.disabled = false;
-    addToWardrobeBtn.style.opacity = '';
-    addToWardrobeBtn.style.cursor = '';
-
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      previewImg.src = e.target.result;
-      previewImg.style.display = 'block';
-      
-      classifyImage(file, e.target.result); 
-    };
-    reader.readAsDataURL(file);
-  }
-
-  const TM_MODEL_URL = 'https://teachablemachine.withgoogle.com/models/XR8fMdsCU/';
-  // entropy-based non-clothing detection
-  // a real clothing image concentrates probability on 1-2 classes (low entropy) while a non-clothing image spreads probability evenly across all classes (high entropy).
-  // MAX_ENTROPY = log2(N) where N = number of classes.
-  const ENTROPY_THRESHOLD = 0.80; // 80% of maximum possible entropy = "not clothing"
-
-  // If top prediction >= this, skip the picker and classify directly.
-  const AMBIGUITY_THRESHOLD = 72; // 72% confidence = "good enough" to skip ambiguity picker
-
-  const ambiguityPicker = document.getElementById('ambiguityPicker');
-  const ambOptions = document.getElementById('ambOptions');
-
-  // Load model automatically on page load
+  let currentResult = null;
   let tmModel = null;
+
   (async () => {
     try {
-      const url = TM_MODEL_URL.replace(/\/?$/, '/');
-      tmModel = await tmImage.load(url + 'model.json', url + 'metadata.json');
-      console.log('TM model loaded —', tmModel.getTotalClasses(), 'classes');
+      tmModel = await tmImage.load('https://teachablemachine.withgoogle.com/models/XR8fMdsCU/model.json', 'https://teachablemachine.withgoogle.com/models/XR8fMdsCU/metadata.json');
     } catch (e) {
       console.error('Failed to load TM model:', e);
     }
   })();
 
-  // shannon entropy of a probability distribution (probabilities as 0-1 values)
+  function showError(msg){ errorMsg.textContent = msg; errorMsg.classList.add('show'); }
+  function clearError(){ errorMsg.classList.remove('show'); errorMsg.textContent = ''; }
+
+  async function handleFile(file){
+    clearError();
+    resultCard.classList.remove('empty');
+    resultLabel.textContent = 'Analyzing...';
+    resultLabel.classList.add('loading');
+    confFill.style.width = '0%';
+    confPct.textContent = '0%';
+    postActions.classList.remove('show');
+    successMsg.style.display = 'none';
+    currentResult = null;
+
+    addToWardrobeBtn.textContent = 'Add to wardrobe';
+    addToWardrobeBtn.disabled = false;
+    addToWardrobeBtn.style.opacity = '1';
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      previewImg.src = e.target.result;
+      classifyImage(file, e.target.result); 
+    };
+    reader.readAsDataURL(file);
+  }
+
   function shannonEntropy(probs) {
-    return -probs.reduce((sum, p) => {
-      if (p <= 0) return sum;
-      return sum + p * Math.log2(p);
-    }, 0);
+    return -probs.reduce((sum, p) => (p <= 0 ? sum : sum + p * Math.log2(p)), 0);
   }
 
   async function classifyImage(file, dataUrl) {
-    if (!tmModel) {
-      resultLabel.textContent = 'Error';
-      resultLabel.classList.remove('loading');
-      showError('Model not loaded yet — wait a moment and try again.');
-      return;
-    }
+    if (!tmModel) return showError('Model loading... please try again.');
 
     try {
       const img = new Image();
       img.src = dataUrl;
-      await new Promise((res, rej) => { img.onload = res; img.onerror = rej; });
+      await new Promise(res => { img.onload = res; });
 
       const predictions = await tmModel.predict(img);
       const probs = predictions.map(p => p.probability);
-      const n = probs.length;
+      const normEntropy = shannonEntropy(probs) / Math.log2(probs.length);
 
-      const entropy = shannonEntropy(probs);
-      const maxEntropy = Math.log2(n); // entropy when all classes equally likely
-      const normEntropy = entropy / maxEntropy;  // 0 = perfect certainty, 1 = total confusion
-
-      if (normEntropy >= ENTROPY_THRESHOLD) {
-        resultLabel.textContent = NOT_CLOTHING;
-        resultLabel.classList.remove('loading');
-        confFill.style.width = '0%';
-        confPct.textContent  = '—';
-        currentResult = { category: NOT_CLOTHING, dataUrl, file };
-        ambiguityPicker.classList.remove('show');
-        ambOptions.innerHTML = '';
-        showPostResultUI(NOT_CLOTHING);
-        return;
-      }
-
-      // sort by confidence (>= 5%)
-      let results = predictions
-        .map(p => ({ category: p.className, confidence: Math.round(p.probability * 100) }))
-        .sort((a, b) => b.confidence - a.confidence)
-        .filter(r => r.confidence >= 5);
-
-      if (results.length === 0) results = [{ category: NOT_CLOTHING, confidence: 0 }];
-
-      const top = results[0];
-
-      resultLabel.textContent = top.category;
-      resultLabel.classList.remove('loading');
-      confFill.style.width = top.confidence + '%';
-      confPct.textContent  = top.confidence + '%';
-      currentResult = { category: top.category, dataUrl, file };
-
-      if (results.length > 1 && top.confidence < AMBIGUITY_THRESHOLD) {
-        renderAmbiguityPicker(results.slice(0, 4), dataUrl, file);
+      if (normEntropy >= 0.80) {
+        showResult(NOT_CLOTHING, 0, dataUrl, file);
       } else {
-        ambiguityPicker.classList.remove('show');
-        ambOptions.innerHTML = '';
-        showPostResultUI(top.category);
+        const top = predictions.sort((a,b) => b.probability - a.probability)[0];
+        showResult(top.className, Math.round(top.probability * 100), dataUrl, file);
       }
-
     } catch (err) {
-      console.error('Classification error:', err);
-      resultLabel.textContent = 'Error';
-      resultLabel.classList.remove('loading');
-      showError('Classification failed: ' + (err.message || 'unknown error'));
+      showError('Classification failed.');
     }
   }
 
-  function renderAmbiguityPicker(results, dataUrl, file) {
-    ambOptions.innerHTML = '';
-    ambiguityPicker.classList.add('show');
-    postActions.classList.remove('show');
-    categoryPicker.classList.remove('show');
-    wrongCatBtn.classList.remove('open');
-
-    results.forEach((r, idx) => {
-      const row = document.createElement('div');
-      row.className = 'amb-option';
-
-      const label = document.createElement('span');
-      label.className = 'amb-label';
-      label.textContent = r.category;
-
-      const barWrap = document.createElement('div');
-      barWrap.className = 'amb-bar-wrap';
-      const barFill = document.createElement('div');
-      barFill.className = 'amb-bar-fill ' + (idx === 0 ? 'top' : 'alt');
-      barFill.style.width = '0%';
-      barWrap.appendChild(barFill);
-
-      const pct = document.createElement('span');
-      pct.className = 'amb-pct';
-      pct.textContent = r.confidence + '%';
-
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'amb-pick-btn';
-      btn.textContent = 'Pick';
-
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => { barFill.style.width = r.confidence + '%'; });
-      });
-
-      btn.addEventListener('click', () => {
-        ambOptions.querySelectorAll('.amb-pick-btn').forEach(b => {
-          b.disabled = true;
-          b.classList.remove('chosen');
-        });
-        btn.classList.add('chosen');
-        resultLabel.textContent = r.category;
-        confFill.style.width  = r.confidence + '%';
-        confPct.textContent   = r.confidence + '%';
-        currentResult = { category: r.category, dataUrl, file };
-        showPostResultUI(r.category);
-      });
-
-      row.appendChild(label);
-      row.appendChild(barWrap);
-      row.appendChild(pct);
-      row.appendChild(btn);
-      ambOptions.appendChild(row);
-    });
-  }
-
-  function showPostResultUI(category) {
-    const isClothing = category !== NOT_CLOTHING;
-    postActions.classList.add('show');
-    if (isClothing) {
-      addToWardrobeBtn.style.display = 'inline-block';
-      document.getElementById('orText').style.display = 'inline';
-    } else {
-      addToWardrobeBtn.style.display = 'none';
-      document.getElementById('orText').style.display = 'none';
-    }
-    categoryPicker.classList.remove('show');
-    wrongCatBtn.classList.remove('open');
-  }
-
-  function buildCategoryPicker(currentCategory) {
-    catPickerScroll.innerHTML = '';
-
-    SECTION_ORDER.forEach(sectionKey => {
-      const groupLabel = document.createElement('p');
-      groupLabel.className = 'cat-picker-group-label';
-      groupLabel.textContent = SECTION_LABELS[sectionKey];
-      catPickerScroll.appendChild(groupLabel);
-
-      SECTION_CATEGORIES[sectionKey].forEach(cat => {
-        const opt = document.createElement('button');
-        opt.type = 'button';
-        opt.className = 'cat-picker-option' + (cat === currentCategory ? ' current' : '');
-        opt.textContent = cat;
-        opt.addEventListener('click', () => selectCorrectedCategory(cat));
-        catPickerScroll.appendChild(opt);
-      });
-    });
-
-    const notClothingLabel = document.createElement('p');
-    notClothingLabel.className = 'cat-picker-group-label';
-    notClothingLabel.textContent = 'Other';
-    catPickerScroll.appendChild(notClothingLabel);
-
-    const notClothingOpt = document.createElement('button');
-    notClothingOpt.type = 'button';
-    notClothingOpt.className = 'cat-picker-option' + (currentCategory === NOT_CLOTHING ? ' current' : '');
-    notClothingOpt.textContent = 'Not a clothing item';
-    notClothingOpt.addEventListener('click', () => selectCorrectedCategory(NOT_CLOTHING));
-    catPickerScroll.appendChild(notClothingOpt);
-  }
-
-  function selectCorrectedCategory(category) {
-    if (!currentResult) return;
-
-    currentResult.category = category;
+  function showResult(category, confidence, dataUrl, file) {
     resultLabel.textContent = category;
     resultLabel.classList.remove('loading');
-    confFill.style.width = category === NOT_CLOTHING ? '0%' : '100%';
-    confPct.textContent  = category === NOT_CLOTHING ? '—' : 'manual';
+    confFill.style.width = confidence + '%';
+    confPct.textContent = confidence === 0 ? '—' : confidence + '%';
+    currentResult = { category, dataUrl, file };
 
-    ambiguityPicker.classList.remove('show');
-    ambOptions.innerHTML = '';
-
-    addToWardrobeBtn.textContent = 'Add to wardrobe';
-    addToWardrobeBtn.disabled = false;
-    addToWardrobeBtn.style.opacity = '';
-    addToWardrobeBtn.style.cursor = '';
-
-    showPostResultUI(category);
+    postActions.classList.add('show');
+    
+    if (category !== NOT_CLOTHING) {
+      orText.style.display = 'inline';
+      if (isLoggedIn) {
+        addToWardrobeBtn.style.display = 'inline-block';
+        registerToSaveBtn.style.display = 'none';
+      } else {
+        addToWardrobeBtn.style.display = 'none';
+        registerToSaveBtn.style.display = 'inline-block';
+      }
+    } else {
+      addToWardrobeBtn.style.display = 'none';
+      registerToSaveBtn.style.display = 'none';
+      orText.style.display = 'none';
+    }
   }
 
-  async function addCurrentToWardrobe(){
-    if(!currentResult)
-      return;
-    
-    addToWardrobeBtn.textContent = 'Removing background...';
+  addToWardrobeBtn.addEventListener('click', async () => {
+    if(!currentResult) return;
+    addToWardrobeBtn.textContent = 'Saving...';
     addToWardrobeBtn.disabled = true;
     addToWardrobeBtn.style.opacity = '0.7';
 
-    const { category, file, dataUrl } = currentResult;
-    const section = SECTION_MAP[category];
-    if(!section)
-      return;
-
-    const noBgBlob = await removeBackgroundAPI(file);
-    let finalDataUrl = dataUrl;
-
-    if(noBgBlob) {
-        finalDataUrl = await new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onload = (e) => resolve(e.target.result);
-        reader.readAsDataURL(noBgBlob);
-      });
-    } else {
-       showError('Background removal failed. Saved with original background.');
+    // Simulated background removal delay if backend is missing, saving original dataUrl
+    const section = SECTION_MAP[currentResult.category];
+    if(section) {
+      const item = {
+        id: Date.now(),
+        image: currentResult.dataUrl,
+        category: currentResult.category,
+        brand: '',
+        description: ''
+      };
+      
+      const storedData = JSON.parse(localStorage.getItem('pyf_wardrobe') || '{"upper-body":[], "lower-body":[], "body":[], "shoes":[], "head":[]}');
+      storedData[section].push(item);
+      localStorage.setItem('pyf_wardrobe', JSON.stringify(storedData));
     }
 
-    const item = {
-      id: ++itemIdCounter,
-      image: finalDataUrl,
-      category: category,
-      brand: '',
-      description: ''
-    };
-    wardrobe[section].push(item);
-    renderWardrobe();
-
-    currentResult = null;
-    addToWardrobeBtn.textContent = 'Added ✓';
-    addToWardrobeBtn.disabled = true;
-    addToWardrobeBtn.style.opacity = '0.5';
-    addToWardrobeBtn.style.cursor = 'default';
-  }
-
-  const SECTION_CATEGORIES = {
-    'upper-body': ['T-shirt', 'Crop Top', 'Turtle Neck', 'Tank top', 'Blouse', 'Shirt', 'Jacket', 'Blazer', 'Pullovers', 'Hoodie'],
-    'lower-body': ['Shorts', 'Pants', 'Skirt', 'Tights', 'Leggings'],
-    'body': ['Dress', 'Bodysuit', 'Jumpsuit', 'Purse'],
-    'shoes': ['Socks', 'Boots', 'Sneakers', 'Heels'],
-    'head': ['Glasses']
-  };
-
-  // active sub-category filter per section; null = show all
-  const activeCatFilter = {
-    'upper-body': null, 'lower-body': null, 'body': null, 'shoes': null, 'head': null
-  };
-
-  function renderWardrobe(){
-    wardrobeGroups.innerHTML = '';
-
-    SECTION_ORDER.forEach(sectionKey => {
-      const items = wardrobe[sectionKey];
-      const cats  = SECTION_CATEGORIES[sectionKey];
-
-      const group = document.createElement('div');
-      group.className = 'wardrobe-group';
-
-      const label = document.createElement('p');
-      label.className = 'wardrobe-group-label';
-      label.textContent = SECTION_LABELS[sectionKey];
-      group.appendChild(label);
-
-      // sub-category tabs
-      const tabsRow = document.createElement('div');
-      tabsRow.className = 'subcat-tabs';
-
-      const allTab = document.createElement('button');
-      allTab.type = 'button';
-      if (activeCatFilter[sectionKey] === null) {
-        allTab.className = 'subcat-tab active';
-      } else {
-        allTab.className = 'subcat-tab';
-      }
-      allTab.innerHTML = 'All <span class="subcat-count">' + items.length + '</span>';
-      allTab.addEventListener('click', () => {
-        activeCatFilter[sectionKey] = null;
-        renderWardrobe();
-      });
-      tabsRow.appendChild(allTab);
-
-      cats.forEach(cat => {
-        const count = items.filter(i => i.category === cat).length;
-        const tab = document.createElement('button');
-        tab.type = 'button';
-
-        if (activeCatFilter[sectionKey] === cat) {
-          tab.className = 'subcat-tab active';
-        } else {
-          tab.className = 'subcat-tab';
-        }
-
-        if (count > 0) {
-          tab.innerHTML = cat + ' <span class="subcat-count">' + count + '</span>';
-        } else {
-          tab.innerHTML = cat;
-        }
-
-        tab.addEventListener('click', () => {
-          activeCatFilter[sectionKey] = cat;
-          renderWardrobe();
-        });
-        
-        tabsRow.appendChild(tab);
-      });
-
-      group.appendChild(tabsRow);
-
-      let filtered;
-      if (activeCatFilter[sectionKey] === null) {
-        filtered = items;
-      } else {
-        filtered = items.filter(i => i.category === activeCatFilter[sectionKey]);
-      }
-
-      if(filtered.length === 0){
-        const empty = document.createElement('p');
-        empty.className = 'wardrobe-empty';
-        if (activeCatFilter[sectionKey]) {
-          empty.textContent = 'No ' + activeCatFilter[sectionKey] + ' items yet.';
-        } else {
-          empty.textContent = 'No items yet.';
-        }
-        group.appendChild(empty);
-      } else {
-        const grid = document.createElement('div');
-        grid.className = 'wardrobe-grid';
-        filtered.forEach(item => {
-          grid.appendChild(buildWardrobeCard(item));
-        });
-        group.appendChild(grid);
-      }
-
-      wardrobeGroups.appendChild(group);
-    });
-  }
-
-  function buildWardrobeCard(item){
-    const card = document.createElement('div');
-    card.className = 'wardrobe-card';
-
-    const thumb = document.createElement('div');
-    thumb.className = 'wardrobe-thumb';
-    const img = document.createElement('img');
-    img.src = item.image;
-    img.alt = item.category;
-    thumb.appendChild(img);
-    card.appendChild(thumb);
-
-    const body = document.createElement('div');
-    body.className = 'wardrobe-card-body';
-
-    card.dataset.category = item.category;
-
-    const brandInput = document.createElement('input');
-    brandInput.type = 'text';
-    brandInput.className = 'wardrobe-input brand-input';
-    brandInput.placeholder = 'Brand';
-    brandInput.value = item.brand;
-    brandInput.addEventListener('keydown', (e) => {
-      if(e.key === 'Enter'){
-        item.brand = brandInput.value.trim();
-        brandInput.blur();
-        flashSaved(brandInput);
-      }
-    });
-    body.appendChild(brandInput);
-
-    const descInput = document.createElement('textarea');
-    descInput.className = 'wardrobe-input desc-input';
-    descInput.placeholder = 'Short description';
-    descInput.value = item.description;
-    descInput.rows = 3;
-    descInput.maxLength = 55;
-    
-    descInput.addEventListener('keydown', (e) => {
-      if(e.key === 'Enter'){
-        e.preventDefault();
-        item.description = descInput.value.trim();
-        descInput.blur();
-        flashSaved(descInput);
-      }
-    });
-    body.appendChild(descInput);
-
-    card.appendChild(body);
-    return card;
-  }
-
-  function flashSaved(inputEl){
-    inputEl.classList.add('saved');
-    setTimeout(() => inputEl.classList.remove('saved'), 700);
-  }
-
-  browseBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    fileInput.click();
-  });
-  dropzone.addEventListener('click', () => fileInput.click());
-  dropzone.addEventListener('keydown', (e) => {
-    if(e.key === 'Enter' || e.key === ' '){
-      e.preventDefault();
-      fileInput.click();
-    }
-  });
-
-  fileInput.addEventListener('change', async (e) => {
-    if(e.target.files && e.target.files[0]){
-      await handleFile(e.target.files[0]);
-    }
-  });
-
-  ['dragenter','dragover'].forEach(evt => {
-    dropzone.addEventListener(evt, (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      dropzone.classList.add('dragover');
-    });
-  });
-  ['dragleave','drop'].forEach(evt => {
-    dropzone.addEventListener(evt, (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      dropzone.classList.remove('dragover');
-    });
-  });
-  dropzone.addEventListener('drop', async (e) => {
-    const files = e.dataTransfer.files;
-    if(files && files[0]){
-      await handleFile(files[0]);
-    }
+    addToWardrobeBtn.style.display = 'none';
+    orText.style.display = 'none';
+    successMsg.style.display = 'block';
   });
 
   resetBtn.addEventListener('click', () => {
-    document.body.classList.remove('has-results');
     resultCard.classList.add('empty');
-    resultLabel.textContent = '—';
-    confFill.style.width = '0%';
-    confPct.textContent = '0%';
-    fileNameEl.textContent = '';
-    postActions.classList.remove('show');
-    ambiguityPicker.classList.remove('show');
-    ambOptions.innerHTML = '';
-    categoryPicker.classList.remove('show');
-    wrongCatBtn.classList.remove('open');
-    currentResult = null;
     fileInput.value = '';
-    clearError();
     fileInput.click();
   });
 
-  addToWardrobeBtn.addEventListener('click', addCurrentToWardrobe);
-
-  wrongCatBtn.addEventListener('click', () => {
-    if (!currentResult) return;
-
-    const isOpen = categoryPicker.classList.contains('show');
-    if (isOpen) {
-      categoryPicker.classList.remove('show');
-      wrongCatBtn.classList.remove('open');
-    } else {
-      buildCategoryPicker(currentResult.category);
-      categoryPicker.classList.add('show');
-      wrongCatBtn.classList.add('open');
-    }
+  browseBtn.addEventListener('click', () => fileInput.click());
+  dropzone.addEventListener('click', () => fileInput.click());
+  fileInput.addEventListener('change', e => { if(e.target.files[0]) handleFile(e.target.files[0]); });
+  
+  ['dragenter','dragover','dragleave','drop'].forEach(evt => {
+    dropzone.addEventListener(evt, e => { e.preventDefault(); e.stopPropagation(); });
   });
-
-  scrollCue.addEventListener('click', () => {
-    wardrobeSection.scrollIntoView({ behavior: 'smooth' });
+  dropzone.addEventListener('dragover', () => dropzone.classList.add('dragover'));
+  dropzone.addEventListener('dragleave', () => dropzone.classList.remove('dragover'));
+  dropzone.addEventListener('drop', e => {
+    dropzone.classList.remove('dragover');
+    if(e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
   });
-
-  scrollTopCue.addEventListener('click', () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  });
-
-  renderWardrobe();
 </script>
-
 </body>
 </html>
