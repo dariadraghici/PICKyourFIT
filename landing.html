@@ -235,8 +235,9 @@
     <div class="logo">Pick Your Fit</div>
     <nav class="main-nav">
       <a href="#features">Features</a>
-      <a href="#about">About</a>
+      <a href="about.html">About</a>
       <a href="index.html">Scan an item</a>
+      <a href="#contact">Contact</a>
     </nav>
     <div class="header-actions" id="headerActions">
       <a href="login.html" class="btn">Log in</a>
@@ -296,7 +297,9 @@
       }
       avatarLink.setAttribute('href', 'profile.html');
       avatarLink.setAttribute('title', 'Contul meu');
-      if (headerActions) headerActions.style.display = 'none';
+      if (headerActions) {
+        headerActions.innerHTML = '<a href="index.html" class="btn btn-dark">My Closet</a>';
+      }
     }
   })();
 </script>
