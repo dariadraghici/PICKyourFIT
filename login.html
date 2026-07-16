@@ -325,6 +325,20 @@
 
       localStorage.setItem('pyf_idToken', data.idToken);
       localStorage.setItem('pyf_uid', data.uid);
+
+      // Best-effort: cache the profile photo so it shows up immediately in the sidebar.
+      try {
+        const profileRes = await fetch('/api/profile', {
+          headers: { 'Authorization': 'Bearer ' + data.idToken }
+        });
+        if (profileRes.ok) {
+          const profileData = await profileRes.json();
+          if (profileData.photoUrl) {
+            localStorage.setItem('pyf_userPhoto', profileData.photoUrl);
+          }
+        }
+      } catch (e) { /* non-blocking */ }
+
       showMsg('Autentificare reușită! Te redirecționăm...', 'success');
       setTimeout(() => { window.location.href = 'index.html'; }, 700);
 

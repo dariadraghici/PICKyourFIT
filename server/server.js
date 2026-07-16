@@ -6,6 +6,7 @@ const path = require('path');
 
 const authRoutes = require('./authRoutes');
 const wardrobeRoutes = require('./wardrobeRoutes');
+const profileRoutes = require('./profileRoutes');
 
 const app = express();
 const upload = multer(); // keeps uploaded file in memory, doesn't write to disk
@@ -36,6 +37,8 @@ app.use(express.static(path.join(__dirname, '..'), { index: false }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.use('/api', authRoutes);
+
+app.use('/api', profileRoutes);
 
 app.use('/api/wardrobe', wardrobeRoutes);
 
