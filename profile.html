@@ -887,20 +887,14 @@
       
       const data = await res.json().catch(() => ({}));
 
-      if (res.status === 401 && data.error === 'Current password is incorrect') {
-        showMsg(passwordMsg, data.error, 'error');
-      }
-      else if (res.status === 401) {
-        localStorage.removeItem('pyf_idToken');
-        localStorage.removeItem('pyf_uid');
-        localStorage.removeItem('pyf_userPhoto');
-        window.location.href = 'login.html';
-        return;
-      } 
-      else if (!res.ok) {
-        showMsg(passwordMsg, data.error || 'An error occurred while changing the password.', 'error');
-      }
-      else {
+      if (!res.ok) {
+        if (res.status === 401 && data.error === 'Current password is incorrect.') {
+          showMsg(passwordMsg, data.error, 'error');
+        } else {
+          if (handleAuthFailure(res)) return;
+          showMsg(passwordMsg, data.error || 'An error occurred while updating the password.', 'error');
+        }
+      } else {
         showMsg(passwordMsg, 'The password has been updated successfully!', 'success');
         passwordForm.reset();
       }

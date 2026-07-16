@@ -181,7 +181,7 @@ router.post('/change-password', requireAuth, async (req, res) => {
     try {
       await signInWithPassword(email, currentPassword);
     } catch (verifyErr) {
-      return res.status(401).json({ error: 'Parola curentă este incorectă.' });
+      return res.status(401).json({ error: 'Current password is incorrect.' });
     }
 
     await auth.updateUser(req.uid, { password: newPassword });
