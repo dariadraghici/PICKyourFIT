@@ -197,7 +197,6 @@ router.post('/change-password', requireAuth, async (req, res) => {
 router.delete('/delete-account', requireAuth, async (req, res) => {
   const uid = req.uid;
   try {
-    // 1) Delete every wardrobe item (Firestore docs + the images on Cloudinary)
     const wardrobeSnap = await db.collection('users').doc(uid).collection('wardrobe').get();
     await Promise.all(
       wardrobeSnap.docs.map(async (docSnap) => {
@@ -207,21 +206,18 @@ router.delete('/delete-account', requireAuth, async (req, res) => {
       })
     );
 
-    // 2) Delete the avatar on Cloudinary, if any
     const userDoc = await db.collection('users').doc(uid).get();
     const photoPublicId = userDoc.exists ? userDoc.data().photoPublicId : null;
     await deleteAsset(photoPublicId);
 
-    // 3) Delete the Firestore user document
     await db.collection('users').doc(uid).delete();
 
-    // 4) Delete the Firebase Authentication account itself
     await auth.deleteUser(uid);
 
     return res.status(200).json({ success: true });
   } catch (err) {
     console.error('Delete account error:', err);
-    return res.status(500).json({ error: 'Nu s-a putut șterge contul. Încearcă din nou.' });
+    return res.status(500).json({ error: 'Could not delete the account. Please try again.' });
   }
 });
 
