@@ -117,17 +117,17 @@
   .btn-header-dark:hover{opacity:0.9;background:var(--ink);}
 
   /* ---------- Page ---------- */
-  .app-container{ flex:1; padding:12px 44px 56px; }
+  .app-container{ flex:1; }
   .page-head{ margin-bottom:26px; }
   .page-head h1{ font-size:30px; font-weight:500; }
   .page-head p{ margin-top:8px; font-size:13.5px; color:var(--ink-soft); }
 
-  .layout-grid{
+  .layout{
     display:grid;
-    grid-template-columns:minmax(0,1fr) 420px;
-    gap:28px;
-    align-items:start;
+    grid-template-columns:1fr 1fr;
+    min-height:calc(100vh - 87px);
   }
+  .form-col{ padding:12px 44px 56px 0; }
 
   /* ---------- Cards ---------- */
   .card{
@@ -169,10 +169,10 @@
   .field-grid{ display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; }
   .field{ display:flex; flex-direction:column; gap:7px; }
   .field.full{ grid-column:1 / -1; }
-  .field label{ font-size:12.5px; font-weight:600; }
+  .field label{ font-size:12px; font-weight:600; }
   .field input{
-    padding:11px 14px; border:1px solid var(--line); border-radius:8px;
-    background:#fdfcf9; font-size:13.5px; color:var(--ink); width:100%;
+    padding:8px 12px; border:1px solid var(--line); border-radius:7px;
+    background:#fdfcf9; font-size:13px; color:var(--ink); width:100%;
   }
   .field input::placeholder{ color:#a9a49a; }
   .field input:focus{ outline:none; border-color:var(--rust); }
@@ -227,8 +227,6 @@
   /* ---------- Visual panel ---------- */
   .visual-card{
     position:relative; overflow:hidden;
-    border-radius:20px;
-    min-height:560px;
     background:var(--side-bg);
   }
   .visual-card .bg-photo{
@@ -239,7 +237,7 @@
     content:""; position:absolute; inset:0; z-index:1;
     background:linear-gradient(180deg, rgba(20,15,10,0.18) 0%, rgba(20,15,10,0.05) 35%, rgba(20,15,10,0.5) 100%);
   }
-  .visual-inner{ position:relative; z-index:2; padding:22px; display:flex; flex-direction:column; height:100%; }
+  .visual-inner{ position:relative; z-index:2; padding:28px; display:flex; flex-direction:column; height:100%; }
   .welcome-glass{
     background:rgba(253,252,249,0.16);
     border:1px solid rgba(255,255,255,0.25);
@@ -310,8 +308,18 @@
   }
   .btn-danger:hover{ opacity:0.9; }
 
+  /* ---------- Crop modal ---------- */
+  .crop-modal-box{ max-width:460px; }
+  .crop-container{
+    width:100%; max-height:360px; overflow:hidden;
+    background:#141210; border-radius:10px; margin-bottom:20px;
+  }
+  .crop-container img{ display:block; max-width:100%; }
+  .crop-hint{ font-size:12px; color:var(--ink-soft); margin-bottom:16px; line-height:1.5; }
+
   @media (max-width: 1100px){
-    .layout-grid{ grid-template-columns:1fr; }
+    .layout{ grid-template-columns:1fr; min-height:0; }
+    .form-col{ padding:12px 44px 40px; }
     .visual-card{ min-height:340px; order:-1; }
   }
   @media (max-width: 980px){
@@ -319,7 +327,7 @@
     .main-content{margin-left:64px;}
     header{padding:22px 24px;}
     nav.main-nav{display:none;}
-    .app-container{ padding:12px 20px 48px; }
+    .form-col{ padding:12px 20px 40px; }
   }
   @media (max-width: 620px){
     .field-grid{ grid-template-columns:1fr; }
@@ -373,14 +381,13 @@
   </header>
 
   <div class="app-container">
-    <div class="page-head">
-      <h1 class="serif">My Account</h1>
-      <p>Manage your personal information and account settings.</p>
-    </div>
-
-    <div class="layout-grid">
+    <div class="layout">
       <!-- ---------- Left column: forms ---------- -->
-      <div>
+      <div class="form-col">
+        <div class="page-head">
+          <h1 class="serif">My Account</h1>
+          <p>Manage your personal information and account settings.</p>
+        </div>
 
         <!-- Profile information -->
         <div class="card">
@@ -395,11 +402,11 @@
                 <div class="avatar-cam" id="avatarCamBtn" title="Change photo">
                   <svg viewBox="0 0 24 24" fill="none"><path d="M4 8h3l1.5-2h7L17 8h3v11H4z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><circle cx="12" cy="13.5" r="3.2" stroke="currentColor" stroke-width="1.6"/></svg>
                 </div>
-                <input type="file" id="avatarInput" accept="image/png,image/jpeg" style="display:none;">
+                <input type="file" id="avatarInput" accept="image/*" style="display:none;">
               </div>
               <div class="avatar-meta">
                 <b id="avatarName">Your profile photo</b>
-                Click the camera icon to upload a new picture. PNG or JPG, up to 5MB.
+                Click the camera icon to upload any photo — you'll be able to crop and resize it before saving.
               </div>
             </div>
 
@@ -476,7 +483,7 @@
 
       </div>
 
-      <!-- ---------- Right column: visual panel ---------- -->
+      <!-- ---------- Right column: visual panel (half screen, edge to edge) ---------- -->
       <div class="visual-card">
         <img class="bg-photo" src="frontend_photos/background_profile.png" alt="">
         <div class="visual-inner">
@@ -518,6 +525,21 @@
     <div class="modal-actions">
       <button class="btn-ghost" id="cancelDelete" type="button">Cancel</button>
       <button class="btn-danger" id="confirmDelete" type="button">Yes, delete my account</button>
+    </div>
+  </div>
+</div>
+
+<!-- ---------- Crop avatar modal ---------- -->
+<div class="modal-overlay" id="cropModal">
+  <div class="modal-box crop-modal-box">
+    <h3>Adjust your photo</h3>
+    <p class="crop-hint">Drag to reposition, scroll or pinch to zoom. We'll crop and resize it to fit your profile picture.</p>
+    <div class="crop-container">
+      <img id="cropImage" src="" alt="">
+    </div>
+    <div class="modal-actions">
+      <button class="btn-ghost" id="cropCancel" type="button">Cancel</button>
+      <button class="btn-primary" id="cropConfirm" type="button">Save photo</button>
     </div>
   </div>
 </div>
@@ -624,24 +646,94 @@
   document.getElementById('avatarCamBtn').addEventListener('click', () => {
     document.getElementById('avatarInput').click();
   });
-  document.getElementById('avatarInput').addEventListener('change', async (e) => {
+
+  // ---------- Crop modal (Cropper.js) ----------
+  const cropModal = document.getElementById('cropModal');
+  const cropImage = document.getElementById('cropImage');
+  const avatarInput = document.getElementById('avatarInput');
+  let cropper = null;
+
+  function openCropModal(imageSrc){
+    cropImage.src = imageSrc;
+    cropModal.classList.add('open');
+    if (cropper) { cropper.destroy(); cropper = null; }
+    cropper = new Cropper(cropImage, {
+      aspectRatio: 1,
+      viewMode: 1,
+      dragMode: 'move',
+      autoCropArea: 1,
+      background: false,
+      guides: false,
+      center: false,
+      highlight: false,
+      cropBoxMovable: false,
+      cropBoxResizable: false,
+      toggleDragModeOnDblclick: false
+    });
+  }
+
+  function closeCropModal(){
+    cropModal.classList.remove('open');
+    if (cropper) { cropper.destroy(); cropper = null; }
+  }
+
+  avatarInput.addEventListener('change', (e) => {
     const file = e.target.files[0];
+    avatarInput.value = ''; // allow re-selecting the same file later
     if (!file) return;
-    if (file.size > 5 * 1024 * 1024) {
-      showMsg(profileMsg, 'Imaginea trebuie să fie mai mică de 5MB.', 'error');
-      return;
-    }
-    if (file.type !== 'image/png' && file.type !== 'image/jpeg') {
-      showMsg(profileMsg, 'Doar imagini PNG sau JPG sunt acceptate.', 'error');
+
+    if (!file.type.startsWith('image/')) {
+      showMsg(profileMsg, 'Te rugăm să încarci un fișier imagine.', 'error');
       return;
     }
 
+    // Any size/format is accepted here — we crop and compress it below,
+    // so there's no need to reject large photos.
+    const reader = new FileReader();
+    reader.onload = (ev) => openCropModal(ev.target.result);
+    reader.onerror = () => showMsg(profileMsg, 'Nu s-a putut citi imaginea. Încearcă din nou.', 'error');
+    reader.readAsDataURL(file);
+  });
+
+  document.getElementById('cropCancel').addEventListener('click', closeCropModal);
+  cropModal.addEventListener('click', (e) => {
+    if (e.target === cropModal) closeCropModal();
+  });
+
+  document.getElementById('cropConfirm').addEventListener('click', () => {
+    if (!cropper) return;
+    const confirmBtn = document.getElementById('cropConfirm');
+    confirmBtn.disabled = true;
+    confirmBtn.textContent = 'Se salvează...';
+
+    // Crop to a fixed square and let the canvas re-encode/compress it,
+    // regardless of how large or what format the original photo was.
+    const canvas = cropper.getCroppedCanvas({
+      width: 512,
+      height: 512,
+      imageSmoothingEnabled: true,
+      imageSmoothingQuality: 'high'
+    });
+
+    canvas.toBlob(async (blob) => {
+      confirmBtn.disabled = false;
+      confirmBtn.textContent = 'Save photo';
+      if (!blob) {
+        showMsg(profileMsg, 'Nu s-a putut procesa imaginea. Încearcă din nou.', 'error');
+        return;
+      }
+      closeCropModal();
+      await uploadAvatarBlob(blob);
+    }, 'image/jpeg', 0.88);
+  });
+
+  async function uploadAvatarBlob(blob){
     // Show an instant local preview while the upload is in flight
-    const localPreviewUrl = URL.createObjectURL(file);
+    const localPreviewUrl = URL.createObjectURL(blob);
     setAvatarDisplay(localPreviewUrl);
 
     const formData = new FormData();
-    formData.append('avatar', file);
+    formData.append('avatar', blob, 'avatar.jpg');
 
     try {
       const res = await fetch('/api/profile/avatar', {
@@ -657,6 +749,8 @@
         return;
       }
 
+      // This is the same avatar element used across the app (including the
+      // sidebar), so once saved it will keep showing up everywhere.
       setAvatarDisplay(data.photoUrl);
       localStorage.setItem('pyf_userPhoto', data.photoUrl);
       showMsg(profileMsg, 'Poza de profil a fost actualizată!', 'success');
@@ -664,7 +758,7 @@
       console.error(err);
       showMsg(profileMsg, 'Nu s-a putut contacta serverul. Încearcă din nou.', 'error');
     }
-  });
+  }
 
   // ---------- Load profile data ----------
   const firstNameInput = document.getElementById('firstName');
