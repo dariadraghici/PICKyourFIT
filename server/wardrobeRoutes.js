@@ -1,14 +1,10 @@
 const express = require('express');
 const multer = require('multer');
-const fs = require('fs');
-const path = require('path');
 const { randomUUID } = require('crypto');
 const { db, auth } = require('./firebaseAdmin');
+const { uploadBuffer, deleteAsset } = require('./cloudinaryClient');
 
 const router = express.Router();
-
-const UPLOAD_ROOT = path.join(__dirname, 'uploads', 'wardrobe');
-fs.mkdirSync(UPLOAD_ROOT, { recursive: true });
 
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -36,21 +32,13 @@ router.post('/', requireAuth, upload.single('image'), async (req, res) => {
       return res.status(400).json({ error: 'Nicio imagine trimisă.' });
     }
     const { description = '', brand = '' } = req.body;
-
     const itemId = randomUUID();
-    const ext = (req.file.originalname.split('.').pop() || 'jpg').toLowerCase().replace(/[^a-z0-9]/g, '') || 'jpg';
 
-    const userDir = path.join(UPLOAD_ROOT, req.uid);
-    fs.mkdirSync(userDir, { recursive: true });
-
-    const fileName = `${itemId}.${ext}`;
-    const absolutePath = path.join(userDir, fileName);
-    fs.writeFileSync(absolutePath, req.file.buffer);
-
-    const imageUrl = `/uploads/wardrobe/${req.uid}/${fileName}`; // public URL 
+    const result = await uploadBuffer(req.file.buffer, `wardrobe/${req.uid}`);
 
     const itemData = {
-      imageUrl,
+      imageUrl: result.secure_url,
+      imagePublicId: result.public_id,
       description,
       brand,
       createdAt: new Date().toISOString(),
@@ -99,11 +87,8 @@ router.delete('/:itemId', requireAuth, async (req, res) => {
       return res.status(404).json({ error: 'Articolul nu a fost găsit.' });
     }
 
-    const { imageUrl } = itemDoc.data();
-    if (imageUrl) {
-      const absolutePath = path.join(__dirname, imageUrl.replace(/^\//, ''));
-      fs.unlink(absolutePath, () => {}); // best-effort that doesn't block deletion if the file is missing
-    }
+    const { imagePublicId } = itemDoc.data();
+    await deleteAsset(imagePublicId); // best-effort, doesn't throw if missing
     await itemRef.delete();
 
     return res.status(200).json({ success: true });

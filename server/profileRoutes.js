@@ -1,16 +1,12 @@
 const express = require('express');
 const multer = require('multer');
-const fs = require('fs');
-const path = require('path');
 const { db, auth } = require('./firebaseAdmin');
+const { uploadBuffer, deleteAsset } = require('./cloudinaryClient');
 
 const router = express.Router();
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const FIREBASE_WEB_API_KEY = process.env.FIREBASE_WEB_API_KEY;
-
-const AVATAR_ROOT = path.join(__dirname, 'uploads', 'avatars');
-fs.mkdirSync(AVATAR_ROOT, { recursive: true });
 
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -51,14 +47,6 @@ async function signInWithPassword(email, password) {
     throw new Error(data.error?.message || 'AUTH_FAILED');
   }
   return data;
-}
-
-function removeExistingAvatarFiles(uid, keepExt) {
-  ['png', 'jpg', 'jpeg'].forEach((ext) => {
-    if (ext === keepExt) return;
-    const p = path.join(AVATAR_ROOT, `${uid}.${ext}`);
-    if (fs.existsSync(p)) fs.unlinkSync(p);
-  });
 }
 
 // GET /api/profile  -> returns the logged-in user's profile from Firestore
@@ -150,18 +138,21 @@ router.post('/profile/avatar', requireAuth, (req, res) => {
         return res.status(400).json({ error: 'Nicio imagine trimisă.' });
       }
 
-      const ext = req.file.mimetype === 'image/png' ? 'png' : 'jpg';
-      const fileName = `${req.uid}.${ext}`;
-      const absolutePath = path.join(AVATAR_ROOT, fileName);
+      const userRef = db.collection('users').doc(req.uid);
+      const userDoc = await userRef.get();
+      const oldPublicId = userDoc.exists ? userDoc.data().photoPublicId : null;
 
-      removeExistingAvatarFiles(req.uid, ext);
-      fs.writeFileSync(absolutePath, req.file.buffer);
+      const result = await uploadBuffer(req.file.buffer, `avatars/${req.uid}`);
 
-      const photoUrl = `/uploads/avatars/${fileName}?v=${Date.now()}`; // cache-bust on change
+      // remove the old avatar only after the new one uploaded successfully
+      await deleteAsset(oldPublicId);
 
-      await db.collection('users').doc(req.uid).set({ photoUrl }, { merge: true });
+      await userRef.set(
+        { photoUrl: result.secure_url, photoPublicId: result.public_id },
+        { merge: true }
+      );
 
-      return res.status(200).json({ photoUrl });
+      return res.status(200).json({ photoUrl: result.secure_url });
     } catch (innerErr) {
       console.error('Avatar upload error:', innerErr);
       return res.status(500).json({ error: 'Nu s-a putut încărca poza.' });
@@ -206,21 +197,20 @@ router.post('/change-password', requireAuth, async (req, res) => {
 router.delete('/delete-account', requireAuth, async (req, res) => {
   const uid = req.uid;
   try {
-    // 1) Delete every wardrobe item (Firestore docs + the image files on disk)
+    // 1) Delete every wardrobe item (Firestore docs + the images on Cloudinary)
     const wardrobeSnap = await db.collection('users').doc(uid).collection('wardrobe').get();
     await Promise.all(
       wardrobeSnap.docs.map(async (docSnap) => {
-        const { imageUrl } = docSnap.data();
-        if (imageUrl) {
-          const absolutePath = path.join(__dirname, imageUrl.split('?')[0].replace(/^\//, ''));
-          fs.unlink(absolutePath, () => {}); // best-effort
-        }
+        const { imagePublicId } = docSnap.data();
+        await deleteAsset(imagePublicId); // best-effort
         await docSnap.ref.delete();
       })
     );
 
-    // 2) Delete the avatar file, if any
-    removeExistingAvatarFiles(uid, null);
+    // 2) Delete the avatar on Cloudinary, if any
+    const userDoc = await db.collection('users').doc(uid).get();
+    const photoPublicId = userDoc.exists ? userDoc.data().photoPublicId : null;
+    await deleteAsset(photoPublicId);
 
     // 3) Delete the Firestore user document
     await db.collection('users').doc(uid).delete();
