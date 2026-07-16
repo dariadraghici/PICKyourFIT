@@ -521,14 +521,12 @@
     }
   }
 
-  // Funcția care apelează backend-ul tău
   async function removeBackgroundAPI(imageFile) {
     const formData = new FormData();
     formData.append('size', 'auto');
-    formData.append('image_file', imageFile); // Trimitem fișierul original
+    formData.append('image_file', imageFile); // send the original file to the backend for processing
 
     try {
-      // Apelăm ruta de pe serverul tău (Node.js)
       const response = await fetch('/api/remove-bg', {
         method: 'POST',
         body: formData
@@ -538,7 +536,6 @@
         throw new Error('Eroare la procesarea imaginii pe server.');
       }
 
-      // Primim imaginea fără fundal sub formă de Blob
       return await response.blob();
     } catch (error) {
       console.error('A apărut o problemă la eliminarea fundalului:', error);
@@ -549,7 +546,7 @@
   addToWardrobeBtn.addEventListener('click', async () => {
     if(!currentResult) return;
     
-    // Schimbăm starea butonului pentru a arăta că se procesează (durează 1-3 secunde)
+    // change button state to indicate processing
     addToWardrobeBtn.textContent = 'Removing background...';
     addToWardrobeBtn.disabled = true;
     addToWardrobeBtn.style.opacity = '0.7';
@@ -558,11 +555,9 @@
     const section = SECTION_MAP[category];
     
     if(section) {
-      // 1. Cerem backend-ului să elimine fundalul
       const noBgBlob = await removeBackgroundAPI(file);
-      let finalDataUrl = dataUrl; // Fallback: dacă dă eroare, salvăm originalul
+      let finalDataUrl = dataUrl;
 
-      // 2. Dacă a reușit, transformăm Blob-ul primit într-un DataURL (Base64) pentru localStorage
       if(noBgBlob) {
         finalDataUrl = await new Promise((resolve) => {
           const reader = new FileReader();
@@ -573,7 +568,6 @@
          showError('Background removal failed. Saved with original background.');
       }
 
-      // 3. Creăm obiectul și îl salvăm în localStorage pentru wardrobe.html
       const item = {
         id: Date.now(),
         image: finalDataUrl,

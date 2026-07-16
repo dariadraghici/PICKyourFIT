@@ -317,16 +317,16 @@
       return;
     }
     if (password.length < 8 || !/[0-9]/.test(password) || !/[a-zA-Z]/.test(password)) {
-      showMsg('Parola trebuie să aibă minim 8 caractere și să conțină cel puțin o literă și o cifră.', 'error');
+      showMsg('Password must be at least 8 characters long and contain at least one letter and one digit.', 'error');
       return;
     }
     if (!dataConsent || !termsConsent) {
-      showMsg('Trebuie să bifezi ambele acorduri pentru a continua.', 'error');
+      showMsg('You must check both checkboxes to continue.', 'error');
       return;
     }
 
     submitBtn.disabled = true;
-    submitBtn.textContent = 'Se creează contul...';
+    submitBtn.textContent = 'Creating account...';
 
     try {
       const res = await fetch('/api/signup', {
@@ -337,21 +337,20 @@
       const data = await res.json();
 
       if (!res.ok) {
-        showMsg(data.error || 'A apărut o eroare. Încearcă din nou.', 'error');
+        showMsg(data.error || 'An error occurred. Please try again.', 'error');
         submitBtn.disabled = false;
         submitBtn.textContent = 'Sign up';
         return;
       }
 
-      // salvăm tokenul de sesiune local și redirecționăm către dulap
       localStorage.setItem('pyf_idToken', data.idToken);
       localStorage.setItem('pyf_uid', data.uid);
-      showMsg('Cont creat cu succes! Te redirecționăm...', 'success');
+      showMsg('Account created successfully! You are being redirected...', 'success');
       setTimeout(() => { window.location.href = 'index.html'; }, 900);
 
     } catch (err) {
       console.error(err);
-      showMsg('Nu s-a putut contacta serverul. Încearcă din nou.', 'error');
+      showMsg('Could not contact the server. Please try again.', 'error');
       submitBtn.disabled = false;
       submitBtn.textContent = 'Sign up';
     }

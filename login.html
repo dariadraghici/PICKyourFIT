@@ -301,12 +301,12 @@
       return;
     }
     if (!password) {
-      showMsg('Introdu parola.', 'error');
+      showMsg('Please enter your password.', 'error');
       return;
     }
 
     loginBtn.disabled = true;
-    loginBtn.textContent = 'Se conectează...';
+    loginBtn.textContent = 'Logging in...';
 
     try {
       const res = await fetch('/api/login', {
@@ -317,7 +317,7 @@
       const data = await res.json();
 
       if (!res.ok) {
-        showMsg(data.error || 'Email sau parolă incorectă.', 'error');
+        showMsg(data.error || 'Email or password is incorrect.', 'error');
         loginBtn.disabled = false;
         loginBtn.textContent = 'Log in';
         return;
@@ -339,12 +339,12 @@
         }
       } catch (e) { /* non-blocking */ }
 
-      showMsg('Autentificare reușită! Te redirecționăm...', 'success');
+      showMsg('Login successful! You are being redirected...', 'success');
       setTimeout(() => { window.location.href = 'index.html'; }, 700);
 
     } catch (err) {
       console.error(err);
-      showMsg('Nu s-a putut contacta serverul. Încearcă din nou.', 'error');
+      showMsg('Could not contact the server. Please try again.', 'error');
       loginBtn.disabled = false;
       loginBtn.textContent = 'Log in';
     }
