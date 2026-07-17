@@ -256,7 +256,7 @@
     const POS_B = {
       head:      { top: '0%',  left: '50%', width: '16%' },
       jacket:    { top: '12%', left: '21%', width: '44%' },
-      body:      { top: '12%', left: '50%', width: '44%' },
+      body:      { top: '12%', left: '50%', width: '44%', height: '70%' },
       purse:     { top: '12%', left: '79%', width: '44%' },
       sockBig:   { top: '62%', left: '50%', width: '38%' },
       sockSmall: { top: '86%', left: '23%', width: '26%' },
@@ -397,6 +397,7 @@
       img.style.top = pos.top;
       img.style.left = pos.left;
       img.style.width = pos.width;
+      if (pos.height) img.style.height = pos.height;
       img.style.transform = 'translateX(-50%)';
       img.style.zIndex = z;
       frame.appendChild(img);
