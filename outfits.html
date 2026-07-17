@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Outfits - Pick Your Fit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --linen: #F3EEE3;
+    --linen-card: #FAF7EF;
+    --ink: #22222b;
+    --ink-soft: #6B6258;
+    --thread: #B5442F;
+    --sage: #7C8C72;
+    --line: #D9D0BD;
+    --side-bg: rgba(42, 34, 27, 0.85);
+  }
+
+  *{ box-sizing: border-box; margin: 0; padding: 0; }
+  body{
+    background: var(--linen);
+    background-image: repeating-linear-gradient(0deg, rgba(0,0,0,0.018) 0px, rgba(0,0,0,0.018) 1px, transparent 1px, transparent 3px);
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    min-height:100vh;
+    display: flex;
+  }
+
+  a { text-decoration: none; color: inherit; }
+  button { font-family: inherit; cursor: pointer; }
+
+  /* ---------- Sidebar ---------- */
+  .sidebar{
+    position:fixed;top:0;left:0;bottom:0;z-index:5;
+    width:88px; display:flex;flex-direction:column;align-items:center;
+    padding:22px 0 20px; background:var(--side-bg);
+    backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+    border-right:1px solid rgba(255,255,255,0.08);
+  }
+  .side-logo{ width:44px;height:44px;border-radius:12px; display:flex;align-items:center;justify-content:center; color:#fff;margin-bottom:26px; }
+  .side-logo svg{width:24px;height:24px;}
+  .side-nav{ display:flex;flex-direction:column;gap:8px; flex:1; }
+  .side-link{
+    width:46px;height:46px;border-radius:12px; display:flex;align-items:center;justify-content:center;
+    color:rgba(255,255,255,0.62); transition:background .15s ease, color .15s ease;
+  }
+  .side-link svg{width:20px;height:20px;}
+  .side-link:hover{color:#fff;background:rgba(255,255,255,0.08);}
+  .side-link.active{background:#fdfcf9;color:var(--ink);}
+  .side-bottom{ display:flex;flex-direction:column;align-items:center;gap:16px; margin-top:auto; }
+  .side-avatar{
+    width:38px;height:38px;border-radius:50%; overflow:hidden; border:1.5px solid rgba(255,255,255,0.5);
+    display:flex;align-items:center;justify-content:center; background:#c9c2b4; color:#5b5346;
+  }
+  .side-avatar img{width:100%;height:100%;object-fit:cover;display:block;}
+  .side-avatar svg{width:22px;height:22px;}
+
+  /* ---------- Main Layout & Header ---------- */
+  .main-content { flex: 1; margin-left: 88px; display: flex; flex-direction: column; }
+  header{ display:flex;align-items:center;justify-content:space-between; padding:26px 44px; position:relative; z-index:4; }
+  .logo{ font-family:'Fraunces',serif; font-size:14px;font-weight:600;letter-spacing:0.16em; text-transform:uppercase;color:var(--ink); }
+  nav.main-nav{display:flex;gap:34px;}
+  nav.main-nav a{ font-size:12.5px;font-weight:600;letter-spacing:0.03em; text-transform:uppercase;color:var(--ink-soft); transition:color .15s ease; }
+  nav.main-nav a:hover{color:var(--ink);}
+
+  .header-actions{display:flex;align-items:center;gap:12px;}
+  .btn-header {
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    padding:10px 20px;border-radius:8px;font-size:12.5px;font-weight:600;
+    letter-spacing:0.02em;text-transform:uppercase; border:1px solid var(--ink);
+    background:transparent;color:var(--ink); transition:background .15s ease, opacity .15s ease;
+  }
+  .btn-header:hover{background:rgba(0,0,0,0.05);}
+  .btn-header-dark{background:var(--ink);color:var(--linen-card);}
+  .btn-header-dark:hover{opacity:0.9;background:var(--ink);}
+
+  /* ---------- Outfits feed ---------- */
+  .outfits-container { padding: 30px 24px 100px; max-width: 460px; margin: 0 auto; width: 100%; }
+  .outfits-heading{ font-family:'Fraunces', serif; font-weight:600; font-size:32px; margin:0 0 8px; text-align:center; }
+  .outfits-sub{ text-align:center; color:var(--ink-soft); font-size:13.5px; margin-bottom:36px; }
+
+  .login-prompt, .empty-prompt { text-align: center; margin-top: 50px; font-size: 16px; color: var(--ink-soft); }
+  .login-prompt a, .empty-prompt a { color: var(--thread); text-decoration: underline; font-weight: 600; }
+
+  .outfit-feed{ display:flex; flex-direction:column; gap:34px; }
+
+  .outfit-card{
+    background: var(--linen-card); border:1px solid var(--line); border-radius:14px;
+    padding:22px 22px 20px; display:flex; flex-direction:column; align-items:center; gap:16px;
+  }
+  .outfit-tag{
+    font-family:'JetBrains Mono', monospace; font-size:10px; letter-spacing:0.1em;
+    text-transform:uppercase; color:var(--sage); align-self:flex-start;
+  }
+
+  .outfit-frame{ position:relative; width:100%; max-width:280px; height:420px; }
+  .outfit-frame img{
+    position:absolute; object-fit:contain;
+    filter: drop-shadow(0 4px 8px rgba(34,34,43,0.14));
+  }
+
+  .outfit-actions{ display:flex; gap:10px; width:100%; }
+  .outfit-btn{
+    flex:1; display:flex; align-items:center; justify-content:center; gap:6px;
+    padding:11px 10px; border-radius:8px; font-size:11.5px; font-weight:600;
+    letter-spacing:0.03em; text-transform:uppercase; border:1px solid var(--ink);
+    background:transparent; color:var(--ink); transition:background .15s ease, color .15s ease;
+  }
+  .outfit-btn svg{width:14px;height:14px;flex-shrink:0;}
+  .outfit-btn:hover{ background: rgba(0,0,0,0.05); }
+  .outfit-btn.is-active{ background:var(--thread); border-color:var(--thread); color:#fff; }
+  .outfit-btn.is-active:hover{ background:var(--thread); opacity:0.9; }
+
+  .cal-picker{
+    display:flex; gap:8px; width:100%; align-items:center;
+  }
+  .cal-picker input[type=date]{
+    flex:1; font-family:'Inter',sans-serif; font-size:12.5px; padding:9px 8px;
+    border:1px solid var(--line); border-radius:8px; background:#fff; color:var(--ink);
+  }
+  .cal-picker button{
+    padding:9px 14px; border-radius:8px; border:1px solid var(--ink); background:var(--ink);
+    color:var(--linen-card); font-size:11.5px; font-weight:600; text-transform:uppercase;
+  }
+
+  .load-more-row{ text-align:center; margin-top:10px; }
+  .btn-load-more{
+    padding:13px 30px; border-radius:8px; border:1px solid var(--ink); background:var(--ink);
+    color:var(--linen-card); font-size:12.5px; font-weight:600; letter-spacing:0.03em; text-transform:uppercase;
+  }
+  .btn-load-more:hover{ opacity:0.9; }
+  .btn-load-more:disabled{ opacity:0.4; cursor:default; }
+  .load-more-note{ margin-top:14px; font-size:13px; color:var(--ink-soft); font-style:italic; }
+
+  @media (max-width: 980px){
+    .sidebar{width:64px;}
+    .main-content{margin-left:64px;}
+    header{padding:22px 24px;}
+    nav.main-nav{display:none;}
+  }
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="side-logo">
+    <svg viewBox="0 0 24 24" fill="none"><path d="M12 3 L15.5 5.5 L12 8 L8.5 5.5 Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M12 8 L3 13 L3 14 L21 14 L21 13 Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+  </div>
+  <nav class="side-nav">
+    <a href="landing.html" class="side-link" title="Home">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M4 11.5 L12 5 L20 11.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 10.5 V19 a1 1 0 0 0 1 1 h10 a1 1 0 0 0 1 -1 V10.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
+    <a href="#" class="side-link" title="Favorites">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M12 20 C6.5 15.8, 3.5 12, 3.5 8.2 C3.5 5.1, 5.8 3, 8.5 3 C10.3 3, 11.7 4, 12 5.6 C12.3 4, 13.7 3, 15.5 3 C18.2 3, 20.5 5.1, 20.5 8.2 C20.5 12, 17.5 15.8, 12 20 Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+    </a>
+    <a href="#" class="side-link" title="Planner">
+      <svg viewBox="0 0 24 24" fill="none"><rect x="4" y="5.5" width="16" height="14.5" rx="2" stroke="currentColor" stroke-width="1.6"/><line x1="4" y1="10" x2="20" y2="10" stroke="currentColor" stroke-width="1.6"/><line x1="8.3" y1="3" x2="8.3" y2="7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><line x1="15.7" y1="3" x2="15.7" y2="7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+    </a>
+    <a href="wardrobe.html" class="side-link" title="Wardrobe">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M8.5 4 L10 6 h4 l1.5 -2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M8.5 4 L4 7.5 L6.5 10.5 L8 9.3 V20 h8 V9.3 l1.5 1.2 L20 7.5 L15.5 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
+    <a href="outfits.html" class="side-link active" title="Outfits">
+      <svg viewBox="0 0 24 24" fill="none"><rect x="7.5" y="3" width="11" height="14" rx="2" stroke="currentColor" stroke-width="1.6" transform="rotate(8 13 10)"/><rect x="5" y="6.5" width="14" height="15" rx="2" stroke="currentColor" stroke-width="1.6"/></svg>
+    </a>
+    <a href="index.html" class="side-link" title="Scan an item">
+      <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/><path d="M9.3 9.5a2.7 2.7 0 0 1 5.2-1c0 1.7-2.5 1.9-2.5 3.7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="16.3" r="0.9" fill="currentColor"/></svg>
+    </a>
+  </nav>
+  <div class="side-bottom">
+    <a href="login.html" id="sideAvatarLink" class="side-avatar" title="Account">
+      <svg id="defaultAvatarIcon" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8.5" r="3.6" stroke="currentColor" stroke-width="1.6"/><path d="M4.5 20 c0 -4.2 3.4 -6.3 7.5 -6.3 s7.5 2.1 7.5 6.3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      <img id="userAvatarImg" src="" alt="" style="display:none;" />
+    </a>
+  </div>
+</aside>
+
+<main class="main-content">
+  <header>
+    <div class="logo">Pick Your Fit</div>
+    <nav class="main-nav">
+      <a href="landing.html#features">Features</a>
+      <a href="landing.html#about">About</a>
+      <a href="landing.html">Home</a>
+      <a href="wardrobe.html">Wardrobe</a>
+      <a href="landing.html#contact">Contact</a>
+    </nav>
+    <div class="header-actions" id="headerActions">
+      <a href="login.html" class="btn-header">Log in</a>
+      <a href="signup.html" class="btn-header btn-header-dark">Register</a>
+    </div>
+  </header>
+
+  <div class="outfits-container" id="outfitsContainer">
+  </div>
+</main>
+
+<script>
+  // Auth logic
+  const idToken = localStorage.getItem('pyf_idToken');
+  const userPhoto = localStorage.getItem('pyf_userPhoto');
+  const isLoggedIn = !!idToken;
+  const outfitsContainer = document.getElementById('outfitsContainer');
+
+  if (isLoggedIn) {
+    const avatarLink = document.getElementById('sideAvatarLink');
+    if (userPhoto) {
+      document.getElementById('userAvatarImg').src = userPhoto;
+      document.getElementById('userAvatarImg').style.display = 'block';
+      document.getElementById('defaultAvatarIcon').style.display = 'none';
+    }
+    avatarLink.href = 'profile.html';
+    document.getElementById('headerActions').innerHTML = '<a href="index.html" class="btn-header btn-header-dark">Scan New Item</a>';
+  } else {
+    outfitsContainer.innerHTML = '<div class="login-prompt"><h2>Outfits are Locked</h2><p>Please <a href="login.html">Log In</a> or <a href="signup.html">Register</a> to see outfit ideas built from your wardrobe.</p></div>';
+  }
+
+  if (isLoggedIn) {
+
+    // ---------- Category pools (mirrors wardrobe.html grouping) ----------
+    const SLOT_CATEGORIES = {
+      upperBody: ['T-shirt', 'Crop Top', 'Bodysuit', 'Turtle Neck', 'Tank top', 'Blouse', 'Shirt', 'Pullovers', 'Hoodie'],
+      jacket:    ['Shirt', 'Jacket', 'Blazer'],
+      lowerBody: ['Shorts', 'Pants', 'Skirt', 'Leggings'],
+      socks:     ['Socks'],
+      tights:    ['Tights'],
+      body:      ['Dress', 'Jumpsuit'],
+      purse:     ['Purse'],
+      shoes:     ['Boots', 'Sneakers', 'Heels'],
+      head:      ['Glasses'],
+    };
+
+    // Layout coordinates for each outfit "shape". Values are % of the frame.
+    const POS_A = {
+      head:      { top: '0%',  left: '50%', width: '15%' },
+      jacket:    { top: '13%', left: '30%', width: '42%' },
+      upperBody: { top: '11%', left: '58%', width: '46%' },
+      purse:     { top: '32%', left: '88%', width: '20%' },
+      lowerBody: { top: '50%', left: '50%', width: '46%' },
+      sockBig:   { top: '73%', left: '50%', width: '38%' },
+      sockSmall: { top: '75%', left: '50%', width: '18%' },
+      shoes:     { top: '89%', left: '50%', width: '24%' },
+    };
+    const POS_B = {
+      head:      { top: '0%',  left: '50%', width: '15%' },
+      jacket:    { top: '12%', left: '30%', width: '42%' },
+      body:      { top: '10%', left: '58%', width: '48%' },
+      purse:     { top: '30%', left: '89%', width: '20%' },
+      sockBig:   { top: '62%', left: '50%', width: '38%' },
+      sockSmall: { top: '64%', left: '50%', width: '18%' },
+      shoes:     { top: '86%', left: '50%', width: '24%' },
+    };
+
+    const BATCH_SIZE = 10;
+    const FAVORITES_KEY = 'pyf_outfit_favorites';
+    const CALENDAR_KEY = 'pyf_outfit_calendar';
+    const shownSignatures = new Set();
+    let pools = null;
+
+    function poolFor(catList, items) {
+      return items.filter(i => catList.includes(i.category));
+    }
+
+    function buildPools(items) {
+      const p = {};
+      Object.keys(SLOT_CATEGORIES).forEach(slot => { p[slot] = poolFor(SLOT_CATEGORIES[slot], items); });
+      return p;
+    }
+
+    function randomPick(arr) {
+      return arr[Math.floor(Math.random() * arr.length)];
+    }
+    function randomPickExcluding(arr, usedIds) {
+      const filtered = arr.filter(i => !usedIds.has(i.id));
+      if (!filtered.length) return null;
+      return randomPick(filtered);
+    }
+
+    function tryBuildOutfit(type) {
+      if (type === 'A') {
+        if (!pools.lowerBody.length) return null;
+        const lowerBodyItem = randomPick(pools.lowerBody);
+        const isSkirt = lowerBodyItem.category === 'Skirt';
+        const sockPool = isSkirt ? pools.socks.concat(pools.tights) : pools.socks;
+        if (!sockPool.length) return null;
+
+        const used = new Set([lowerBodyItem.id]);
+        const sockItem = randomPickExcluding(sockPool, used); if (!sockItem) return null; used.add(sockItem.id);
+        const upperItem = randomPickExcluding(pools.upperBody, used); if (!upperItem) return null; used.add(upperItem.id);
+        const jacketItem = randomPickExcluding(pools.jacket, used); if (!jacketItem) return null; used.add(jacketItem.id);
+        const shoesItem = randomPickExcluding(pools.shoes, used); if (!shoesItem) return null; used.add(shoesItem.id);
+        const headItem = randomPickExcluding(pools.head, used); if (!headItem) return null; used.add(headItem.id);
+        const purseItem = randomPickExcluding(pools.purse, used); if (!purseItem) return null;
+
+        return {
+          type: 'A', isTights: sockItem.category === 'Tights',
+          items: { lowerBody: lowerBodyItem, sock: sockItem, upperBody: upperItem, jacket: jacketItem, shoes: shoesItem, head: headItem, purse: purseItem }
+        };
+      } else {
+        if (!pools.body.length) return null;
+        const bodyItem = randomPick(pools.body);
+        const isDress = bodyItem.category === 'Dress';
+        const sockPool = isDress ? pools.socks.concat(pools.tights) : pools.socks;
+        if (!sockPool.length) return null;
+
+        const used = new Set([bodyItem.id]);
+        const sockItem = randomPickExcluding(sockPool, used); if (!sockItem) return null; used.add(sockItem.id);
+        const jacketItem = randomPickExcluding(pools.jacket, used); if (!jacketItem) return null; used.add(jacketItem.id);
+        const shoesItem = randomPickExcluding(pools.shoes, used); if (!shoesItem) return null; used.add(shoesItem.id);
+        const headItem = randomPickExcluding(pools.head, used); if (!headItem) return null; used.add(headItem.id);
+        const purseItem = randomPickExcluding(pools.purse, used); if (!purseItem) return null;
+
+        return {
+          type: 'B', isTights: sockItem.category === 'Tights',
+          items: { body: bodyItem, sock: sockItem, jacket: jacketItem, shoes: shoesItem, head: headItem, purse: purseItem }
+        };
+      }
+    }
+
+    function feasibleTypes() {
+      const feasible = [];
+      if (pools.lowerBody.length && pools.upperBody.length && pools.jacket.length && pools.shoes.length &&
+          pools.head.length && pools.purse.length && (pools.socks.length || pools.tights.length)) feasible.push('A');
+      if (pools.body.length && pools.jacket.length && pools.shoes.length &&
+          pools.head.length && pools.purse.length && (pools.socks.length || pools.tights.length)) feasible.push('B');
+      return feasible;
+    }
+
+    function outfitSignature(outfit) {
+      return outfit.type + ':' + Object.values(outfit.items).map(i => i.id).sort().join(',');
+    }
+
+    function generateBatch(count) {
+      const feasible = feasibleTypes();
+      if (!feasible.length) return [];
+      const batch = [];
+      const maxAttempts = count * 50;
+      let attempts = 0;
+      while (batch.length < count && attempts < maxAttempts) {
+        attempts++;
+        const type = randomPick(feasible);
+        const outfit = tryBuildOutfit(type);
+        if (!outfit) continue;
+        const sig = outfitSignature(outfit);
+        if (shownSignatures.has(sig)) continue;
+        shownSignatures.add(sig);
+        outfit.signature = sig;
+        batch.push(outfit);
+      }
+      return batch;
+    }
+
+    // ---------- Favorites / Calendar (stored locally on this device) ----------
+    function readStore(key) {
+      try { return JSON.parse(localStorage.getItem(key)) || []; } catch (e) { return []; }
+    }
+    function writeStore(key, arr) {
+      localStorage.setItem(key, JSON.stringify(arr));
+    }
+    function isFavorited(sig) {
+      return readStore(FAVORITES_KEY).some(f => f.signature === sig);
+    }
+    function toggleFavorite(outfit) {
+      let favs = readStore(FAVORITES_KEY);
+      if (favs.some(f => f.signature === outfit.signature)) {
+        favs = favs.filter(f => f.signature !== outfit.signature);
+      } else {
+        favs.push({ signature: outfit.signature, type: outfit.type, items: outfit.items, savedAt: new Date().toISOString() });
+      }
+      writeStore(FAVORITES_KEY, favs);
+      return favs.some(f => f.signature === outfit.signature);
+    }
+    function scheduleOutfit(outfit, dateStr) {
+      const cal = readStore(CALENDAR_KEY);
+      cal.push({ signature: outfit.signature, type: outfit.type, items: outfit.items, date: dateStr, savedAt: new Date().toISOString() });
+      writeStore(CALENDAR_KEY, cal);
+    }
+
+    // ---------- Rendering ----------
+    function place(frame, item, pos, z) {
+      if (!item || !pos) return;
+      const img = document.createElement('img');
+      img.src = item.imageUrl;
+      img.alt = item.category || '';
+      img.style.top = pos.top;
+      img.style.left = pos.left;
+      img.style.width = pos.width;
+      img.style.transform = 'translateX(-50%)';
+      img.style.zIndex = z;
+      frame.appendChild(img);
+    }
+
+    function buildOutfitFrame(outfit) {
+      const frame = document.createElement('div');
+      frame.className = 'outfit-frame';
+      const POS = outfit.type === 'A' ? POS_A : POS_B;
+
+      place(frame, outfit.items.jacket, POS.jacket, 1);
+      if (outfit.type === 'A') {
+        place(frame, outfit.items.upperBody, POS.upperBody, 2);
+        place(frame, outfit.items.lowerBody, POS.lowerBody, 2);
+      } else {
+        place(frame, outfit.items.body, POS.body, 2);
+      }
+      place(frame, outfit.items.purse, POS.purse, 3);
+      place(frame, outfit.items.sock, outfit.isTights ? POS.sockBig : POS.sockSmall, 1);
+      place(frame, outfit.items.shoes, POS.shoes, 1);
+      place(frame, outfit.items.head, POS.head, 4);
+
+      return frame;
+    }
+
+    function buildOutfitCard(outfit) {
+      const card = document.createElement('div');
+      card.className = 'outfit-card';
+
+      const tag = document.createElement('p');
+      tag.className = 'outfit-tag';
+      tag.textContent = outfit.type === 'A' ? 'Layered look' : 'Dress / jumpsuit look';
+      card.appendChild(tag);
+
+      card.appendChild(buildOutfitFrame(outfit));
+
+      const actions = document.createElement('div');
+      actions.className = 'outfit-actions';
+
+      const favBtn = document.createElement('button');
+      favBtn.type = 'button';
+      favBtn.className = 'outfit-btn fav-btn';
+      const setFavLabel = (active) => {
+        favBtn.innerHTML = (active
+          ? '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 20 C6.5 15.8, 3.5 12, 3.5 8.2 C3.5 5.1, 5.8 3, 8.5 3 C10.3 3, 11.7 4, 12 5.6 C12.3 4, 13.7 3, 15.5 3 C18.2 3, 20.5 5.1, 20.5 8.2 C20.5 12, 17.5 15.8, 12 20 Z"/></svg> Favorited'
+          : '<svg viewBox="0 0 24 24" fill="none"><path d="M12 20 C6.5 15.8, 3.5 12, 3.5 8.2 C3.5 5.1, 5.8 3, 8.5 3 C10.3 3, 11.7 4, 12 5.6 C12.3 4, 13.7 3, 15.5 3 C18.2 3, 20.5 5.1, 20.5 8.2 C20.5 12, 17.5 15.8, 12 20 Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg> Save to favorites');
+        favBtn.classList.toggle('is-active', active);
+      };
+      setFavLabel(isFavorited(outfit.signature));
+      favBtn.onclick = () => setFavLabel(toggleFavorite(outfit));
+      actions.appendChild(favBtn);
+
+      const calBtn = document.createElement('button');
+      calBtn.type = 'button';
+      calBtn.className = 'outfit-btn cal-btn';
+      calBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none"><rect x="4" y="5.5" width="16" height="14.5" rx="2" stroke="currentColor" stroke-width="1.6"/><line x1="4" y1="10" x2="20" y2="10" stroke="currentColor" stroke-width="1.6"/></svg> Add to calendar';
+      calBtn.onclick = () => openCalendarPicker(outfit, actions, calBtn);
+      actions.appendChild(calBtn);
+
+      card.appendChild(actions);
+      return card;
+    }
+
+    function openCalendarPicker(outfit, actions, calBtn) {
+      if (actions.querySelector('.cal-picker')) return;
+      calBtn.style.display = 'none';
+
+      const picker = document.createElement('div');
+      picker.className = 'cal-picker';
+
+      const dateInput = document.createElement('input');
+      dateInput.type = 'date';
+      dateInput.min = new Date().toISOString().slice(0, 10);
+      dateInput.value = dateInput.min;
+      picker.appendChild(dateInput);
+
+      const confirmBtn = document.createElement('button');
+      confirmBtn.type = 'button';
+      confirmBtn.textContent = 'Save';
+      confirmBtn.onclick = () => {
+        scheduleOutfit(outfit, dateInput.value);
+        picker.remove();
+        calBtn.style.display = '';
+        calBtn.classList.add('is-active');
+        calBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none"><path d="M5 12.5 L10 17 L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Scheduled for ' + dateInput.value;
+      };
+      picker.appendChild(confirmBtn);
+
+      actions.appendChild(picker);
+    }
+
+    function renderIntro() {
+      const heading = document.createElement('p');
+      heading.className = 'outfits-heading';
+      heading.textContent = 'Outfit Ideas';
+      outfitsContainer.appendChild(heading);
+
+      const sub = document.createElement('p');
+      sub.className = 'outfits-sub';
+      sub.textContent = 'Fresh combinations from your wardrobe. Scroll to browse, load more whenever you like.';
+      outfitsContainer.appendChild(sub);
+    }
+
+    function renderEmptyState() {
+      const empty = document.createElement('div');
+      empty.className = 'empty-prompt';
+      empty.innerHTML = 'Not enough items yet to build a full outfit. Add pieces for upper body, lower body (or a dress/jumpsuit), a jacket, socks or tights, shoes, glasses and a purse — then come back here. <a href="index.html">Scan an item</a>';
+      outfitsContainer.appendChild(empty);
+    }
+
+    const feed = document.createElement('div');
+    feed.className = 'outfit-feed';
+
+    const loadMoreRow = document.createElement('div');
+    loadMoreRow.className = 'load-more-row';
+    const loadMoreBtn = document.createElement('button');
+    loadMoreBtn.type = 'button';
+    loadMoreBtn.className = 'btn-load-more';
+    loadMoreBtn.textContent = 'Load more outfits';
+    loadMoreRow.appendChild(loadMoreBtn);
+
+    function appendBatch(count) {
+      const batch = generateBatch(count);
+      batch.forEach(outfit => feed.appendChild(buildOutfitCard(outfit)));
+      if (batch.length < count) {
+        loadMoreBtn.disabled = true;
+        const note = loadMoreRow.querySelector('.load-more-note') || document.createElement('p');
+        note.className = 'load-more-note';
+        note.textContent = "You've seen every outfit your current wardrobe can make. Add more items for new combinations!";
+        if (!loadMoreRow.querySelector('.load-more-note')) loadMoreRow.appendChild(note);
+      }
+      return batch;
+    }
+
+    loadMoreBtn.onclick = () => appendBatch(BATCH_SIZE);
+
+    async function init() {
+      renderIntro();
+      try {
+        const response = await fetch('/api/wardrobe', { headers: { Authorization: 'Bearer ' + idToken } });
+        if (!response.ok) throw new Error('LOAD_FAILED');
+        const data = await response.json();
+        pools = buildPools(data.items || []);
+
+        outfitsContainer.appendChild(feed);
+        const first = appendBatch(BATCH_SIZE);
+        if (first.length === 0) {
+          feed.remove();
+          renderEmptyState();
+        } else {
+          outfitsContainer.appendChild(loadMoreRow);
+        }
+      } catch (err) {
+        const errEl = document.createElement('p');
+        errEl.className = 'outfits-sub';
+        errEl.textContent = 'Could not load your wardrobe. Please refresh the page.';
+        outfitsContainer.appendChild(errEl);
+      }
+    }
+
+    init();
+  }
+</script>
+
+</body>
+</html>
