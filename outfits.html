@@ -256,7 +256,7 @@
     const POS_B = {
       head:      { top: '0%',  left: '50%', width: '16%' },
       jacket:    { top: '12%', left: '21%', width: '44%' },
-      body:      { top: '12%', left: '50%', width: '44%', height: '70%' },
+      body:      { top: '13%', left: '50%', width: '56%' },
       purse:     { top: '12%', left: '79%', width: '44%' },
       sockBig:   { top: '62%', left: '50%', width: '38%' },
       sockSmall: { top: '86%', left: '23%', width: '26%' },
@@ -292,38 +292,52 @@
       if (type === 'A') {
         if (!pools.lowerBody.length) return null;
         const lowerBodyItem = randomPick(pools.lowerBody);
-        const isSkirt = lowerBodyItem.category === 'Skirt';
-        const sockPool = isSkirt ? pools.socks.concat(pools.tights) : pools.socks;
-        if (!sockPool.length) return null;
-
         const used = new Set([lowerBodyItem.id]);
-        const sockItem = randomPickExcluding(sockPool, used); if (!sockItem) return null; used.add(sockItem.id);
+
+        // 1. Alegem pantofii primii
+        const shoesItem = randomPickExcluding(pools.shoes, used); if (!shoesItem) return null; used.add(shoesItem.id);
+
+        // 2. Adăugăm șosete doar dacă NU avem tocuri (Heels)
+        let sockItem = null;
+        if (shoesItem.category !== 'Heels') {
+          const isSkirt = lowerBodyItem.category === 'Skirt';
+          const sockPool = isSkirt ? pools.socks.concat(pools.tights) : pools.socks;
+          if (!sockPool.length) return null;
+          sockItem = randomPickExcluding(sockPool, used); if (!sockItem) return null; used.add(sockItem.id);
+        }
+
         const upperItem = randomPickExcluding(pools.upperBody, used); if (!upperItem) return null; used.add(upperItem.id);
         const jacketItem = randomPickExcluding(pools.jacket, used); if (!jacketItem) return null; used.add(jacketItem.id);
-        const shoesItem = randomPickExcluding(pools.shoes, used); if (!shoesItem) return null; used.add(shoesItem.id);
         const headItem = randomPickExcluding(pools.head, used); if (!headItem) return null; used.add(headItem.id);
         const purseItem = randomPickExcluding(pools.purse, used); if (!purseItem) return null;
 
         return {
-          type: 'A', isTights: sockItem.category === 'Tights',
+          type: 'A', isTights: sockItem ? sockItem.category === 'Tights' : false,
           items: { lowerBody: lowerBodyItem, sock: sockItem, upperBody: upperItem, jacket: jacketItem, shoes: shoesItem, head: headItem, purse: purseItem }
         };
       } else {
         if (!pools.body.length) return null;
         const bodyItem = randomPick(pools.body);
-        const isDress = bodyItem.category === 'Dress';
-        const sockPool = isDress ? pools.socks.concat(pools.tights) : pools.socks;
-        if (!sockPool.length) return null;
-
         const used = new Set([bodyItem.id]);
-        const sockItem = randomPickExcluding(sockPool, used); if (!sockItem) return null; used.add(sockItem.id);
-        const jacketItem = randomPickExcluding(pools.jacket, used); if (!jacketItem) return null; used.add(jacketItem.id);
+
+        // 1. Alegem pantofii primii
         const shoesItem = randomPickExcluding(pools.shoes, used); if (!shoesItem) return null; used.add(shoesItem.id);
+
+        // 2. Adăugăm șosete doar dacă NU avem tocuri (Heels)
+        let sockItem = null;
+        if (shoesItem.category !== 'Heels') {
+          const isDress = bodyItem.category === 'Dress';
+          const sockPool = isDress ? pools.socks.concat(pools.tights) : pools.socks;
+          if (!sockPool.length) return null;
+          sockItem = randomPickExcluding(sockPool, used); if (!sockItem) return null; used.add(sockItem.id);
+        }
+
+        const jacketItem = randomPickExcluding(pools.jacket, used); if (!jacketItem) return null; used.add(jacketItem.id);
         const headItem = randomPickExcluding(pools.head, used); if (!headItem) return null; used.add(headItem.id);
         const purseItem = randomPickExcluding(pools.purse, used); if (!purseItem) return null;
 
         return {
-          type: 'B', isTights: sockItem.category === 'Tights',
+          type: 'B', isTights: sockItem ? sockItem.category === 'Tights' : false,
           items: { body: bodyItem, sock: sockItem, jacket: jacketItem, shoes: shoesItem, head: headItem, purse: purseItem }
         };
       }
@@ -331,15 +345,25 @@
 
     function feasibleTypes() {
       const feasible = [];
-      if (pools.lowerBody.length && pools.upperBody.length && pools.jacket.length && pools.shoes.length &&
-          pools.head.length && pools.purse.length && (pools.socks.length || pools.tights.length)) feasible.push('A');
-      if (pools.body.length && pools.jacket.length && pools.shoes.length &&
-          pools.head.length && pools.purse.length && (pools.socks.length || pools.tights.length)) feasible.push('B');
+      const hasHeels = pools.shoes.some(s => s.category === 'Heels');
+      const hasOtherShoes = pools.shoes.some(s => s.category !== 'Heels');
+      const hasSocks = pools.socks.length > 0 || pools.tights.length > 0;
+      const canMakeFootwear = hasHeels || (hasOtherShoes && hasSocks);
+
+      if (pools.lowerBody.length && pools.upperBody.length && pools.jacket.length &&
+          pools.head.length && pools.purse.length && canMakeFootwear) {
+        feasible.push('A');
+      }
+      if (pools.body.length && pools.jacket.length &&
+          pools.head.length && pools.purse.length && canMakeFootwear) {
+        feasible.push('B');
+      }
       return feasible;
     }
 
     function outfitSignature(outfit) {
-      return outfit.type + ':' + Object.values(outfit.items).map(i => i.id).sort().join(',');
+      // Filtrăm elementele null (șosetele scoase la tocuri) pentru a evita crash-ul de ID
+      return outfit.type + ':' + Object.values(outfit.items).filter(i => i).map(i => i.id).sort().join(',');
     }
 
     function generateBatch(count) {
@@ -362,7 +386,7 @@
       return batch;
     }
 
-    // ---------- Favorites / Calendar (stored locally on this device) ----------
+    // ---------- Favorites / Calendar ----------
     function readStore(key) {
       try { return JSON.parse(localStorage.getItem(key)) || []; } catch (e) { return []; }
     }
@@ -397,7 +421,6 @@
       img.style.top = pos.top;
       img.style.left = pos.left;
       img.style.width = pos.width;
-      if (pos.height) img.style.height = pos.height;
       img.style.transform = 'translateX(-50%)';
       img.style.zIndex = z;
       frame.appendChild(img);
@@ -416,7 +439,12 @@
         place(frame, outfit.items.body, POS.body, 2);
       }
       place(frame, outfit.items.purse, POS.purse, 3);
-      place(frame, outfit.items.sock, outfit.isTights ? POS.sockBig : POS.sockSmall, 1);
+      
+      // Randăm șosetele doar dacă piesa există în outfit (nu este null)
+      if (outfit.items.sock) {
+        place(frame, outfit.items.sock, outfit.isTights ? POS.sockBig : POS.sockSmall, 1);
+      }
+      
       place(frame, outfit.items.shoes, POS.shoes, 1);
       place(frame, outfit.items.head, POS.head, 4);
 
@@ -504,7 +532,7 @@
     function renderEmptyState() {
       const empty = document.createElement('div');
       empty.className = 'empty-prompt';
-      empty.innerHTML = 'Not enough items yet to build a full outfit. Add pieces for upper body, lower body (or a dress/jumpsuit), a jacket, socks or tights, shoes, glasses and a purse — then come back here. <a href="index.html">Scan an item</a>';
+      empty.innerHTML = 'Not enough items yet to build a full outfit. Add pieces for upper body, lower body (or a dress/jumpsuit), a jacket, shoes, glasses and a purse — then come back here. <a href="index.html">Scan an item</a>';
       outfitsContainer.appendChild(empty);
     }
 
