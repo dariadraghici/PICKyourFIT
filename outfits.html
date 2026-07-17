@@ -89,6 +89,18 @@
   .outfit-card{
     background: var(--linen-card); border:1px solid var(--line); border-radius:14px;
     padding:22px 22px 20px; display:flex; flex-direction:column; align-items:center; gap:16px;
+    width:100%;
+  }
+
+  @media (min-width: 760px){
+    .outfits-container{ max-width: 1440px; }
+    .outfit-feed{
+      display:grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      align-items:start;
+      gap:28px;
+    }
+    .outfit-card{ height:100%; }
   }
   .outfit-tag{
     font-family:'JetBrains Mono', monospace; font-size:10px; letter-spacing:0.1em;
@@ -231,25 +243,24 @@
       head:      ['Glasses'],
     };
 
-    // Layout coordinates for each outfit "shape". Values are % of the frame.
     const POS_A = {
-      head:      { top: '0%',  left: '50%', width: '15%' },
-      jacket:    { top: '13%', left: '30%', width: '42%' },
-      upperBody: { top: '11%', left: '58%', width: '46%' },
-      purse:     { top: '32%', left: '88%', width: '20%' },
+      head:      { top: '0%',  left: '50%', width: '16%' },
+      jacket:    { top: '13%', left: '21%', width: '42%' },
+      upperBody: { top: '13%', left: '50%', width: '42%' },
+      purse:     { top: '13%', left: '79%', width: '42%' },
       lowerBody: { top: '50%', left: '50%', width: '46%' },
       sockBig:   { top: '73%', left: '50%', width: '38%' },
-      sockSmall: { top: '75%', left: '50%', width: '18%' },
-      shoes:     { top: '89%', left: '50%', width: '24%' },
+      sockSmall: { top: '89%', left: '23%', width: '26%' },
+      shoes:     { top: '89%', left: '50%', width: '26%' },
     };
     const POS_B = {
-      head:      { top: '0%',  left: '50%', width: '15%' },
-      jacket:    { top: '12%', left: '30%', width: '42%' },
-      body:      { top: '10%', left: '58%', width: '48%' },
-      purse:     { top: '30%', left: '89%', width: '20%' },
+      head:      { top: '0%',  left: '50%', width: '16%' },
+      jacket:    { top: '12%', left: '21%', width: '44%' },
+      body:      { top: '12%', left: '50%', width: '44%' },
+      purse:     { top: '12%', left: '79%', width: '44%' },
       sockBig:   { top: '62%', left: '50%', width: '38%' },
-      sockSmall: { top: '64%', left: '50%', width: '18%' },
-      shoes:     { top: '86%', left: '50%', width: '24%' },
+      sockSmall: { top: '86%', left: '23%', width: '26%' },
+      shoes:     { top: '86%', left: '50%', width: '26%' },
     };
 
     const BATCH_SIZE = 10;
