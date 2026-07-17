@@ -544,46 +544,59 @@
   }
 
   addToWardrobeBtn.addEventListener('click', async () => {
-    if(!currentResult) return;
-    
+    if(!currentResult || !isLoggedIn) return;
+
     // change button state to indicate processing
     addToWardrobeBtn.textContent = 'Removing background...';
     addToWardrobeBtn.disabled = true;
     addToWardrobeBtn.style.opacity = '0.7';
 
-    const { category, file, dataUrl } = currentResult;
+    const { category, file } = currentResult;
     const section = SECTION_MAP[category];
-    
-    if(section) {
-      const noBgBlob = await removeBackgroundAPI(file);
-      let finalDataUrl = dataUrl;
 
-      if(noBgBlob) {
-        finalDataUrl = await new Promise((resolve) => {
-          const reader = new FileReader();
-          reader.onload = (e) => resolve(e.target.result);
-          reader.readAsDataURL(noBgBlob);
-        });
-      } else {
-         showError('Background removal failed. Saved with original background.');
-      }
-
-      const item = {
-        id: Date.now(),
-        image: finalDataUrl,
-        category: category,
-        brand: '',
-        description: ''
-      };
-      
-      const storedData = JSON.parse(localStorage.getItem('pyf_wardrobe') || '{"upper-body":[], "lower-body":[], "body":[], "shoes":[], "head":[]}');
-      storedData[section].push(item);
-      localStorage.setItem('pyf_wardrobe', JSON.stringify(storedData));
+    if(!section) {
+      addToWardrobeBtn.style.display = 'none';
+      orText.style.display = 'none';
+      successMsg.style.display = 'block';
+      return;
     }
 
-    addToWardrobeBtn.style.display = 'none';
-    orText.style.display = 'none';
-    successMsg.style.display = 'block';
+    const noBgBlob = await removeBackgroundAPI(file);
+    const imageToUpload = noBgBlob || file;
+
+    if(!noBgBlob) {
+      showError('Background removal failed. Saved with original background.');
+    }
+
+    addToWardrobeBtn.textContent = 'Saving...';
+
+    try {
+      const formData = new FormData();
+      formData.append('image', imageToUpload, 'item.png');
+      formData.append('category', category);
+      formData.append('brand', '');
+      formData.append('description', '');
+
+      const response = await fetch('/api/wardrobe', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + idToken },
+        body: formData
+      });
+
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        throw new Error(data.error || 'Nu s-a putut salva articolul.');
+      }
+
+      addToWardrobeBtn.style.display = 'none';
+      orText.style.display = 'none';
+      successMsg.style.display = 'block';
+    } catch (err) {
+      showError(err.message || 'A apărut o eroare la salvarea articolului.');
+      addToWardrobeBtn.textContent = 'Add to wardrobe';
+      addToWardrobeBtn.disabled = false;
+      addToWardrobeBtn.style.opacity = '1';
+    }
   });
 
   resetBtn.addEventListener('click', () => {

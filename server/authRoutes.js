@@ -1,5 +1,6 @@
 const express = require('express');
 const { db, auth } = require('./firebaseAdmin');
+const { encodeIpKey } = require('./ipUtils');
 
 const router = express.Router();
 
@@ -156,10 +157,6 @@ async function signInWithPassword(email, password, throwOnFail = false) {
     throw new Error(data.error?.message || 'AUTH_FAILED');
   }
   return data; // { idToken, localId, ... }
-}
-
-function encodeIpKey(ip) {
-  return ip.replace(/[.:]/g, '_');
 }
 
 module.exports = router;

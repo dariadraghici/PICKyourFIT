@@ -2,6 +2,7 @@ const express = require('express');
 const multer = require('multer');
 const { db, auth } = require('./firebaseAdmin');
 const { uploadBuffer, deleteAsset } = require('./cloudinaryClient');
+const { encodeIpKey } = require('./ipUtils');
 
 const router = express.Router();
 
@@ -207,8 +208,30 @@ router.delete('/delete-account', requireAuth, async (req, res) => {
     );
 
     const userDoc = await db.collection('users').doc(uid).get();
-    const photoPublicId = userDoc.exists ? userDoc.data().photoPublicId : null;
+    const userData = userDoc.exists ? userDoc.data() : null;
+    const photoPublicId = userData ? userData.photoPublicId : null;
     await deleteAsset(photoPublicId);
+
+    // Free up the IP slot this account was counted against, so the same
+    // network can create another account in its place.
+    if (userData && userData.ip) {
+      const ipDocRef = db.collection('ipAccounts').doc(encodeIpKey(userData.ip));
+      const ipDoc = await ipDocRef.get();
+      if (ipDoc.exists) {
+        const ipData = ipDoc.data();
+        const remainingUids = (ipData.uids || []).filter((storedUid) => storedUid !== uid);
+        const newCount = Math.max(remainingUids.length, (ipData.count || 0) - 1, 0);
+
+        if (newCount <= 0 && remainingUids.length === 0) {
+          await ipDocRef.delete();
+        } else {
+          await ipDocRef.set(
+            { count: newCount, uids: remainingUids },
+            { merge: true }
+          );
+        }
+      }
+    }
 
     await db.collection('users').doc(uid).delete();
 

@@ -31,7 +31,7 @@ router.post('/', requireAuth, upload.single('image'), async (req, res) => {
     if (!req.file) {
       return res.status(400).json({ error: 'Nicio imagine trimisă.' });
     }
-    const { description = '', brand = '' } = req.body;
+    const { description = '', brand = '', category = '' } = req.body;
     const itemId = randomUUID();
 
     const result = await uploadBuffer(req.file.buffer, `wardrobe/${req.uid}`);
@@ -41,6 +41,7 @@ router.post('/', requireAuth, upload.single('image'), async (req, res) => {
       imagePublicId: result.public_id,
       description,
       brand,
+      category,
       createdAt: new Date().toISOString(),
     };
 
@@ -73,6 +74,33 @@ router.get('/', requireAuth, async (req, res) => {
   } catch (err) {
     console.error('Wardrobe list error:', err);
     return res.status(500).json({ error: 'Nu s-a putut încărca dulapul.' });
+  }
+});
+
+
+router.patch('/:itemId', requireAuth, async (req, res) => {
+  try {
+    const { itemId } = req.params;
+    const { brand, description } = req.body || {};
+
+    const itemRef = db.collection('users').doc(req.uid).collection('wardrobe').doc(itemId);
+    const itemDoc = await itemRef.get();
+
+    if (!itemDoc.exists) {
+      return res.status(404).json({ error: 'Articolul nu a fost găsit.' });
+    }
+
+    const updates = { updatedAt: new Date().toISOString() };
+    if (typeof brand === 'string') updates.brand = brand.trim();
+    if (typeof description === 'string') updates.description = description.trim();
+
+    await itemRef.set(updates, { merge: true });
+
+    const updatedDoc = await itemRef.get();
+    return res.status(200).json({ id: itemId, ...updatedDoc.data() });
+  } catch (err) {
+    console.error('Wardrobe update error:', err);
+    return res.status(500).json({ error: 'Nu s-a putut actualiza articolul.' });
   }
 });
 

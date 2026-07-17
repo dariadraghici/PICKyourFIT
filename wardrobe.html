@@ -104,12 +104,25 @@
   .wardrobe-empty{ font-size:14px; color: var(--ink-soft); font-style: italic; }
 
   .wardrobe-card{
+    position:relative;
     display:flex; flex-direction:column; background: var(--linen-card);
     border:1px solid var(--line); border-radius:6px; overflow:hidden;
   }
-  .wardrobe-thumb{ width:100%; height:160px; background:#EFE8D9; border-bottom:1px dashed var(--line); }
+  .wardrobe-thumb{ position:relative; width:100%; height:160px; background:#EFE8D9; border-bottom:1px dashed var(--line); }
   .wardrobe-thumb img{ width: 100%; height: 100%; object-fit: contain; padding: 12px; display: block; }
-  
+
+  .wardrobe-delete{
+    position:absolute; top:8px; right:8px; z-index:2;
+    width:26px; height:26px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    background:rgba(250,247,239,0.92); border:1px solid var(--line);
+    color: var(--ink-soft);
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  }
+  .wardrobe-delete svg{ width:13px; height:13px; }
+  .wardrobe-delete:hover{ background: var(--thread); border-color: var(--thread); color:#fff; }
+  .wardrobe-delete:disabled{ opacity:0.5; cursor:default; }
+
   .wardrobe-card-body{ padding:12px 14px; display:flex; flex-direction:column; gap:8px; }
   .wardrobe-input{
     width: 100%; border: none; border-bottom: 1px solid var(--line); background: transparent;
@@ -120,6 +133,9 @@
   .wardrobe-input.desc-input { font-size: 11px; border-bottom: none; color: var(--ink-soft); resize: none; line-height: 1.4; }
   .wardrobe-input:focus{ border-bottom-color: var(--thread); }
   .wardrobe-input.saved{ border-bottom-color: var(--sage); transition: border-color 0.3s ease;}
+
+  .wardrobe-status{ text-align:center; margin-top:50px; font-size:14px; color: var(--ink-soft); }
+  .wardrobe-status.error{ color: var(--thread); }
 
   @media (max-width: 980px){
     .sidebar{width:64px;}
@@ -212,22 +228,44 @@
       'shoes': ['Socks', 'Boots', 'Sneakers', 'Heels'],
       'head': ['Glasses']
     };
+    // Reverse lookup: category name -> section key
+    const CATEGORY_TO_SECTION = {};
+    Object.entries(SECTION_CATEGORIES).forEach(([sectionKey, cats]) => {
+      cats.forEach(cat => { CATEGORY_TO_SECTION[cat] = sectionKey; });
+    });
 
-    let wardrobe = JSON.parse(localStorage.getItem('pyf_wardrobe') || '{"upper-body":[], "lower-body":[], "body":[], "shoes":[], "head":[]}');
-    
+    let items = []; // flat list of items as returned by the API, each with an `id`
+
     const activeCatFilter = {
       'upper-body': null, 'lower-body': null, 'body': null, 'shoes': null, 'head': null
     };
 
-    function saveWardrobe() {
-      localStorage.setItem('pyf_wardrobe', JSON.stringify(wardrobe));
+    function authHeaders(extra) {
+      return Object.assign({ 'Authorization': 'Bearer ' + idToken }, extra || {});
+    }
+
+    async function loadWardrobe() {
+      wardrobeContainer.innerHTML = '<p class="wardrobe-heading">Your Wardrobe</p><p class="wardrobe-status">Loading your wardrobe…</p>';
+      try {
+        const response = await fetch('/api/wardrobe', { headers: authHeaders() });
+        if (!response.ok) throw new Error('LOAD_FAILED');
+        const data = await response.json();
+        items = data.items || [];
+        renderWardrobe();
+      } catch (err) {
+        wardrobeContainer.innerHTML = '<p class="wardrobe-heading">Your Wardrobe</p><p class="wardrobe-status error">Could not load your wardrobe. Please refresh the page.</p>';
+      }
+    }
+
+    function itemsForSection(sectionKey) {
+      return items.filter(item => CATEGORY_TO_SECTION[item.category] === sectionKey);
     }
 
     function renderWardrobe() {
       wardrobeContainer.innerHTML = '<p class="wardrobe-heading">Your Wardrobe</p>';
 
       SECTION_ORDER.forEach(sectionKey => {
-        const items = wardrobe[sectionKey] || [];
+        const sectionItems = itemsForSection(sectionKey);
         const cats  = SECTION_CATEGORIES[sectionKey];
 
         const group = document.createElement('div');
@@ -244,12 +282,12 @@
 
         const allTab = document.createElement('button');
         allTab.className = 'subcat-tab' + (activeCatFilter[sectionKey] === null ? ' active' : '');
-        allTab.innerHTML = 'All <span class="subcat-count">' + items.length + '</span>';
+        allTab.innerHTML = 'All <span class="subcat-count">' + sectionItems.length + '</span>';
         allTab.onclick = () => { activeCatFilter[sectionKey] = null; renderWardrobe(); };
         tabsRow.appendChild(allTab);
 
         cats.forEach(cat => {
-          const count = items.filter(i => i.category === cat).length;
+          const count = sectionItems.filter(i => i.category === cat).length;
           if(count > 0 || activeCatFilter[sectionKey] === cat) {
             const tab = document.createElement('button');
             tab.className = 'subcat-tab' + (activeCatFilter[sectionKey] === cat ? ' active' : '');
@@ -260,7 +298,7 @@
         });
         group.appendChild(tabsRow);
 
-        const filtered = activeCatFilter[sectionKey] ? items.filter(i => i.category === activeCatFilter[sectionKey]) : items;
+        const filtered = activeCatFilter[sectionKey] ? sectionItems.filter(i => i.category === activeCatFilter[sectionKey]) : sectionItems;
 
         if(filtered.length === 0){
           const empty = document.createElement('p');
@@ -270,8 +308,8 @@
         } else {
           const grid = document.createElement('div');
           grid.className = 'wardrobe-grid';
-          filtered.forEach((item, index) => {
-             grid.appendChild(buildWardrobeCard(item, sectionKey, index));
+          filtered.forEach((item) => {
+             grid.appendChild(buildWardrobeCard(item));
           });
           group.appendChild(grid);
         }
@@ -279,15 +317,62 @@
       });
     }
 
-    function buildWardrobeCard(item, sectionKey, index){
+    async function updateItem(item, patch, inputEl) {
+      try {
+        const response = await fetch('/api/wardrobe/' + item.id, {
+          method: 'PATCH',
+          headers: authHeaders({ 'Content-Type': 'application/json' }),
+          body: JSON.stringify(patch)
+        });
+        if (!response.ok) throw new Error('UPDATE_FAILED');
+        Object.assign(item, patch);
+        if (inputEl) {
+          inputEl.classList.add('saved');
+          setTimeout(() => inputEl.classList.remove('saved'), 700);
+        }
+      } catch (err) {
+        alert('Could not save your change. Please try again.');
+      }
+    }
+
+    async function deleteItem(item, deleteBtn, card) {
+      const confirmed = confirm('Remove this item from your wardrobe?');
+      if (!confirmed) return;
+
+      deleteBtn.disabled = true;
+      try {
+        const response = await fetch('/api/wardrobe/' + item.id, {
+          method: 'DELETE',
+          headers: authHeaders()
+        });
+        if (!response.ok) throw new Error('DELETE_FAILED');
+        items = items.filter(i => i.id !== item.id);
+        renderWardrobe();
+      } catch (err) {
+        deleteBtn.disabled = false;
+        alert('Could not delete this item. Please try again.');
+      }
+    }
+
+    function buildWardrobeCard(item){
       const card = document.createElement('div');
       card.className = 'wardrobe-card';
-      
+
       const thumb = document.createElement('div');
       thumb.className = 'wardrobe-thumb';
       const img = document.createElement('img');
-      img.src = item.image;
+      img.src = item.imageUrl;
+      img.alt = item.category || 'Wardrobe item';
       thumb.appendChild(img);
+
+      const deleteBtn = document.createElement('button');
+      deleteBtn.type = 'button';
+      deleteBtn.className = 'wardrobe-delete';
+      deleteBtn.title = 'Remove item';
+      deleteBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none"><path d="M5 6h14M9 6V4.5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1V6M7 6l1 13.5a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1L17 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+      deleteBtn.onclick = () => deleteItem(item, deleteBtn, card);
+      thumb.appendChild(deleteBtn);
+
       card.appendChild(thumb);
 
       const body = document.createElement('div');
@@ -299,10 +384,7 @@
       brandInput.placeholder = 'Brand';
       brandInput.value = item.brand || '';
       brandInput.onchange = (e) => {
-        item.brand = e.target.value.trim();
-        saveWardrobe();
-        brandInput.classList.add('saved');
-        setTimeout(() => brandInput.classList.remove('saved'), 700);
+        updateItem(item, { brand: e.target.value.trim() }, brandInput);
       };
       body.appendChild(brandInput);
 
@@ -312,10 +394,7 @@
       descInput.value = item.description || '';
       descInput.rows = 2;
       descInput.onchange = (e) => {
-        item.description = e.target.value.trim();
-        saveWardrobe();
-        descInput.classList.add('saved');
-        setTimeout(() => descInput.classList.remove('saved'), 700);
+        updateItem(item, { description: e.target.value.trim() }, descInput);
       };
       body.appendChild(descInput);
 
@@ -323,7 +402,7 @@
       return card;
     }
 
-    renderWardrobe();
+    loadWardrobe();
   }
 </script>
 
