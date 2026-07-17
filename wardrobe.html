@@ -96,8 +96,8 @@
     text-transform:uppercase; color: var(--ink-soft); border:1px solid var(--line);
     background: transparent; padding:5px 12px; border-radius:20px; transition: all 0.15s;
   }
-  .subcat-tab:hover{ border-color: var(--thread); color: var(--thread); }
-  .subcat-tab.active{ background: var(--thread); border-color: var(--thread); color: var(--linen-card); }
+  .subcat-tab:hover{ border-color: var(--side-bg); color: var(--side-bg); }
+  .subcat-tab.active{ background: var(--side-bg); border-color: var(--side-bg); color: var(--linen-card); }
   .subcat-tab .subcat-count{ display:inline-block; margin-left:4px; font-size:9px; opacity:0.7; }
   
   .wardrobe-grid{ display:grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap:18px; }
@@ -131,7 +131,7 @@
   .wardrobe-input::placeholder{ color: var(--ink-soft); opacity:0.7; }
   .wardrobe-input.brand-input{ font-weight:600; font-size:11px; }
   .wardrobe-input.desc-input { font-size: 11px; border-bottom: none; color: var(--ink-soft); resize: none; line-height: 1.4; }
-  .wardrobe-input:focus{ border-bottom-color: var(--thread); }
+  .wardrobe-input:focus{ border-bottom-color: var(--side-bg); }
   .wardrobe-input.saved{ border-bottom-color: var(--sage); transition: border-color 0.3s ease;}
 
   .wardrobe-status{ text-align:center; margin-top:50px; font-size:14px; color: var(--ink-soft); }
@@ -183,6 +183,7 @@
       <a href="landing.html#features">Features</a>
       <a href="landing.html#about">About</a>
       <a href="landing.html">Home</a>
+      <a href="index.html">Scan an item</a>
       <a href="landing.html#contact">Contact</a>
     </nav>
     <div class="header-actions" id="headerActions">
@@ -217,27 +218,25 @@
 
   // Render logic (only if logged in)
   if (isLoggedIn) {
-    const SECTION_ORDER = ['upper-body', 'lower-body', 'body', 'shoes', 'head'];
+    const SECTION_ORDER = ['upper-body', 'jacket', 'lower-body', 'socks', 'body', 'purse', 'shoes', 'head'];
     const SECTION_LABELS = {
-      'upper-body': 'Upper body', 'lower-body': 'Lower body', 'body': 'Body', 'shoes': 'Shoes', 'head': 'Head'
+      'upper-body': 'Upper body', 'jacket': 'Jacket', 'lower-body': 'Lower body', 'socks': 'Socks', 'body': 'Body', 'purse': 'Purse', 'shoes': 'Shoes', 'head': 'Head'
     };
     const SECTION_CATEGORIES = {
-      'upper-body': ['T-shirt', 'Crop Top', 'Turtle Neck', 'Tank top', 'Blouse', 'Shirt', 'Jacket', 'Blazer', 'Pullovers', 'Hoodie'],
-      'lower-body': ['Shorts', 'Pants', 'Skirt', 'Tights', 'Leggings'],
-      'body': ['Dress', 'Bodysuit', 'Jumpsuit', 'Purse'],
-      'shoes': ['Socks', 'Boots', 'Sneakers', 'Heels'],
+      'upper-body': ['T-shirt', 'Crop Top', 'Turtle Neck', 'Tank top', 'Blouse', 'Shirt', 'Pullovers', 'Hoodie'],
+      'jacket': ['Shirt', 'Jacket', 'Blazer'],
+      'lower-body': ['Shorts', 'Pants', 'Skirt', 'Leggings'],
+      'socks': ['Tights', 'Socks'],
+      'body': ['Dress', 'Bodysuit', 'Jumpsuit'],
+      'purse': ['Purse'],
+      'shoes': ['Boots', 'Sneakers', 'Heels'],
       'head': ['Glasses']
     };
-    // Reverse lookup: category name -> section key
-    const CATEGORY_TO_SECTION = {};
-    Object.entries(SECTION_CATEGORIES).forEach(([sectionKey, cats]) => {
-      cats.forEach(cat => { CATEGORY_TO_SECTION[cat] = sectionKey; });
-    });
 
     let items = []; // flat list of items as returned by the API, each with an `id`
 
     const activeCatFilter = {
-      'upper-body': null, 'lower-body': null, 'body': null, 'shoes': null, 'head': null
+      'upper-body': null, 'jacket': null, 'lower-body': null, 'socks': null, 'body': null, 'purse': null, 'shoes': null, 'head': null
     };
 
     function authHeaders(extra) {
@@ -258,7 +257,7 @@
     }
 
     function itemsForSection(sectionKey) {
-      return items.filter(item => CATEGORY_TO_SECTION[item.category] === sectionKey);
+      return items.filter(item => SECTION_CATEGORIES[sectionKey].includes(item.category));
     }
 
     function renderWardrobe() {
