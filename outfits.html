@@ -244,23 +244,23 @@
     };
 
     const POS_A = {
-      head:      { top: '0%',  left: '50%', width: '16%' },
-      jacket:    { top: '10%', left: '21%', width: '44%' },
-      upperBody: { top: '10%', left: '50%', width: '44%' },
-      purse:     { top: '10%', left: '79%', width: '44%' },
-      lowerBody: { top: '38%', left: '50%', width: '50%' },
-      sockBig:   { top: '64%', left: '50%', width: '40%' },
-      sockSmall: { top: '82%', left: '23%', width: '27%' },
-      shoes:     { top: '82%', left: '50%', width: '27%' },
+      head:      { top: '0%',  left: '50%', width: '16%', height: '8%'  },
+      jacket:    { top: '9%',  left: '21%', width: '42%', height: '27%' },
+      upperBody: { top: '9%',  left: '50%', width: '40%', height: '27%' },
+      purse:     { top: '13%', left: '79%', width: '24%', height: '16%' },
+      lowerBody: { top: '38%', left: '50%', width: '48%', height: '30%' },
+      sockBig:   { top: '64%', left: '50%', width: '36%', height: '18%' },
+      sockSmall: { top: '82%', left: '23%', width: '24%', height: '10%' },
+      shoes:     { top: '82%', left: '50%', width: '24%', height: '12%' },
     };
     const POS_B = {
-      head:      { top: '0%',  left: '50%', width: '16%' },
-      jacket:    { top: '10%', left: '21%', width: '46%' },
-      body:      { top: '11%', left: '50%', width: '66%', height: '82%' },
-      purse:     { top: '10%', left: '79%', width: '46%' },
-      sockBig:   { top: '78%', left: '50%', width: '40%' },
-      sockSmall: { top: '90%', left: '23%', width: '27%' },
-      shoes:     { top: '90%', left: '50%', width: '27%' },
+      head:      { top: '0%',  left: '50%', width: '16%', height: '8%'  },
+      jacket:    { top: '9%',  left: '21%', width: '44%', height: '27%' },
+      body:      { top: '11%', left: '50%', width: '60%', height: '64%' },
+      purse:     { top: '13%', left: '79%', width: '24%', height: '16%' },
+      sockBig:   { top: '74%', left: '50%', width: '36%', height: '14%' },
+      sockSmall: { top: '88%', left: '23%', width: '24%', height: '10%' },
+      shoes:     { top: '88%', left: '50%', width: '24%', height: '12%' },
     };
 
     const BATCH_SIZE = 10;
@@ -421,6 +421,7 @@
       img.style.top = pos.top;
       img.style.left = pos.left;
       img.style.width = pos.width;
+      img.style.height = pos.height;
       img.style.transform = 'translateX(-50%)';
       img.style.zIndex = z;
       frame.appendChild(img);
