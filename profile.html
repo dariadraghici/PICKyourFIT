@@ -587,7 +587,11 @@
   function togglePw(el){
     const targetId = el.getAttribute('data-target');
     const input = document.getElementById(targetId);
-    input.type = input.type === 'password' ? 'text' : 'password';
+    if (input.type === 'password') {
+      input.type = 'text';
+    } else {
+      input.type = 'password';
+    }
   }
   document.querySelectorAll('.toggle-eye').forEach(el => {
     el.addEventListener('click', () => togglePw(el));
@@ -635,7 +639,12 @@
       if (handleAuthFailure(res)) return;
       if (res.ok) {
         const data = await res.json();
-        wardrobeItems = Array.isArray(data.items) ? data.items : [];
+        
+        if (Array.isArray(data.items)) {
+          wardrobeItems = data.items;
+        } else {
+          wardrobeItems = [];
+        }
       }
     } catch (err) {
       console.error('Could not load wardrobe:', err);
@@ -787,7 +796,11 @@
     const fn = firstNameInput.value.trim();
     const ln = lastNameInput.value.trim();
     welcomeName.textContent = fn || 'there';
-    avatarNameEl.textContent = (fn || ln) ? `${fn} ${ln}`.trim() : 'Your profile photo';
+    if (fn || ln) {
+      avatarNameEl.textContent = `${fn} ${ln}`.trim();
+    } else {
+      avatarNameEl.textContent = 'Your profile photo';
+    }
   }
   firstNameInput.addEventListener('input', updateWelcomeName);
   lastNameInput.addEventListener('input', updateWelcomeName);
@@ -939,7 +952,12 @@
     if (total === 0) {
       deleteModalText.innerHTML = 'This action is permanent and cannot be undone. Your profile and all of your account data will be deleted forever.';
     } else {
-      deleteModalText.innerHTML = `This action is permanent and cannot be undone. You currently have <b>${total}</b> item${total === 1 ? '' : 's'} saved in your closet — all of them, along with your profile data, will be deleted forever.`;
+      let itemText = 'items';
+      if (total === 1) {
+        itemText = 'item';
+      }
+      
+      deleteModalText.innerHTML = `This action is permanent and cannot be undone. You currently have <b>${total}</b> ${itemText} saved in your closet — all of them, along with your profile data, will be deleted forever.`;
     }
     deleteModal.classList.add('open');
   });

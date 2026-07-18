@@ -476,7 +476,13 @@
   }
 
   function shannonEntropy(probs) {
-    return -probs.reduce((sum, p) => (p <= 0 ? sum : sum + p * Math.log2(p)), 0);
+    return -probs.reduce((sum, p) => {
+      if (p <= 0) {
+        return sum;
+      } else {
+        return sum + p * Math.log2(p);
+      }
+    }, 0);
   }
 
   async function classifyImage(file, dataUrl) {
@@ -506,7 +512,11 @@
     resultLabel.textContent = category;
     resultLabel.classList.remove('loading');
     confFill.style.width = confidence + '%';
-    confPct.textContent = confidence === 0 ? '—' : confidence + '%';
+    if (confidence === 0) {
+      confPct.textContent = '—';
+    } else {
+      confPct.textContent = confidence + '%';
+    }
     currentResult = { category, dataUrl, file };
 
     postActions.classList.add('show');

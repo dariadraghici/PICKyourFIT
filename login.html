@@ -552,9 +552,14 @@
 </div>
 
 <script>
-  function togglePw(){
+  function togglePw() {
     const pw = document.getElementById('password');
-    pw.type = pw.type === 'password' ? 'text' : 'password';
+
+    if (pw.type === 'password') {
+      pw.type = 'text';
+    } else {
+      pw.type = 'password';
+    }
   }
 
   const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -565,12 +570,19 @@
   const emailInput = document.getElementById('email');
   const emailError = document.getElementById('emailError');
 
-  function showMsg(text, type){
+  function showMsg(text, type) {
     formMsg.style.display = 'block';
     formMsg.textContent = text;
-    formMsg.style.background = type === 'error' ? '#fbe9e6' : '#e8f3e7';
-    formMsg.style.color = type === 'error' ? '#a3372a' : '#356a34';
-    formMsg.style.border = '1px solid ' + (type === 'error' ? '#f0c9c2' : '#c9e3c6');
+
+    if (type === 'error') {
+      formMsg.style.background = '#fbe9e6';
+      formMsg.style.color = '#a3372a';
+      formMsg.style.border = '1px solid #f0c9c2';
+    } else {
+      formMsg.style.background = '#e8f3e7';
+      formMsg.style.color = '#356a34';
+      formMsg.style.border = '1px solid #c9e3c6';
+    }
   }
 
   emailInput.addEventListener('input', () => { emailError.style.display = 'none'; });

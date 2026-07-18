@@ -567,7 +567,11 @@
 <script>
   function togglePw(){
     const pw = document.getElementById('password');
-    pw.type = pw.type === 'password' ? 'text' : 'password';
+    if (pw.type === 'password') {
+      pw.type = 'text';
+    } else {
+      pw.type = 'password';
+    }
   }
 
   const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

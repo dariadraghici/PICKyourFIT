@@ -287,61 +287,134 @@
     }
     function randomPickExcluding(arr, usedIds) {
       const filtered = arr.filter(i => !usedIds.has(i.id));
-      if (!filtered.length) return null;
+      if (!filtered.length)
+        return null;
       return randomPick(filtered);
     }
 
     function tryBuildOutfit(type) {
       if (type === 'A') {
-        if (!pools.lowerBody.length) return null;
+        if (!pools.lowerBody.length)
+          return null;
         const lowerBodyItem = randomPick(pools.lowerBody);
         const used = new Set([lowerBodyItem.id]);
 
-        // 1. Alegem pantofii primii
-        const shoesItem = randomPickExcluding(pools.shoes, used); if (!shoesItem) return null; used.add(shoesItem.id);
+        const shoesItem = randomPickExcluding(pools.shoes, used);
+        if (!shoesItem)
+          return null;
+        used.add(shoesItem.id);
 
-        // 2. Adăugăm șosete doar dacă NU avem tocuri (Heels)
         let sockItem = null;
         if (shoesItem.category !== 'Heels') {
           const isSkirt = lowerBodyItem.category === 'Skirt';
-          const sockPool = isSkirt ? pools.socks.concat(pools.tights) : pools.socks;
-          if (!sockPool.length) return null;
-          sockItem = randomPickExcluding(sockPool, used); if (!sockItem) return null; used.add(sockItem.id);
+          let sockPool;
+          if (isSkirt) {
+            sockPool = pools.socks.concat(pools.tights);
+          } else {
+            sockPool = pools.socks;
+          }
+          if (!sockPool.length)
+            return null;
+          sockItem = randomPickExcluding(sockPool, used);
+          if (!sockItem)
+            return null; 
+          used.add(sockItem.id);
         }
 
-        const upperItem = randomPickExcluding(pools.upperBody, used); if (!upperItem) return null; used.add(upperItem.id);
-        const jacketItem = randomPickExcluding(pools.jacket, used); if (!jacketItem) return null; used.add(jacketItem.id);
-        const headItem = randomPickExcluding(pools.head, used); if (!headItem) return null; used.add(headItem.id);
-        const purseItem = randomPickExcluding(pools.purse, used); if (!purseItem) return null;
+        const upperItem = randomPickExcluding(pools.upperBody, used);
+        if (!upperItem) 
+          return null; 
+        used.add(upperItem.id);
+        const jacketItem = randomPickExcluding(pools.jacket, used);
+        if (!jacketItem)
+          return null;
+          used.add(jacketItem.id);
+        const headItem = randomPickExcluding(pools.head, used);
+        if (!headItem)
+          return null;
+        used.add(headItem.id);
+        const purseItem = randomPickExcluding(pools.purse, used);
+        if (!purseItem)
+          return null;
+
+        let isTights;
+        if (sockItem && sockItem.category === 'Tights') {
+          isTights = true;
+        } else {
+          isTights = false;
+        }
 
         return {
-          type: 'A', isTights: sockItem ? sockItem.category === 'Tights' : false,
-          items: { lowerBody: lowerBodyItem, sock: sockItem, upperBody: upperItem, jacket: jacketItem, shoes: shoesItem, head: headItem, purse: purseItem }
+          type: 'A',
+          isTights: isTights,
+          items: { 
+            lowerBody: lowerBodyItem, 
+            sock: sockItem, 
+            upperBody: upperItem, 
+            jacket: jacketItem, 
+            shoes: shoesItem, 
+            head: headItem, 
+            purse: purseItem 
+          }
         };
       } else {
         if (!pools.body.length) return null;
         const bodyItem = randomPick(pools.body);
         const used = new Set([bodyItem.id]);
 
-        // 1. Alegem pantofii primii
-        const shoesItem = randomPickExcluding(pools.shoes, used); if (!shoesItem) return null; used.add(shoesItem.id);
+        const shoesItem = randomPickExcluding(pools.shoes, used);
+        if (!shoesItem)
+          return null;
+        used.add(shoesItem.id);
 
-        // 2. Adăugăm șosete doar dacă NU avem tocuri (Heels)
         let sockItem = null;
         if (shoesItem.category !== 'Heels') {
           const isDress = bodyItem.category === 'Dress';
-          const sockPool = isDress ? pools.socks.concat(pools.tights) : pools.socks;
-          if (!sockPool.length) return null;
-          sockItem = randomPickExcluding(sockPool, used); if (!sockItem) return null; used.add(sockItem.id);
+          let sockPool;
+          if (isDress) {
+            sockPool = pools.socks.concat(pools.tights);
+          } else {
+            sockPool = pools.socks;
+          }
+          if (!sockPool.length)
+            return null;
+          sockItem = randomPickExcluding(sockPool, used);
+          if (!sockItem)
+            return null;
+          used.add(sockItem.id);
         }
 
-        const jacketItem = randomPickExcluding(pools.jacket, used); if (!jacketItem) return null; used.add(jacketItem.id);
-        const headItem = randomPickExcluding(pools.head, used); if (!headItem) return null; used.add(headItem.id);
-        const purseItem = randomPickExcluding(pools.purse, used); if (!purseItem) return null;
+        const jacketItem = randomPickExcluding(pools.jacket, used);
+        if (!jacketItem)
+          return null;
+        used.add(jacketItem.id);
+        const headItem = randomPickExcluding(pools.head, used);
+        if (!headItem)
+          return null;
+        used.add(headItem.id);
+        const purseItem = randomPickExcluding(pools.purse, used);
+        if (!purseItem)
+          return null;
+
+        let isTights;
+
+        if (sockItem && sockItem.category === 'Tights') {
+          isTights = true;
+        } else {
+          isTights = false;
+        }
 
         return {
-          type: 'B', isTights: sockItem ? sockItem.category === 'Tights' : false,
-          items: { body: bodyItem, sock: sockItem, jacket: jacketItem, shoes: shoesItem, head: headItem, purse: purseItem }
+          type: 'B',
+          isTights: isTights,
+          items: {
+            body: bodyItem,
+            sock: sockItem,
+            jacket: jacketItem,
+            shoes: shoesItem,
+            head: headItem,
+            purse: purseItem
+          }
         };
       }
     }
@@ -433,7 +506,12 @@
     function buildOutfitFrame(outfit) {
       const frame = document.createElement('div');
       frame.className = 'outfit-frame';
-      const POS = outfit.type === 'A' ? POS_A : POS_B;
+      let POS;
+      if (outfit.type === 'A') {
+        POS = POS_A;
+      } else {
+        POS = POS_B;
+      }
 
       place(frame, outfit.items.jacket, POS.jacket, 1);
       if (outfit.type === 'A') {
@@ -444,9 +522,16 @@
       }
       place(frame, outfit.items.purse, POS.purse, 3);
       
-      // Randăm șosetele doar dacă piesa există în outfit (nu este null)
       if (outfit.items.sock) {
-        place(frame, outfit.items.sock, outfit.isTights ? POS.sockBig : POS.sockSmall, 1);
+        let position;
+
+        if (outfit.isTights) {
+          position = POS.sockBig;
+        } else {
+          position = POS.sockSmall;
+        }
+
+        place(frame, outfit.items.sock, position, 1);
       }
       
       place(frame, outfit.items.shoes, POS.shoes, 1);
@@ -461,7 +546,11 @@
 
       const tag = document.createElement('p');
       tag.className = 'outfit-tag';
-      tag.textContent = outfit.type === 'A' ? 'Layered look' : 'Dress / jumpsuit look';
+      if (outfit.type === 'A') {
+        tag.textContent = 'Layered look';
+      } else {
+        tag.textContent = 'Dress / jumpsuit look';
+      }
       card.appendChild(tag);
 
       card.appendChild(buildOutfitFrame(outfit));
@@ -473,9 +562,12 @@
       favBtn.type = 'button';
       favBtn.className = 'outfit-btn fav-btn';
       const setFavLabel = (active) => {
-        favBtn.innerHTML = (active
-          ? '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 20 C6.5 15.8, 3.5 12, 3.5 8.2 C3.5 5.1, 5.8 3, 8.5 3 C10.3 3, 11.7 4, 12 5.6 C12.3 4, 13.7 3, 15.5 3 C18.2 3, 20.5 5.1, 20.5 8.2 C20.5 12, 17.5 15.8, 12 20 Z"/></svg> Favorited'
-          : '<svg viewBox="0 0 24 24" fill="none"><path d="M12 20 C6.5 15.8, 3.5 12, 3.5 8.2 C3.5 5.1, 5.8 3, 8.5 3 C10.3 3, 11.7 4, 12 5.6 C12.3 4, 13.7 3, 15.5 3 C18.2 3, 20.5 5.1, 20.5 8.2 C20.5 12, 17.5 15.8, 12 20 Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg> Save to favorites');
+        if (active) {
+          favBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 20 C6.5 15.8, 3.5 12, 3.5 8.2 C3.5 5.1, 5.8 3, 8.5 3 C10.3 3, 11.7 4, 12 5.6 C12.3 4, 13.7 3, 15.5 3 C18.2 3, 20.5 5.1, 20.5 8.2 C20.5 12, 17.5 15.8, 12 20 Z"/></svg> Favorited';
+        } else {
+          favBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none"><path d="M12 20 C6.5 15.8, 3.5 12, 3.5 8.2 C3.5 5.1, 5.8 3, 8.5 3 C10.3 3, 11.7 4, 12 5.6 C12.3 4, 13.7 3, 15.5 3 C18.2 3, 20.5 5.1, 20.5 8.2 C20.5 12, 17.5 15.8, 12 20 Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg> Save to favorites';
+        }
+        
         favBtn.classList.toggle('is-active', active);
       };
       setFavLabel(isFavorited(outfit.signature));

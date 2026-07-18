@@ -286,7 +286,11 @@
         tabsRow.className = 'subcat-tabs';
 
         const allTab = document.createElement('button');
-        allTab.className = 'subcat-tab' + (activeCatFilter[sectionKey] === null ? ' active' : '');
+        if (activeCatFilter[sectionKey] === null) {
+          allTab.className = 'subcat-tab active';
+        } else {
+          allTab.className = 'subcat-tab';
+        }
         allTab.innerHTML = 'All <span class="subcat-count">' + sectionItems.length + '</span>';
         allTab.onclick = () => { activeCatFilter[sectionKey] = null; renderWardrobe(); };
         tabsRow.appendChild(allTab);
@@ -295,21 +299,37 @@
           const count = sectionItems.filter(i => i.category === cat).length;
           if(count > 0 || activeCatFilter[sectionKey] === cat) {
             const tab = document.createElement('button');
-            tab.className = 'subcat-tab' + (activeCatFilter[sectionKey] === cat ? ' active' : '');
-            tab.innerHTML = cat + (count > 0 ? ' <span class="subcat-count">' + count + '</span>' : '');
+            if (activeCatFilter[sectionKey] === cat) {
+              tab.className = 'subcat-tab active';
+            } else {
+              tab.className = 'subcat-tab';
+            }
+            if (count > 0) {
+              tab.innerHTML = cat + ' <span class="subcat-count">' + count + '</span>';
+            } else {
+              tab.innerHTML = cat;
+            }
             tab.onclick = () => { activeCatFilter[sectionKey] = cat; renderWardrobe(); };
             tabsRow.appendChild(tab);
           }
         });
         group.appendChild(tabsRow);
 
-        const filtered = activeCatFilter[sectionKey] ? sectionItems.filter(i => i.category === activeCatFilter[sectionKey]) : sectionItems;
+        let filtered;
+        if (activeCatFilter[sectionKey]) {
+          filtered = sectionItems.filter(i => i.category === activeCatFilter[sectionKey]);
+        } else {
+          filtered = sectionItems;
+        }
 
         if(filtered.length === 0){
           const empty = document.createElement('p');
           empty.className = 'wardrobe-empty';
-          empty.textContent = activeCatFilter[sectionKey] ? 'No ' + activeCatFilter[sectionKey] + ' items yet.' : 'No items yet.';
-          group.appendChild(empty);
+          if (activeCatFilter[sectionKey]) {
+            empty.textContent = 'No ' + activeCatFilter[sectionKey] + ' items yet.';
+          } else {
+            empty.textContent = 'No items yet.';
+          }          group.appendChild(empty);
         } else {
           const grid = document.createElement('div');
           grid.className = 'wardrobe-grid';
