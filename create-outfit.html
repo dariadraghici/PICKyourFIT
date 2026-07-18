@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Create Your Own Outfit - Pick Your Fit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --linen: #F3EEE3;
+    --linen-card: #FAF7EF;
+    --ink: #22222b;
+    --ink-soft: #6B6258;
+    --thread: #B5442F;
+    --sage: #7C8C72;
+    --line: #D9D0BD;
+    --side-bg: rgba(42, 34, 27, 0.85);
+  }
+
+  *{ box-sizing: border-box; margin: 0; padding: 0; }
+  body{
+    background: var(--linen);
+    background-image: repeating-linear-gradient(0deg, rgba(0,0,0,0.018) 0px, rgba(0,0,0,0.018) 1px, transparent 1px, transparent 3px);
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    min-height:100vh;
+    display: flex;
+  }
+
+  a { text-decoration: none; color: inherit; }
+  button { font-family: inherit; cursor: pointer; }
+
+  /* ---------- Sidebar ---------- */
+  .sidebar{
+    position:fixed;top:0;left:0;bottom:0;z-index:5;
+    width:88px; display:flex;flex-direction:column;align-items:center;
+    padding:22px 0 20px; background:var(--side-bg);
+    backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+    border-right:1px solid rgba(255,255,255,0.08);
+  }
+  .side-logo{ width:44px;height:44px;border-radius:12px; display:flex;align-items:center;justify-content:center; color:#fff;margin-bottom:26px; }
+  .side-logo svg{width:24px;height:24px;}
+  .side-nav{ display:flex;flex-direction:column;gap:8px; flex:1; }
+  .side-link{
+    width:46px;height:46px;border-radius:12px; display:flex;align-items:center;justify-content:center;
+    color:rgba(255,255,255,0.62); transition:background .15s ease, color .15s ease;
+  }
+  .side-link svg{width:20px;height:20px;}
+  .side-link:hover{color:#fff;background:rgba(255,255,255,0.08);}
+  .side-link.active{background:#fdfcf9;color:var(--ink);}
+  .side-bottom{ display:flex;flex-direction:column;align-items:center;gap:16px; margin-top:auto; }
+  .side-avatar{
+    width:38px;height:38px;border-radius:50%; overflow:hidden; border:1.5px solid rgba(255,255,255,0.5);
+    display:flex;align-items:center;justify-content:center; background:#c9c2b4; color:#5b5346;
+  }
+  .side-avatar img{width:100%;height:100%;object-fit:cover;display:block;}
+  .side-avatar svg{width:22px;height:22px;}
+
+  /* ---------- Main Layout & Header ---------- */
+  .main-content { flex: 1; margin-left: 88px; display: flex; flex-direction: column; }
+  header{ display:flex;align-items:center;justify-content:space-between; padding:26px 44px; position:relative; z-index:4; }
+  .logo{ font-family:'Fraunces',serif; font-size:14px;font-weight:600;letter-spacing:0.16em; text-transform:uppercase;color:var(--ink); }
+  nav.main-nav{display:flex;gap:34px;}
+  nav.main-nav a{ font-size:12.5px;font-weight:600;letter-spacing:0.03em; text-transform:uppercase;color:var(--ink-soft); transition:color .15s ease; }
+  nav.main-nav a:hover{color:var(--ink);}
+
+  .header-actions{display:flex;align-items:center;gap:12px;}
+  .btn-header {
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    padding:10px 20px;border-radius:8px;font-size:12.5px;font-weight:600;
+    letter-spacing:0.02em;text-transform:uppercase; border:1px solid var(--ink);
+    background:transparent;color:var(--ink); transition:background .15s ease, opacity .15s ease;
+  }
+  .btn-header:hover{background:rgba(0,0,0,0.05);}
+  .btn-header-dark{background:var(--ink);color:var(--linen-card);}
+  .btn-header-dark:hover{opacity:0.9;background:var(--ink);}
+
+  .login-prompt { text-align: center; margin-top: 50px; font-size: 16px; color: var(--ink-soft); }
+  .login-prompt a { color: var(--thread); text-decoration: underline; font-weight: 600; }
+
+  /* ---------- Builder layout ---------- */
+  .builder-heading{ font-family:'Fraunces', serif; font-weight:600; font-size:32px; margin:0 0 6px; text-align:center; }
+  .builder-sub{ text-align:center; color:var(--ink-soft); font-size:13.5px; margin-bottom:30px; }
+
+  .builder-container{ padding: 10px 44px 80px; max-width: 1280px; margin: 0 auto; width: 100%; }
+  .builder-grid{ display:flex; gap:36px; align-items:flex-start; flex-wrap:wrap-reverse; }
+
+  /* ----- Left: slot carousels ----- */
+  .builder-slots{ flex:1 1 480px; min-width:320px; display:flex; flex-direction:column; gap:22px; }
+
+  .slot-row{
+    background: var(--linen-card); border:1px solid var(--line); border-radius:12px;
+    padding:14px 16px 16px;
+  }
+  .slot-row.is-empty-pool{ opacity:0.5; }
+  .slot-header{ display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+  .slot-label{
+    font-family:'JetBrains Mono', monospace; font-size:11px; letter-spacing:0.1em;
+    text-transform:uppercase; color: var(--sage);
+  }
+  .slot-hint{ font-size:10.5px; color:var(--ink-soft); font-style:italic; }
+  .slot-carousel{ display:flex; align-items:center; gap:8px; }
+  .carousel-arrow{
+    flex:0 0 auto; width:28px;height:28px;border-radius:50%; border:1px solid var(--line);
+    background:#fff; color:var(--ink); display:flex;align-items:center;justify-content:center;
+    font-size:14px; transition: background .15s ease, border-color .15s ease;
+  }
+  .carousel-arrow:hover{ background:var(--linen); border-color:var(--side-bg); }
+  .carousel-arrow:disabled{ opacity:0.3; cursor:default; }
+  .carousel-track{ flex:1; display:flex; gap:8px; overflow:hidden; }
+  .thumb-slot{
+    flex:1 1 0; min-width:0; aspect-ratio:1/1; border-radius:8px; border:2px solid var(--line);
+    background:#EFE8D9; position:relative; overflow:hidden; transition: border-color .15s ease, transform .1s ease;
+  }
+  .thumb-slot img{ width:100%; height:100%; object-fit:contain; padding:6px; display:block; }
+  .thumb-slot:hover{ border-color:var(--side-bg); }
+  .thumb-slot.selected{ border-color:var(--thread); box-shadow:0 0 0 2px rgba(181,68,47,0.18) inset; }
+  .thumb-slot .thumb-cat{
+    position:absolute; bottom:0; left:0; right:0; font-size:8px; text-align:center;
+    background:rgba(34,34,43,0.72); color:#fff; padding:2px 2px; letter-spacing:0.03em;
+  }
+  .thumb-empty{
+    flex:1; text-align:center; font-size:11.5px; color:var(--ink-soft); font-style:italic; padding:14px 0;
+  }
+
+  /* ----- Right: preview ----- */
+  .builder-preview-col{ flex:0 0 380px; position:sticky; top:20px; }
+  .preview-frame-box{
+    position:relative; width:100%; height:520px; border-radius:16px; overflow:hidden;
+    border:1px solid var(--line); background: var(--linen-card);
+  }
+  .dressup-bg{ position:absolute; inset:0; width:100%; height:100%; opacity:0.13; pointer-events:none; }
+  .preview-type-tag{
+    position:absolute; top:14px; left:14px; z-index:5;
+    font-family:'JetBrains Mono', monospace; font-size:10px; letter-spacing:0.1em;
+    text-transform:uppercase; color:var(--sage); background:rgba(250,247,239,0.85);
+    padding:4px 9px; border-radius:20px; border:1px solid var(--line);
+  }
+  .preview-outfit-frame{ position:absolute; inset:6% 8%; z-index:2; }
+  .preview-outfit-frame img{
+    position:absolute; object-fit:contain;
+    filter: drop-shadow(0 4px 8px rgba(34,34,43,0.14));
+  }
+  .preview-placeholder{
+    position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    text-align:center; padding:0 40px; font-size:13px; color:var(--ink-soft); font-style:italic; z-index:1;
+  }
+
+  .builder-errors{
+    margin-top:12px; background:#FBEDEA; border:1px solid #E3B5AA; border-radius:8px;
+    padding:10px 14px; font-size:12px; color:var(--thread); display:none;
+  }
+  .builder-errors.show{ display:block; }
+  .builder-errors ul{ margin:4px 0 0 16px; }
+
+  .btn-done{
+    margin-top:16px; width:100%; padding:14px; border-radius:8px; border:1px solid var(--ink);
+    background:var(--ink); color:var(--linen-card); font-size:12.5px; font-weight:600;
+    letter-spacing:0.05em; text-transform:uppercase;
+  }
+  .btn-done:hover{ opacity:0.9; }
+
+  /* ----- Modal ----- */
+  .modal-overlay{
+    display:none; position:fixed; inset:0; z-index:50; background:rgba(20,17,13,0.55);
+    align-items:center; justify-content:center; padding:20px;
+  }
+  .modal-overlay.show{ display:flex; }
+  .modal-box{
+    background:var(--linen-card); border-radius:16px; padding:26px; width:100%; max-width:360px;
+    position:relative; display:flex; flex-direction:column; align-items:center; gap:16px;
+  }
+  .modal-close{
+    position:absolute; top:12px; right:12px; width:30px;height:30px;border-radius:50%;
+    border:1px solid var(--line); background:#fff; color:var(--ink); font-size:16px; line-height:1;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .modal-close:hover{ background:var(--thread); border-color:var(--thread); color:#fff; }
+  .modal-title{ font-family:'Fraunces', serif; font-weight:600; font-size:20px; text-align:center; }
+  .modal-frame{ position:relative; width:100%; max-width:260px; height:400px; }
+  .modal-frame img{ position:absolute; object-fit:contain; filter: drop-shadow(0 4px 8px rgba(34,34,43,0.14)); }
+  .modal-actions{ display:flex; gap:10px; width:100%; }
+  .outfit-btn{
+    flex:1; display:flex; align-items:center; justify-content:center; gap:6px;
+    padding:11px 10px; border-radius:8px; font-size:11.5px; font-weight:600;
+    letter-spacing:0.03em; text-transform:uppercase; border:1px solid var(--ink);
+    background:transparent; color:var(--ink); transition:background .15s ease, color .15s ease;
+  }
+  .outfit-btn svg{width:14px;height:14px;flex-shrink:0;}
+  .outfit-btn:hover{ background: rgba(0,0,0,0.05); }
+  .outfit-btn.is-active{ background:var(--thread); border-color:var(--thread); color:#fff; }
+  .outfit-btn.is-active:hover{ background:var(--thread); opacity:0.9; }
+  .cal-picker{ display:flex; gap:8px; width:100%; align-items:center; }
+  .cal-picker input[type=date]{
+    flex:1; font-family:'Inter',sans-serif; font-size:12.5px; padding:9px 8px;
+    border:1px solid var(--line); border-radius:8px; background:#fff; color:var(--ink);
+  }
+  .cal-picker button{
+    padding:9px 14px; border-radius:8px; border:1px solid var(--ink); background:var(--ink);
+    color:var(--linen-card); font-size:11.5px; font-weight:600; text-transform:uppercase;
+  }
+
+  @media (max-width: 980px){
+    .sidebar{width:64px;}
+    .main-content{margin-left:64px;}
+    header{padding:22px 24px;}
+    nav.main-nav{display:none;}
+  }
+  @media (max-width: 860px){
+    .builder-preview-col{ flex:1 1 100%; position:static; }
+    .preview-frame-box{ height:420px; }
+  }
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="side-logo">
+    <svg viewBox="0 0 24 24" fill="none"><path d="M12 3 L15.5 5.5 L12 8 L8.5 5.5 Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M12 8 L3 13 L3 14 L21 14 L21 13 Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+  </div>
+  <nav class="side-nav">
+    <a href="landing.html" class="side-link" title="Home">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M4 11.5 L12 5 L20 11.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 10.5 V19 a1 1 0 0 0 1 1 h10 a1 1 0 0 0 1 -1 V10.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
+    <a href="#" class="side-link" title="Favorites">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M12 20 C6.5 15.8, 3.5 12, 3.5 8.2 C3.5 5.1, 5.8 3, 8.5 3 C10.3 3, 11.7 4, 12 5.6 C12.3 4, 13.7 3, 15.5 3 C18.2 3, 20.5 5.1, 20.5 8.2 C20.5 12, 17.5 15.8, 12 20 Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+    </a>
+    <a href="#" class="side-link" title="Planner">
+      <svg viewBox="0 0 24 24" fill="none"><rect x="4" y="5.5" width="16" height="14.5" rx="2" stroke="currentColor" stroke-width="1.6"/><line x1="4" y1="10" x2="20" y2="10" stroke="currentColor" stroke-width="1.6"/><line x1="8.3" y1="3" x2="8.3" y2="7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><line x1="15.7" y1="3" x2="15.7" y2="7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+    </a>
+    <a href="wardrobe.html" class="side-link" title="Wardrobe">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M8.5 4 L10 6 h4 l1.5 -2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M8.5 4 L4 7.5 L6.5 10.5 L8 9.3 V20 h8 V9.3 l1.5 1.2 L20 7.5 L15.5 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
+    <a href="outfits.html" class="side-link" title="Outfits">
+      <svg viewBox="0 0 24 24" fill="none"><rect x="7.5" y="3" width="11" height="14" rx="2" stroke="currentColor" stroke-width="1.6" transform="rotate(8 13 10)"/><rect x="5" y="6.5" width="14" height="15" rx="2" stroke="currentColor" stroke-width="1.6"/></svg>
+    </a>
+    <a href="create-outfit.html" class="side-link active" title="Create your own outfit">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M4 20 L4 16.5 L15 5.5 a1.8 1.8 0 0 1 2.5 0 l1 1 a1.8 1.8 0 0 1 0 2.5 L7.5 20 Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M13.5 7 L16 9.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+    </a>
+    <a href="index.html" class="side-link" title="Scan an item">
+      <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/><path d="M9.3 9.5a2.7 2.7 0 0 1 5.2-1c0 1.7-2.5 1.9-2.5 3.7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="16.3" r="0.9" fill="currentColor"/></svg>
+    </a>
+  </nav>
+  <div class="side-bottom">
+    <a href="login.html" id="sideAvatarLink" class="side-avatar" title="Account">
+      <svg id="defaultAvatarIcon" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8.5" r="3.6" stroke="currentColor" stroke-width="1.6"/><path d="M4.5 20 c0 -4.2 3.4 -6.3 7.5 -6.3 s7.5 2.1 7.5 6.3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      <img id="userAvatarImg" src="" alt="" style="display:none;" />
+    </a>
+  </div>
+</aside>
+
+<main class="main-content">
+  <header>
+    <div class="logo">Pick Your Fit</div>
+    <nav class="main-nav">
+      <a href="landing.html#features">Features</a>
+      <a href="landing.html#about">About</a>
+      <a href="landing.html">Home</a>
+      <a href="wardrobe.html">Wardrobe</a>
+      <a href="outfits.html">Outfits</a>
+      <a href="landing.html#contact">Contact</a>
+    </nav>
+    <div class="header-actions" id="headerActions">
+      <a href="login.html" class="btn-header">Log in</a>
+      <a href="signup.html" class="btn-header btn-header-dark">Register</a>
+    </div>
+  </header>
+
+  <div class="builder-container" id="builderContainer">
+  </div>
+</main>
+
+<!-- ---------- Final outfit modal ---------- -->
+<div class="modal-overlay" id="outfitModal">
+  <div class="modal-box">
+    <button type="button" class="modal-close" id="modalCloseBtn" title="Give up">×</button>
+    <p class="modal-title">Your outfit</p>
+    <div class="modal-frame" id="modalFrame"></div>
+    <div class="modal-actions" id="modalActions">
+      <button type="button" class="outfit-btn" id="modalFavBtn">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 20 C6.5 15.8, 3.5 12, 3.5 8.2 C3.5 5.1, 5.8 3, 8.5 3 C10.3 3, 11.7 4, 12 5.6 C12.3 4, 13.7 3, 15.5 3 C18.2 3, 20.5 5.1, 20.5 8.2 C20.5 12, 17.5 15.8, 12 20 Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+        Add to favorites
+      </button>
+      <button type="button" class="outfit-btn" id="modalCalBtn">
+        <svg viewBox="0 0 24 24" fill="none"><rect x="4" y="5.5" width="16" height="14.5" rx="2" stroke="currentColor" stroke-width="1.6"/><line x1="4" y1="10" x2="20" y2="10" stroke="currentColor" stroke-width="1.6"/></svg>
+        Add to calendar
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ---------- Auth ----------
+  const idToken = localStorage.getItem('pyf_idToken');
+  const userPhoto = localStorage.getItem('pyf_userPhoto');
+  const isLoggedIn = !!idToken;
+  const builderContainer = document.getElementById('builderContainer');
+
+  if (isLoggedIn) {
+    const avatarLink = document.getElementById('sideAvatarLink');
+    if (userPhoto) {
+      document.getElementById('userAvatarImg').src = userPhoto;
+      document.getElementById('userAvatarImg').style.display = 'block';
+      document.getElementById('defaultAvatarIcon').style.display = 'none';
+    }
+    avatarLink.href = 'profile.html';
+    document.getElementById('headerActions').innerHTML = '<a href="index.html" class="btn-header btn-header-dark">Scan New Item</a>';
+  } else {
+    builderContainer.innerHTML = '<div class="login-prompt"><h2>The Outfit Builder is Locked</h2><p>Please <a href="login.html">Log In</a> or <a href="signup.html">Register</a> to build outfits from your wardrobe.</p></div>';
+  }
+
+  if (isLoggedIn) {
+
+    // ---------- Slot config (mirrors wardrobe.html / outfits.html) ----------
+    const SLOT_ORDER = ['upperBody', 'lowerBody', 'body', 'jacket', 'sock', 'shoes', 'head', 'purse'];
+    const SLOT_LABELS = {
+      upperBody: 'Upper body', lowerBody: 'Lower body', body: 'Body (dress / jumpsuit)',
+      jacket: 'Jacket', sock: 'Socks / Tights', shoes: 'Shoes', head: 'Head', purse: 'Purse'
+    };
+    const SLOT_CATEGORIES = {
+      upperBody: ['T-shirt', 'Crop Top', 'Bodysuit', 'Turtle Neck', 'Tank top', 'Blouse', 'Shirt', 'Pullovers', 'Hoodie'],
+      jacket:    ['Shirt', 'Jacket', 'Blazer'],
+      lowerBody: ['Shorts', 'Pants', 'Skirt', 'Leggings'],
+      sock:      ['Socks', 'Tights'],
+      body:      ['Dress', 'Jumpsuit'],
+      purse:     ['Purse'],
+      shoes:     ['Boots', 'Sneakers', 'Heels'],
+      head:      ['Glasses'],
+    };
+
+    const POS_A = {
+      head:      { top: '0%',  left: '50%', width: '16%', height: '8%'  },
+      jacket:    { top: '9%',  left: '21%', width: '42%', height: '27%' },
+      upperBody: { top: '9%',  left: '50%', width: '40%', height: '27%' },
+      purse:     { top: '13%', left: '79%', width: '24%', height: '16%' },
+      lowerBody: { top: '33%', left: '50%', width: '48%', height: '33%' },
+      sockBig:   { top: '58%', left: '50%', width: '36%', height: '22%' },
+      sockSmall: { top: '78%', left: '23%', width: '24%', height: '10%' },
+      shoes:     { top: '75%', left: '50%', width: '24%', height: '14%' },
+    };
+    const POS_B = {
+      head:      { top: '0%',  left: '50%', width: '16%', height: '8%'  },
+      jacket:    { top: '9%',  left: '21%', width: '44%', height: '27%' },
+      body:      { top: '11%', left: '50%', width: '60%', height: '64%' },
+      purse:     { top: '13%', left: '79%', width: '24%', height: '16%' },
+      sockBig:   { top: '68%', left: '50%', width: '36%', height: '20%' },
+      sockSmall: { top: '84%', left: '23%', width: '24%', height: '10%' },
+      shoes:     { top: '82%', left: '50%', width: '24%', height: '14%' },
+    };
+
+    const FAVORITES_KEY = 'pyf_outfit_favorites';
+    const CALENDAR_KEY = 'pyf_outfit_calendar';
+
+    let items = [];
+    const pools = {}; // slot -> array of wardrobe items
+    const offsets = {}; // slot -> carousel offset
+    const selected = { upperBody: null, lowerBody: null, body: null, jacket: null, sock: null, shoes: null, head: null, purse: null };
+
+    function authHeaders(extra) {
+      return Object.assign({ 'Authorization': 'Bearer ' + idToken }, extra || {});
+    }
+
+    function buildPools() {
+      SLOT_ORDER.forEach(slot => {
+        pools[slot] = items.filter(i => SLOT_CATEGORIES[slot].includes(i.category));
+        offsets[slot] = 0;
+      });
+    }
+
+    // ---------- Carousel window (circular) ----------
+    function windowFor(slot, count) {
+      const arr = pools[slot];
+      if (!arr.length) return [];
+      const n = Math.min(count, arr.length);
+      const off = ((offsets[slot] % arr.length) + arr.length) % arr.length;
+      const out = [];
+      for (let i = 0; i < n; i++) out.push(arr[(off + i) % arr.length]);
+      return out;
+    }
+
+    // ---------- Selection ----------
+    function selectItem(slot, item) {
+      if (selected[slot] && selected[slot].id === item.id) {
+        selected[slot] = null;
+      } else {
+        selected[slot] = item;
+        if (slot === 'body') { selected.upperBody = null; selected.lowerBody = null; }
+        if (slot === 'upperBody' || slot === 'lowerBody') { selected.body = null; }
+      }
+      hideErrors();
+      renderSlots();
+      renderPreview();
+    }
+
+    // ---------- Rendering: slot rows ----------
+    function renderSlots() {
+      const wrap = document.getElementById('builderSlots');
+      wrap.innerHTML = '';
+      SLOT_ORDER.forEach(slot => wrap.appendChild(buildSlotRow(slot)));
+    }
+
+    function buildSlotRow(slot) {
+      const row = document.createElement('div');
+      row.className = 'slot-row' + (pools[slot].length === 0 ? ' is-empty-pool' : '');
+
+      const headerEl = document.createElement('div');
+      headerEl.className = 'slot-header';
+      const label = document.createElement('span');
+      label.className = 'slot-label';
+      label.textContent = SLOT_LABELS[slot];
+      headerEl.appendChild(label);
+      const hint = document.createElement('span');
+      hint.className = 'slot-hint';
+      hint.textContent = (slot === 'body') ? 'replaces upper + lower body' :
+        ((slot === 'upperBody' || slot === 'lowerBody') ? 'replaces body' : '');
+      headerEl.appendChild(hint);
+      row.appendChild(headerEl);
+
+      const carousel = document.createElement('div');
+      carousel.className = 'slot-carousel';
+
+      const leftBtn = document.createElement('button');
+      leftBtn.type = 'button';
+      leftBtn.className = 'carousel-arrow';
+      leftBtn.innerHTML = '&#8249;';
+      leftBtn.disabled = pools[slot].length <= 1;
+      leftBtn.onclick = () => { offsets[slot]--; renderSlots(); };
+      carousel.appendChild(leftBtn);
+
+      const track = document.createElement('div');
+      track.className = 'carousel-track';
+
+      if (!pools[slot].length) {
+        const empty = document.createElement('div');
+        empty.className = 'thumb-empty';
+        empty.textContent = 'No items of this type yet.';
+        track.appendChild(empty);
+      } else {
+        windowFor(slot, 5).forEach(item => track.appendChild(buildThumb(slot, item)));
+      }
+      carousel.appendChild(track);
+
+      const rightBtn = document.createElement('button');
+      rightBtn.type = 'button';
+      rightBtn.className = 'carousel-arrow';
+      rightBtn.innerHTML = '&#8250;';
+      rightBtn.disabled = pools[slot].length <= 1;
+      rightBtn.onclick = () => { offsets[slot]++; renderSlots(); };
+      carousel.appendChild(rightBtn);
+
+      row.appendChild(carousel);
+      return row;
+    }
+
+    function buildThumb(slot, item) {
+      const thumb = document.createElement('button');
+      thumb.type = 'button';
+      thumb.className = 'thumb-slot' + (selected[slot] && selected[slot].id === item.id ? ' selected' : '');
+      thumb.title = item.category || '';
+      const img = document.createElement('img');
+      img.src = item.imageUrl;
+      img.alt = item.category || '';
+      thumb.appendChild(img);
+      const cat = document.createElement('span');
+      cat.className = 'thumb-cat';
+      cat.textContent = item.category || '';
+      thumb.appendChild(cat);
+      thumb.onclick = () => selectItem(slot, item);
+      return thumb;
+    }
+
+    // ---------- Rendering: live preview ----------
+    function place(frame, item, pos, z) {
+      if (!item || !pos) return;
+      const img = document.createElement('img');
+      img.src = item.imageUrl;
+      img.alt = item.category || '';
+      img.style.top = pos.top;
+      img.style.left = pos.left;
+      img.style.width = pos.width;
+      img.style.height = pos.height;
+      img.style.transform = 'translateX(-50%)';
+      img.style.zIndex = z;
+      frame.appendChild(img);
+    }
+
+    function currentType() {
+      if (selected.body) return 'B';
+      if (selected.upperBody || selected.lowerBody) return 'A';
+      return null;
+    }
+
+    function isTightsSelected() {
+      return !!(selected.sock && selected.sock.category === 'Tights');
+    }
+
+    function buildFrame() {
+      const type = currentType();
+      const frame = document.createElement('div');
+      const POS = type === 'B' ? POS_B : POS_A;
+
+      place(frame, selected.jacket, POS.jacket, 1);
+      if (type === 'B') {
+        place(frame, selected.body, POS.body, 2);
+      } else {
+        place(frame, selected.upperBody, POS.upperBody, 2);
+        place(frame, selected.lowerBody, POS.lowerBody, 2);
+      }
+      place(frame, selected.purse, POS.purse, 3);
+      if (selected.sock) place(frame, selected.sock, isTightsSelected() ? POS.sockBig : POS.sockSmall, 1);
+      place(frame, selected.shoes, POS.shoes, 1);
+      place(frame, selected.head, POS.head, 4);
+      return frame;
+    }
+
+    function renderPreview() {
+      const box = document.getElementById('previewFrameBox');
+      const oldFrame = box.querySelector('.preview-outfit-frame');
+      if (oldFrame) oldFrame.remove();
+      const oldPlaceholder = box.querySelector('.preview-placeholder');
+      if (oldPlaceholder) oldPlaceholder.remove();
+
+      const tag = document.getElementById('previewTypeTag');
+      const type = currentType();
+      const anySelected = Object.values(selected).some(v => v);
+
+      if (!anySelected) {
+        tag.style.display = 'none';
+        const placeholder = document.createElement('div');
+        placeholder.className = 'preview-placeholder';
+        placeholder.textContent = 'Pick pieces on the left — they will appear here in place.';
+        box.appendChild(placeholder);
+        return;
+      }
+
+      tag.style.display = 'inline-block';
+      tag.textContent = type === 'B' ? 'Dress / jumpsuit look' : (type === 'A' ? 'Layered look' : 'Choose a body or lower body piece');
+
+      const frame = buildFrame();
+      frame.className = 'preview-outfit-frame';
+      box.appendChild(frame);
+    }
+
+    // ---------- Validation ----------
+    function validateOutfit() {
+      const errors = [];
+      const type = currentType();
+
+      if (!type) {
+        errors.push('Start by choosing a Body piece, or an Upper body / Lower body piece.');
+        return { valid: false, errors, type: null };
+      }
+
+      if (!selected.jacket) errors.push('Add a jacket.');
+      if (!selected.shoes) errors.push('Add shoes.');
+      if (!selected.head) errors.push('Add a head accessory.');
+      if (!selected.purse) errors.push('Add a purse.');
+
+      if (type === 'A') {
+        if (!selected.upperBody) errors.push('Add an upper body piece.');
+        if (!selected.lowerBody) errors.push('Add a lower body piece.');
+      } else {
+        if (!selected.body) errors.push('Add a dress or jumpsuit.');
+      }
+
+      const isHeels = selected.shoes && selected.shoes.category === 'Heels';
+      if (!isHeels) {
+        if (!selected.sock) {
+          errors.push('Add socks (heels are the only footwear that can skip them).');
+        } else if (selected.sock.category === 'Tights') {
+          if (type === 'A' && (!selected.lowerBody || selected.lowerBody.category !== 'Skirt')) {
+            errors.push('Tights are only allowed together with a Skirt.');
+          }
+          if (type === 'B' && (!selected.body || selected.body.category !== 'Dress')) {
+            errors.push('Tights are only allowed together with a Dress.');
+          }
+        }
+      }
+
+      return { valid: errors.length === 0, errors, type };
+    }
+
+    function showErrors(errors) {
+      const box = document.getElementById('builderErrors');
+      box.innerHTML = '<strong>This outfit isn\u2019t quite ready:</strong><ul>' +
+        errors.map(e => '<li>' + e + '</li>').join('') + '</ul>';
+      box.classList.add('show');
+    }
+    function hideErrors() {
+      document.getElementById('builderErrors').classList.remove('show');
+    }
+
+    // ---------- Favorites / Calendar (shared format with outfits.html) ----------
+    function readStore(key) {
+      try { return JSON.parse(localStorage.getItem(key)) || []; } catch (e) { return []; }
+    }
+    function writeStore(key, arr) {
+      localStorage.setItem(key, JSON.stringify(arr));
+    }
+    function outfitSignature(outfit) {
+      return outfit.type + ':' + Object.values(outfit.items).filter(i => i).map(i => i.id).sort().join(',');
+    }
+    function isFavorited(sig) {
+      return readStore(FAVORITES_KEY).some(f => f.signature === sig);
+    }
+    function toggleFavorite(outfit) {
+      let favs = readStore(FAVORITES_KEY);
+      if (favs.some(f => f.signature === outfit.signature)) {
+        favs = favs.filter(f => f.signature !== outfit.signature);
+      } else {
+        favs.push({ signature: outfit.signature, type: outfit.type, items: outfit.items, savedAt: new Date().toISOString() });
+      }
+      writeStore(FAVORITES_KEY, favs);
+      return favs.some(f => f.signature === outfit.signature);
+    }
+    function scheduleOutfit(outfit, dateStr) {
+      const cal = readStore(CALENDAR_KEY);
+      cal.push({ signature: outfit.signature, type: outfit.type, items: outfit.items, date: dateStr, savedAt: new Date().toISOString() });
+      writeStore(CALENDAR_KEY, cal);
+    }
+
+    function currentOutfitObject(type) {
+      const itemsObj = type === 'B'
+        ? { body: selected.body, sock: selected.sock, jacket: selected.jacket, shoes: selected.shoes, head: selected.head, purse: selected.purse }
+        : { lowerBody: selected.lowerBody, sock: selected.sock, upperBody: selected.upperBody, jacket: selected.jacket, shoes: selected.shoes, head: selected.head, purse: selected.purse };
+      const outfit = { type, isTights: isTightsSelected(), items: itemsObj };
+      outfit.signature = outfitSignature(outfit);
+      return outfit;
+    }
+
+    // ---------- Modal ----------
+    const modalOverlay = document.getElementById('outfitModal');
+    const modalFrame = document.getElementById('modalFrame');
+    const modalFavBtn = document.getElementById('modalFavBtn');
+    const modalCalBtn = document.getElementById('modalCalBtn');
+    const modalActions = document.getElementById('modalActions');
+    let currentModalOutfit = null;
+
+    function openModal(outfit) {
+      currentModalOutfit = outfit;
+      modalFrame.innerHTML = '';
+      const frame = buildFrame();
+      frame.className = 'modal-frame-inner';
+      frame.style.position = 'absolute';
+      frame.style.inset = '0';
+      modalFrame.appendChild(frame);
+
+      const favActive = isFavorited(outfit.signature);
+      modalFavBtn.classList.toggle('is-active', favActive);
+      modalFavBtn.querySelector('svg').setAttribute('fill', favActive ? 'currentColor' : 'none');
+
+      modalCalBtn.classList.remove('is-active');
+      modalCalBtn.style.display = '';
+      modalCalBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none"><rect x="4" y="5.5" width="16" height="14.5" rx="2" stroke="currentColor" stroke-width="1.6"/><line x1="4" y1="10" x2="20" y2="10" stroke="currentColor" stroke-width="1.6"/></svg> Add to calendar';
+      const oldPicker = modalActions.querySelector('.cal-picker');
+      if (oldPicker) oldPicker.remove();
+
+      modalOverlay.classList.add('show');
+    }
+
+    function closeModalDiscard() {
+      const ok = confirm('Sigur vrei să renunți la acest outfit?');
+      if (ok) {
+        modalOverlay.classList.remove('show');
+        currentModalOutfit = null;
+      }
+    }
+
+    modalFavBtn.onclick = () => {
+      if (!currentModalOutfit) return;
+      const active = toggleFavorite(currentModalOutfit);
+      modalFavBtn.classList.toggle('is-active', active);
+      modalFavBtn.querySelector('svg').setAttribute('fill', active ? 'currentColor' : 'none');
+    };
+
+    modalCalBtn.onclick = () => {
+      if (!currentModalOutfit) return;
+      if (modalActions.querySelector('.cal-picker')) return;
+      modalCalBtn.style.display = 'none';
+
+      const picker = document.createElement('div');
+      picker.className = 'cal-picker';
+      const dateInput = document.createElement('input');
+      dateInput.type = 'date';
+      dateInput.min = new Date().toISOString().slice(0, 10);
+      dateInput.value = dateInput.min;
+      picker.appendChild(dateInput);
+
+      const confirmBtn = document.createElement('button');
+      confirmBtn.type = 'button';
+      confirmBtn.textContent = 'Save';
+      confirmBtn.onclick = () => {
+        scheduleOutfit(currentModalOutfit, dateInput.value);
+        picker.remove();
+        modalCalBtn.style.display = '';
+        modalCalBtn.classList.add('is-active');
+        modalCalBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none"><path d="M5 12.5 L10 17 L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Scheduled for ' + dateInput.value;
+      };
+      picker.appendChild(confirmBtn);
+      modalActions.appendChild(picker);
+    };
+
+    document.getElementById('modalCloseBtn').onclick = closeModalDiscard;
+
+    // ---------- Layout skeleton ----------
+    function renderSkeleton() {
+      builderContainer.innerHTML =
+        '<p class="builder-heading">Create Your Own Outfit</p>' +
+        '<p class="builder-sub">Pick a piece from each type on the left — it will drop into place on the right.</p>' +
+        '<div class="builder-grid">' +
+        '  <div class="builder-slots" id="builderSlots"></div>' +
+        '  <div class="builder-preview-col">' +
+        '    <div class="preview-frame-box" id="previewFrameBox">' +
+        '      <svg class="dressup-bg" viewBox="0 0 400 520" xmlns="http://www.w3.org/2000/svg">' +
+        '        <rect x="0" y="0" width="400" height="520" fill="none"/>' +
+        '        <ellipse cx="280" cy="150" rx="70" ry="105" fill="none" stroke="#22222b" stroke-width="4"/>' +
+        '        <ellipse cx="280" cy="150" rx="58" ry="90" fill="none" stroke="#22222b" stroke-width="2"/>' +
+        '        <line x1="280" y1="255" x2="280" y2="330" stroke="#22222b" stroke-width="4"/>' +
+        '        <line x1="245" y1="330" x2="315" y2="330" stroke="#22222b" stroke-width="4"/>' +
+        '        <line x1="40" y1="60" x2="40" y2="470" stroke="#22222b" stroke-width="4"/>' +
+        '        <line x1="140" y1="60" x2="140" y2="470" stroke="#22222b" stroke-width="4"/>' +
+        '        <line x1="40" y1="60" x2="140" y2="60" stroke="#22222b" stroke-width="4"/>' +
+        '        <path d="M55 60 q 15 -18 30 0" fill="none" stroke="#22222b" stroke-width="3"/>' +
+        '        <path d="M55 60 L40 115 L70 100 L70 60" fill="none" stroke="#22222b" stroke-width="2.5"/>' +
+        '        <path d="M85 60 q 15 -18 30 0" fill="none" stroke="#22222b" stroke-width="3"/>' +
+        '        <path d="M115 60 L130 130 L100 112 L100 60" fill="none" stroke="#22222b" stroke-width="2.5"/>' +
+        '        <line x1="15" y1="470" x2="165" y2="470" stroke="#22222b" stroke-width="4"/>' +
+        '        <path d="M175 330 h60 a10 10 0 0 1 10 10 v90 a10 10 0 0 1 -10 10 h-60 a10 10 0 0 1 -10 -10 v-90 a10 10 0 0 1 10 -10 Z" fill="none" stroke="#22222b" stroke-width="3"/>' +
+        '        <line x1="205" y1="330" x2="205" y2="440" stroke="#22222b" stroke-width="2"/>' +
+        '      </svg>' +
+        '      <span class="preview-type-tag" id="previewTypeTag" style="display:none;"></span>' +
+        '    </div>' +
+        '    <div class="builder-errors" id="builderErrors"></div>' +
+        '    <button type="button" class="btn-done" id="doneBtn">Done</button>' +
+        '  </div>' +
+        '</div>';
+
+      document.getElementById('doneBtn').onclick = () => {
+        const result = validateOutfit();
+        if (!result.valid) {
+          showErrors(result.errors);
+          return;
+        }
+        hideErrors();
+        const outfit = currentOutfitObject(result.type);
+        openModal(outfit);
+      };
+    }
+
+    async function init() {
+      renderSkeleton();
+      try {
+        const response = await fetch('/api/wardrobe', { headers: authHeaders() });
+        if (!response.ok) throw new Error('LOAD_FAILED');
+        const data = await response.json();
+        items = data.items || [];
+        buildPools();
+        renderSlots();
+        renderPreview();
+      } catch (err) {
+        document.getElementById('builderSlots').innerHTML = '<p class="builder-sub">Could not load your wardrobe. Please refresh the page.</p>';
+      }
+    }
+
+    init();
+  }
+</script>
+
+</body>
+</html>
