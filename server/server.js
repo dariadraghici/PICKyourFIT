@@ -36,6 +36,18 @@ app.use(express.static(path.join(__dirname, '..'), { index: false }));
 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+// calendar-core.js and calendar-picker.js live in the server/ folder (next to
+// server.js), not in the project root, so express.static above won't find
+// them. Serve those two files explicitly at the site root instead.
+app.get('/calendar-core.js', (req, res) => {
+  res.type('application/javascript');
+  res.sendFile(path.join(__dirname, 'calendar-core.js'));
+});
+app.get('/calendar-picker.js', (req, res) => {
+  res.type('application/javascript');
+  res.sendFile(path.join(__dirname, 'calendar-picker.js'));
+});
+
 app.use('/api', authRoutes);
 
 app.use('/api', profileRoutes);
