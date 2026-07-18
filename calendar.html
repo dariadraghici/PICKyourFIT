@@ -90,15 +90,16 @@
   .month-picker button:hover:not(.active){ background:#fff; color:var(--ink); }
 
   /* ---------- Month view ---------- */
-  .month-grid{ border:1px solid var(--line); border-radius:14px; overflow:hidden; background:var(--linen-card); }
-  .weekday-row{ display:grid; grid-template-columns:repeat(7,1fr); border-bottom:1px solid var(--line); }
-  .weekday-row span{ text-align:center; padding:10px 4px; font-size:10.5px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; color:var(--ink-soft); }
-  .day-grid{ display:grid; grid-template-columns:repeat(7,1fr); grid-auto-rows:120px; }
-  .day-cell{ border-right:1px solid var(--line); border-bottom:1px solid var(--line); position:relative; padding:6px; overflow:hidden; text-align:left; background:transparent; }
-  .day-cell:nth-child(7n){ border-right:none; }
-  .day-cell:hover{ background:rgba(181,68,47,0.05); }
+  .month-grid{ background:transparent; }
+  .weekday-row{ display:grid; grid-template-columns:repeat(7,1fr); margin-bottom:8px; }
+  .weekday-row span{ text-align:center; padding:6px 4px; font-size:10.5px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; color:var(--ink-soft); }
+  .day-grid{ display:grid; grid-template-columns:repeat(7,1fr); grid-auto-rows:118px; gap:6px; }
+  .day-cell{ border:1px solid var(--line); border-radius:10px; background:var(--linen-card); position:relative; padding:6px; overflow:hidden; text-align:left; }
+  .day-cell:hover{ background:#fff; border-color:#c7bda5; }
   .day-num{ font-size:11.5px; font-weight:600; color:var(--ink); }
+  .day-cell.out-month{ background:transparent; border-color:transparent; }
   .day-cell.out-month .day-num{ color:var(--ink-soft); opacity:0.4; }
+  .day-cell.is-today{ border-color:var(--thread); box-shadow:0 0 0 1px var(--thread) inset; }
   .day-cell.is-today .day-num{ display:inline-flex; align-items:center; justify-content:center; width:20px; height:20px; border-radius:50%; background:var(--thread); color:#fff; }
   .day-thumbs{ position:absolute; inset:26px 4px 4px; display:flex; gap:4px; align-items:flex-end; justify-content:center; }
   .pyf-mini-composite{ position:relative; width:44px; height:78px; flex:0 0 auto; }
@@ -257,7 +258,11 @@
     calContainer.innerHTML = '<div class="login-prompt"><h2>Your Calendar is Locked</h2><p>Please <a href="login.html">Log In</a> or <a href="signup.html">Register</a> to plan and review your outfits.</p></div>';
   }
 
-  if (isLoggedIn) {
+  if (isLoggedIn && typeof PYFCal === 'undefined') {
+    calContainer.innerHTML = '<div class="login-prompt"><h2>Calendar failed to load</h2><p>The file <code>calendar-core.js</code> could not be found. Make sure it sits in the same folder as calendar.html on the server, then refresh.</p></div>';
+  }
+
+  if (isLoggedIn && typeof PYFCal !== 'undefined') {
     const { MONTH_NAMES, WEEKDAY_SHORT, getCalendarEntries, buildDateMap, toDateStr, todayStr,
             deleteCalendarEntry, moveCalendarEntryToFavorites, renderOutfitComposite, monthMatrix } = PYFCal;
 
