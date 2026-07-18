@@ -22,12 +22,16 @@
     
     /* Variables from landing */
     --side-bg: rgba(42, 34, 27, 0.85);
+
+    /* Fixed height for the dropzone/preview row so it never resizes
+       between the empty and filled states. Sized to comfortably fit
+       the filled preview card (image + result + actions). */
+    --scan-box-h: 600px;
   }
 
   *{ box-sizing: border-box; margin: 0; padding: 0; }
   body{
     background: var(--linen);
-    background-image: repeating-linear-gradient(0deg, rgba(0,0,0,0.018) 0px, rgba(0,0,0,0.018) 1px, transparent 1px, transparent 3px);
     color: var(--ink);
     font-family: 'Inter', sans-serif;
     min-height:100vh;
@@ -87,8 +91,21 @@
   .main-content {
     flex: 1;
     margin-left: 88px;
+    position: relative;
     display: flex;
     flex-direction: column;
+    background-image: url('frontend_photos/background_index.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+  }
+  .main-content::before{
+    content:'';
+    position:absolute; inset:0;
+    background: linear-gradient(100deg, rgba(243,238,227,0.55) 0%, rgba(243,238,227,0.28) 45%, rgba(243,238,227,0.12) 100%);
+    pointer-events:none;
+    z-index:0;
   }
 
   /* ---------- Header ---------- */
@@ -96,6 +113,7 @@
     position:relative;z-index:4;
     display:flex;align-items:center;justify-content:space-between;
     padding:26px 44px;
+    background:transparent;
   }
   .logo{
     font-family:'Fraunces',serif;
@@ -127,13 +145,30 @@
   /* ---------- App Content ---------- */
   .app-container {
     flex: 1;
+    position: relative;
+    z-index: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 60px 20px 48px;
+    justify-content: flex-end;
+    padding: 6px 20px 48px;
   }
 
-  .wrap{ max-width: 620px; width:100%; display:flex; flex-direction:column; }
+  .scan-grid{
+    position:relative; z-index:1;
+    max-width: 1040px; width:100%;
+    margin: 0 auto;
+    display:grid;
+    grid-template-columns: 1.35fr 1fr;
+    grid-template-areas:
+      "text ."
+      "drop side";
+    align-items:stretch;
+    gap: 1px 40px;
+  }
+  .scan-text{ grid-area:text; }
+  .scan-drop{ grid-area:drop; display:flex; flex-direction:column; height:var(--scan-box-h); }
+  .side-col{ grid-area:side; display:flex; flex-direction:column; gap:16px; height:var(--scan-box-h); }
 
   .eyebrow{
     font-family:'JetBrains Mono', monospace;
@@ -172,11 +207,17 @@
   /* dropzone */
   .dropzone{
     position:relative;
-    background: var(--linen-card);
-    border-radius: 4px;
+    background: rgba(250,247,239,0.16);
+    backdrop-filter: blur(22px);
+    -webkit-backdrop-filter: blur(22px);
+    border: 1px solid rgba(255,255,255,0.45);
+    box-shadow: 0 20px 50px rgba(60,45,25,0.06);
+    border-radius: 14px;
     padding: 48px 32px;
     text-align:center;
     cursor:pointer;
+    flex: 1;
+    display:flex; flex-direction:column; justify-content:center;
     transition: background 0.18s ease, border-color 0.18s ease;
     outline: none;
   }
@@ -184,8 +225,8 @@
     content:'';
     position:absolute;
     inset:10px;
-    border:1.5px dashed var(--line);
-    border-radius:2px;
+    border:1.5px dashed rgba(107,98,88,0.3);
+    border-radius:10px;
     pointer-events:none;
     transition: border-color 0.18s ease;
   }
@@ -193,7 +234,7 @@
     border-color: var(--thread);
   }
   .dropzone.dragover{
-    background:#F6EDE2;
+    background:rgba(246,237,226,0.32);
   }
   .dropzone.dragover::before{
     border-color: var(--thread);
@@ -229,31 +270,56 @@
   }
   .error-msg.show{ display:block; }
 
-  /* preview + result */
-  .result-card{
-    margin-top:28px; display:flex; align-items:flex-start; background: var(--linen-card);
-    border:1px solid var(--line); border-radius:4px; overflow:hidden;
-    transition: max-height 0.35s cubic-bezier(0.4,0,0.2,1);
+  /* preview card (sidebar, glass) */
+  .preview-card{
+    position:relative;
+    background: rgba(250,247,239,0.16);
+    backdrop-filter: blur(22px);
+    -webkit-backdrop-filter: blur(22px);
+    border: 1px solid rgba(255,255,255,0.45);
+    box-shadow: 0 20px 50px rgba(60,45,25,0.06);
+    border-radius: 14px;
+    padding: 22px 22px 24px;
+    flex:1;
+    min-height:0;
+    overflow-y:auto;
+    display:flex; flex-direction:column;
   }
-  .result-card.empty{ visibility: hidden; max-height: 0; margin-top: 0; border: none; }
-  .preview-pane{
-    width:160px; height:160px; flex-shrink:0; align-self:flex-start; background:#EFE8D9;
-    display:flex; align-items:center; justify-content:center; overflow:hidden; border-right:1px dashed var(--line);
+  .preview-card-header{ display:flex; align-items:center; gap:10px; margin-bottom:18px; }
+  .preview-card-header svg{ width:18px; height:18px; color: var(--thread); flex-shrink:0; }
+  .preview-card-title{ font-family:'Fraunces', serif; font-weight:600; font-size:14.5px; color:var(--ink); }
+  .preview-card-sub{ font-size:11.5px; color: var(--ink-soft); }
+
+  .preview-empty{
+    flex:1;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center; gap:14px; padding: 34px 10px; border:1px dashed rgba(107,98,88,0.28); border-radius:10px;
+    background: rgba(255,255,255,0.08);
   }
-  .preview-pane img{ width:100%; height:100%; object-fit:contain; padding:8px; display:block; }
-  .result-body{ padding:18px 24px; flex:1; min-width:0; display:flex; flex-direction:column; justify-content:center; overflow:hidden; }
+  .preview-empty svg{ width:34px; height:34px; color: var(--ink-soft); }
+  .preview-empty p{ font-size:13px; color: var(--ink-soft); line-height:1.4; max-width:150px; }
+
+  .preview-filled{ display:flex; flex-direction:column; flex:1; }
+  .preview-image-box{
+    width:240px; height:240px; max-width:100%; flex-shrink:0; margin:0 auto 16px;
+    border-radius:10px; overflow:hidden;
+    background: rgba(239,232,217,0.4); display:flex; align-items:center; justify-content:center;
+    border:1px solid rgba(255,255,255,0.45);
+  }
+  .preview-image-box img{ max-width:100%; max-height:100%; width:auto; height:auto; object-fit:contain; display:block; }
+
   .tag-label{ font-family:'JetBrains Mono', monospace; font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color: var(--sage); margin:0 0 4px; }
-  .tag-value{ font-family:'Fraunces', serif; font-weight:600; font-size:20px; margin:0 0 8px; color: var(--ink); }
+  .tag-value{ font-family:'Fraunces', serif; font-weight:600; font-size:20px; margin:0 0 10px; color: var(--ink); }
   .tag-value.loading{ color: var(--ink-soft); font-style: italic; font-size:18px; }
   .confidence-row{ display:flex; align-items:center; gap:10px; margin-bottom:0; }
-  .confidence-bar{ flex:1; height:6px; background:#E7DECB; border-radius:10px; overflow:hidden; }
+  .confidence-bar{ flex:1; height:6px; background:rgba(231,222,203,0.8); border-radius:10px; overflow:hidden; }
   .confidence-fill{ height:100%; background: var(--denim); border-radius:10px; width:0%; transition: width 0.5s ease; }
   .confidence-pct{ font-family:'JetBrains Mono', monospace; font-size:12px; color: var(--ink-soft); min-width:40px; text-align:right; }
 
   input[type=file]{ display:none; }
 
   /* actions */
-  .post-actions{ margin-top:14px; padding-top:14px; border-top:1px dashed var(--line); display:none; flex-direction:column; gap:10px; }
+  .post-actions{ margin-top:16px; padding-top:16px; border-top:1px dashed rgba(107,98,88,0.25); display:none; flex-direction:column; gap:10px; }
   .post-actions.show{ display:flex; }
   .post-actions-row{ display:flex; flex-direction:row; align-items:center; gap:12px; flex-wrap:wrap; }
 
@@ -278,17 +344,48 @@
   }
   .or-text{ font-size:12px; color: var(--ink-soft); font-style: italic; }
 
+  /* scan time stat box (bottom of side column) */
+  .scan-stat-box{
+    display:flex; align-items:center; gap:12px;
+    background: rgba(250,247,239,0.16);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border: 1px solid rgba(255,255,255,0.45);
+    box-shadow: 0 12px 30px rgba(60,45,25,0.05);
+    border-radius: 12px;
+    padding: 14px 18px;
+    flex-shrink:0;
+  }
+  .scan-stat-icon{
+    width:32px; height:32px; border-radius:8px; flex-shrink:0;
+    background: rgba(255,255,255,0.22);
+    display:flex; align-items:center; justify-content:center;
+    color: var(--thread);
+  }
+  .scan-stat-icon svg{ width:16px; height:16px; }
+  .scan-stat-label{ font-family:'JetBrains Mono', monospace; font-size:10.5px; letter-spacing:0.08em; text-transform:uppercase; color: var(--ink-soft); margin:0 0 2px; }
+  .scan-stat-value{ font-family:'Fraunces', serif; font-weight:600; font-size:15px; color: var(--ink); }
+
   @media (max-width: 980px){
     .sidebar{width:64px;}
     .main-content{margin-left:64px;}
     header{padding:22px 24px;}
     nav.main-nav{display:none;}
   }
+  @media (max-width: 860px){
+    .scan-grid{
+      grid-template-columns: 1fr;
+      grid-template-areas:
+        "text"
+        "drop"
+        "side";
+      max-width:620px;
+    }
+    .scan-drop, .side-col{ height:auto; min-height:var(--scan-box-h); }
+  }
   @media (max-width:480px){
     h1{ font-size:30px; }
     .dropzone{ padding:36px 18px; }
-    .result-card{ flex-direction:column; }
-    .preview-pane{ width:100%; height:160px; border-right:none; border-bottom:1px dashed var(--line); }
   }
 </style>
 </head>
@@ -344,51 +441,79 @@
   </header>
 
   <div class="app-container">
-    <div class="wrap">
-      <div class="eyebrow">Smart Scanner</div>
-      <h1>Scan your item</h1>
-      <p class="lead">Upload an image to automatically classify your clothing and add it to your digital wardrobe.</p>
-
-      <div class="dropzone" id="dropzone" tabindex="0">
-        <img src="frontend_photos/logo.png" alt="" class="spool" onerror="this.style.display='none'">
-        <p class="dz-title">Drag and drop your image here</p>
-        <p class="dz-sub">or click to browse files from your <b>computer</b></p>
-        <button type="button" class="browse-btn" id="browseBtn">Browse Files</button>
-        <input type="file" id="fileInput" accept=".png,.jpg,.jpeg,image/png,image/jpeg">
-        <div class="formats">
-          <span>.PNG</span><span>.JPG</span><span>.JPEG</span>
-        </div>
+    <div class="scan-grid">
+      <div class="scan-text">
+        <div class="eyebrow">Smart Scanner</div>
+        <h1>Scan a clothing item</h1>
+        <p class="lead">Upload an image to automatically classify your clothing and add it to your digital wardrobe.</p>
       </div>
 
-      <div class="error-msg" id="errorMsg"></div>
-
-      <div class="result-card empty" id="resultCard">
-        <div class="preview-pane">
-          <img id="previewImg" src="" alt="Preview">
-        </div>
-        <div class="result-body">
-          <p class="tag-label">Predicted Category</p>
-          <p class="tag-value" id="resultLabel">—</p>
-          <div class="confidence-row">
-            <div class="confidence-bar"><div class="confidence-fill" id="confFill"></div></div>
-            <span class="confidence-pct" id="confPct">0%</span>
+      <div class="scan-drop">
+        <div class="dropzone" id="dropzone" tabindex="0">
+          <img src="frontend_photos/logo.png" alt="" class="spool" onerror="this.style.display='none'">
+          <p class="dz-title">Drag and drop your image here</p>
+          <p class="dz-sub">or click to browse files from your <b>computer</b></p>
+          <button type="button" class="browse-btn" id="browseBtn">Browse Files</button>
+          <input type="file" id="fileInput" accept=".png,.jpg,.jpeg,image/png,image/jpeg">
+          <div class="formats">
+            <span>.PNG</span><span>.JPG</span><span>.JPEG</span>
           </div>
-          
-          <div class="post-actions" id="postActions">
-            <div class="post-actions-row">
-              <button type="button" class="btn-primary" id="addToWardrobeBtn" style="display:none;">Add to wardrobe</button>
-              <a href="signup.html" class="btn-register-cta" id="registerToSaveBtn" style="display:none;">Want to remember it? Register now</a>
-              
-              <span class="or-text" id="orText">or</span>
-              <button type="button" class="reset-link" id="resetBtn">Upload another image</button>
+        </div>
+
+        <div class="error-msg" id="errorMsg"></div>
+      </div>
+
+      <div class="side-col">
+        <aside class="preview-card" id="resultCard">
+          <div class="preview-card-header">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M12 3 L13.4 9 L19.5 10.4 L13.4 11.8 L12 18 L10.6 11.8 L4.5 10.4 L10.6 9 Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
+            <div>
+              <p class="preview-card-title">Preview</p>
+              <p class="preview-card-sub" id="previewSubtitle">See how it works</p>
             </div>
-            <div id="successMsg" style="display:none; font-size:12px; color:var(--sage); margin-top:8px;">
-              Item saved! <a href="wardrobe.html" style="text-decoration:underline; font-weight:600;">Go to Wardrobe</a>
+          </div>
+
+          <div class="preview-empty" id="previewEmpty">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M8.5 4 L10 6 h4 l1.5 -2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M8.5 4 L4 7.5 L6.5 10.5 L8 9.3 V20 h8 V9.3 l1.5 1.2 L20 7.5 L15.5 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <p>Your item will appear here</p>
+          </div>
+
+          <div class="preview-filled" id="previewFilled" style="display:none;">
+            <div class="preview-image-box">
+              <img id="previewImg" src="" alt="Preview">
             </div>
+            <p class="tag-label">Predicted Category</p>
+            <p class="tag-value" id="resultLabel">—</p>
+            <div class="confidence-row">
+              <div class="confidence-bar"><div class="confidence-fill" id="confFill"></div></div>
+              <span class="confidence-pct" id="confPct">0%</span>
+            </div>
+
+            <div class="post-actions" id="postActions">
+              <div class="post-actions-row">
+                <button type="button" class="btn-primary" id="addToWardrobeBtn" style="display:none;">Add to wardrobe</button>
+                <a href="signup.html" class="btn-register-cta" id="registerToSaveBtn" style="display:none;">Want to remember it? Register now</a>
+
+                <span class="or-text" id="orText">or</span>
+                <button type="button" class="reset-link" id="resetBtn">Upload another image</button>
+              </div>
+              <div id="successMsg" style="display:none; font-size:12px; color:var(--sage); margin-top:8px;">
+                Item saved! <a href="wardrobe.html" style="text-decoration:underline; font-weight:600;">Go to Wardrobe</a>
+              </div>
+            </div>
+          </div>
+        </aside>
+
+        <div class="scan-stat-box" id="scanStatBox">
+          <div class="scan-stat-icon">
+            <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.6"/><path d="M12 7.5 V12 L15 14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div>
+            <p class="scan-stat-label" id="statLabel">Average scan time</p>
+            <p class="scan-stat-value" id="statValue">~1 sec</p>
           </div>
         </div>
       </div>
-
     </div>
   </div>
 </main>
@@ -416,6 +541,9 @@
   const browseBtn = document.getElementById('browseBtn');
   const errorMsg = document.getElementById('errorMsg');
   const resultCard = document.getElementById('resultCard');
+  const previewEmpty = document.getElementById('previewEmpty');
+  const previewFilled = document.getElementById('previewFilled');
+  const previewSubtitle = document.getElementById('previewSubtitle');
   const previewImg = document.getElementById('previewImg');
   const resultLabel = document.getElementById('resultLabel');
   const confFill = document.getElementById('confFill');
@@ -426,6 +554,12 @@
   const orText = document.getElementById('orText');
   const resetBtn = document.getElementById('resetBtn');
   const successMsg = document.getElementById('successMsg');
+  const statLabel = document.getElementById('statLabel');
+  const statValue = document.getElementById('statValue');
+
+  const DEFAULT_STAT_LABEL = 'Average scan time';
+  const DEFAULT_STAT_VALUE = '~1 sec';
+  let scanStartTime = null;
 
   const NOT_CLOTHING = 'NOT A CLOTHING ITEM';
   const SECTION_MAP = {
@@ -448,12 +582,24 @@
     }
   })();
 
-  function showError(msg){ errorMsg.textContent = msg; errorMsg.classList.add('show'); }
+  function showError(msg){
+    errorMsg.textContent = msg; errorMsg.classList.add('show');
+    if (scanStartTime !== null) {
+      statLabel.textContent = DEFAULT_STAT_LABEL;
+      statValue.textContent = DEFAULT_STAT_VALUE;
+      scanStartTime = null;
+    }
+  }
   function clearError(){ errorMsg.classList.remove('show'); errorMsg.textContent = ''; }
 
   async function handleFile(file){
     clearError();
-    resultCard.classList.remove('empty');
+    scanStartTime = performance.now();
+    statLabel.textContent = 'Scanning...';
+    statValue.textContent = '—';
+    previewEmpty.style.display = 'none';
+    previewFilled.style.display = 'flex';
+    previewSubtitle.textContent = 'Analyzing your item';
     resultLabel.textContent = 'Analyzing...';
     resultLabel.classList.add('loading');
     confFill.style.width = '0%';
@@ -508,6 +654,7 @@
   }
 
   function showResult(category, confidence, dataUrl, file) {
+    previewSubtitle.textContent = "Here's what we found";
     resultLabel.textContent = category;
     resultLabel.classList.remove('loading');
     confFill.style.width = confidence + '%';
@@ -517,6 +664,13 @@
       confPct.textContent = confidence + '%';
     }
     currentResult = { category, dataUrl, file };
+
+    if (scanStartTime !== null) {
+      const elapsedSec = ((performance.now() - scanStartTime) / 1000).toFixed(1);
+      statLabel.textContent = 'Scanned in';
+      statValue.textContent = elapsedSec + ' sec';
+      scanStartTime = null;
+    }
 
     postActions.classList.add('show');
     
@@ -615,7 +769,11 @@
   });
 
   resetBtn.addEventListener('click', () => {
-    resultCard.classList.add('empty');
+    previewFilled.style.display = 'none';
+    previewEmpty.style.display = 'flex';
+    previewSubtitle.textContent = 'See how it works';
+    statLabel.textContent = DEFAULT_STAT_LABEL;
+    statValue.textContent = DEFAULT_STAT_VALUE;
     fileInput.value = '';
     fileInput.click();
   });
