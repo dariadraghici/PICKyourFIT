@@ -443,7 +443,11 @@
 
     function buildSlotRow(slot) {
       const row = document.createElement('div');
-      row.className = 'slot-row' + (pools[slot].length === 0 ? ' is-empty-pool' : '');
+      if (pools[slot].length === 0) {
+        row.className = 'slot-row is-empty-pool';
+      } else {
+        row.className = 'slot-row';
+      }
 
       const headerEl = document.createElement('div');
       headerEl.className = 'slot-header';
@@ -453,9 +457,16 @@
       headerEl.appendChild(label);
       const hint = document.createElement('span');
       hint.className = 'slot-hint';
-      hint.textContent = (slot === 'body') ? 'replaces upper + lower body' :
-        ((slot === 'upperBody' || slot === 'lowerBody') ? 'replaces body' :
-        ((slot === 'jacket' || slot === 'head' || slot === 'purse') ? 'optional' : ''));
+      if (slot === 'body') {
+        hint.textContent = 'replaces upper + lower body';
+      } else if (slot === 'upperBody' || slot === 'lowerBody') {
+        hint.textContent = 'replaces body';
+      } else if (slot === 'jacket' || slot === 'head' || slot === 'purse') {
+        hint.textContent = 'optional';
+      } else {
+        hint.textContent = '';
+      }
+
       headerEl.appendChild(hint);
       row.appendChild(headerEl);
 
@@ -498,7 +509,12 @@
     function buildThumb(slot, item) {
       const thumb = document.createElement('button');
       thumb.type = 'button';
-      thumb.className = 'thumb-slot' + (selected[slot] && selected[slot].id === item.id ? ' selected' : '');
+
+      if (selected[slot] && selected[slot].id === item.id) {
+        thumb.className = 'thumb-slot selected';
+      } else {
+        thumb.className = 'thumb-slot';
+      }
       thumb.title = item.category || '';
       const img = document.createElement('img');
       img.src = item.imageUrl;
@@ -540,7 +556,12 @@
     function buildFrame() {
       const type = currentType();
       const frame = document.createElement('div');
-      const POS = type === 'B' ? POS_B : POS_A;
+      let POS;
+      if (type === 'B') {
+        POS = POS_B;
+      } else {
+        POS = POS_A;
+      }
 
       place(frame, selected.jacket, POS.jacket, 1);
       if (type === 'B') {
@@ -550,7 +571,17 @@
         place(frame, selected.lowerBody, POS.lowerBody, 2);
       }
       place(frame, selected.purse, POS.purse, 3);
-      if (selected.sock) place(frame, selected.sock, isTightsSelected() ? POS.sockBig : POS.sockSmall, 1);
+      if (selected.sock) {
+        let position;
+
+        if (isTightsSelected()) {
+          position = POS.sockBig;
+        } else {
+          position = POS.sockSmall;
+        }
+
+        place(frame, selected.sock, position, 1);
+      }
       place(frame, selected.shoes, POS.shoes, 1);
       place(frame, selected.head, POS.head, 4);
       return frame;
@@ -571,14 +602,19 @@
         tag.style.display = 'none';
         const placeholder = document.createElement('div');
         placeholder.className = 'preview-placeholder';
-        placeholder.textContent = 'Pick pieces on the left — they will appear here in place.';
+        placeholder.textContent = 'Pick pieces on the left';
         box.appendChild(placeholder);
         return;
       }
 
       tag.style.display = 'inline-block';
-      tag.textContent = type === 'B' ? 'Dress / jumpsuit look' : (type === 'A' ? 'Layered look' : 'Choose a body or lower body piece');
-
+      if (type === 'B') {
+        tag.textContent = 'Dress / jumpsuit look';
+      } else if (type === 'A') {
+        tag.textContent = 'Layered look';
+      } else {
+        tag.textContent = 'Choose a body or lower body piece';
+      }
       const frame = buildFrame();
       frame.className = 'preview-outfit-frame';
       box.appendChild(frame);
@@ -708,9 +744,14 @@
     }
 
     function currentOutfitObject(type) {
-      const itemsObj = type === 'B'
-        ? { body: selected.body, sock: selected.sock, jacket: selected.jacket, shoes: selected.shoes, head: selected.head, purse: selected.purse }
-        : { lowerBody: selected.lowerBody, sock: selected.sock, upperBody: selected.upperBody, jacket: selected.jacket, shoes: selected.shoes, head: selected.head, purse: selected.purse };
+      let itemsObj;
+      
+      if (type === 'B') {
+        itemsObj = { body: selected.body, sock: selected.sock, jacket: selected.jacket, shoes: selected.shoes, head: selected.head, purse: selected.purse };
+      } else {
+        itemsObj = { lowerBody: selected.lowerBody, sock: selected.sock, upperBody: selected.upperBody, jacket: selected.jacket, shoes: selected.shoes, head: selected.head, purse: selected.purse };
+      }
+      
       const outfit = { type, isTights: isTightsSelected(), items: itemsObj };
       outfit.signature = outfitSignature(outfit);
       return outfit;
@@ -735,7 +776,12 @@
 
       const favActive = isFavorited(outfit.signature);
       modalFavBtn.classList.toggle('is-active', favActive);
-      modalFavBtn.querySelector('svg').setAttribute('fill', favActive ? 'currentColor' : 'none');
+      const svgElement = modalFavBtn.querySelector('svg');
+      if (favActive) {
+        svgElement.setAttribute('fill', 'currentColor');
+      } else {
+        svgElement.setAttribute('fill', 'none');
+      }
 
       modalCalBtn.classList.remove('is-active');
       modalCalBtn.style.display = '';
@@ -758,7 +804,12 @@
       if (!currentModalOutfit) return;
       const active = toggleFavorite(currentModalOutfit);
       modalFavBtn.classList.toggle('is-active', active);
-      modalFavBtn.querySelector('svg').setAttribute('fill', active ? 'currentColor' : 'none');
+      const svgElement = modalFavBtn.querySelector('svg');
+      if (active) {
+        svgElement.setAttribute('fill', 'currentColor');
+      } else {
+        svgElement.setAttribute('fill', 'none');
+      }
     };
 
     modalCalBtn.onclick = () => {
@@ -782,6 +833,8 @@
         picker.remove();
         modalCalBtn.style.display = '';
         modalCalBtn.classList.add('is-active');
+        const svgElement = modalCalBtn.querySelector('svg');
+        svgElement.setAttribute('fill', 'currentColor');
         modalCalBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none"><path d="M5 12.5 L10 17 L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Scheduled for ' + dateInput.value;
       };
       picker.appendChild(confirmBtn);
@@ -794,7 +847,7 @@
     function renderSkeleton() {
       builderContainer.innerHTML =
         '<p class="builder-heading">Create Your Own Outfit</p>' +
-        '<p class="builder-sub">Pick a piece from each type on the left — it will drop into place on the right.</p>' +
+        '<p class="builder-sub">Pick a piece from each type on the left</p>' +
         '<div class="builder-grid">' +
         '  <div class="builder-slots" id="builderSlots"></div>' +
         '  <div class="builder-preview-col">' +
