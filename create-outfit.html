@@ -108,9 +108,9 @@
   }
   .carousel-arrow:hover{ background:var(--linen); border-color:var(--side-bg); }
   .carousel-arrow:disabled{ opacity:0.3; cursor:default; }
-  .carousel-track{ flex:1; display:flex; gap:8px; overflow:hidden; }
+  .carousel-track{ flex:1; display:grid; grid-template-columns: repeat(5, 1fr); gap:8px; }
   .thumb-slot{
-    flex:1 1 0; min-width:0; aspect-ratio:1/1; border-radius:8px; border:2px solid var(--line);
+    width:100%; min-width:0; aspect-ratio:1/1; border-radius:8px; border:2px solid var(--line);
     background:#EFE8D9; position:relative; overflow:hidden; transition: border-color .15s ease, transform .1s ease;
   }
   .thumb-slot img{ width:100%; height:100%; object-fit:contain; padding:6px; display:block; }
@@ -121,16 +121,17 @@
     background:rgba(34,34,43,0.72); color:#fff; padding:2px 2px; letter-spacing:0.03em;
   }
   .thumb-empty{
-    flex:1; text-align:center; font-size:11.5px; color:var(--ink-soft); font-style:italic; padding:14px 0;
+    grid-column: 1 / -1; text-align:center; font-size:11.5px; color:var(--ink-soft); font-style:italic; padding:14px 0;
   }
 
   /* ----- Right: preview ----- */
-  .builder-preview-col{ flex:0 0 380px; position:sticky; top:20px; }
+  .builder-preview-col{ flex:0 0 380px; align-self:stretch; }
+  .preview-sticky-wrap{ position:sticky; top:50%; transform:translateY(-50%); }
   .preview-frame-box{
     position:relative; width:100%; height:520px; border-radius:16px; overflow:hidden;
     border:1px solid var(--line); background: var(--linen-card);
   }
-  .dressup-bg{ position:absolute; inset:0; width:100%; height:100%; opacity:0.13; pointer-events:none; }
+  .dressup-bg{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center; opacity:0.07; pointer-events:none; }
   .preview-type-tag{
     position:absolute; top:14px; left:14px; z-index:5;
     font-family:'JetBrains Mono', monospace; font-size:10px; letter-spacing:0.1em;
@@ -208,7 +209,8 @@
     nav.main-nav{display:none;}
   }
   @media (max-width: 860px){
-    .builder-preview-col{ flex:1 1 100%; position:static; }
+    .builder-preview-col{ flex:1 1 100%; }
+    .preview-sticky-wrap{ position:static; transform:none; }
     .preview-frame-box{ height:420px; }
   }
 </style>
@@ -711,28 +713,14 @@
         '<div class="builder-grid">' +
         '  <div class="builder-slots" id="builderSlots"></div>' +
         '  <div class="builder-preview-col">' +
+        '   <div class="preview-sticky-wrap">' +
         '    <div class="preview-frame-box" id="previewFrameBox">' +
-        '      <svg class="dressup-bg" viewBox="0 0 400 520" xmlns="http://www.w3.org/2000/svg">' +
-        '        <rect x="0" y="0" width="400" height="520" fill="none"/>' +
-        '        <ellipse cx="280" cy="150" rx="70" ry="105" fill="none" stroke="#22222b" stroke-width="4"/>' +
-        '        <ellipse cx="280" cy="150" rx="58" ry="90" fill="none" stroke="#22222b" stroke-width="2"/>' +
-        '        <line x1="280" y1="255" x2="280" y2="330" stroke="#22222b" stroke-width="4"/>' +
-        '        <line x1="245" y1="330" x2="315" y2="330" stroke="#22222b" stroke-width="4"/>' +
-        '        <line x1="40" y1="60" x2="40" y2="470" stroke="#22222b" stroke-width="4"/>' +
-        '        <line x1="140" y1="60" x2="140" y2="470" stroke="#22222b" stroke-width="4"/>' +
-        '        <line x1="40" y1="60" x2="140" y2="60" stroke="#22222b" stroke-width="4"/>' +
-        '        <path d="M55 60 q 15 -18 30 0" fill="none" stroke="#22222b" stroke-width="3"/>' +
-        '        <path d="M55 60 L40 115 L70 100 L70 60" fill="none" stroke="#22222b" stroke-width="2.5"/>' +
-        '        <path d="M85 60 q 15 -18 30 0" fill="none" stroke="#22222b" stroke-width="3"/>' +
-        '        <path d="M115 60 L130 130 L100 112 L100 60" fill="none" stroke="#22222b" stroke-width="2.5"/>' +
-        '        <line x1="15" y1="470" x2="165" y2="470" stroke="#22222b" stroke-width="4"/>' +
-        '        <path d="M175 330 h60 a10 10 0 0 1 10 10 v90 a10 10 0 0 1 -10 10 h-60 a10 10 0 0 1 -10 -10 v-90 a10 10 0 0 1 10 -10 Z" fill="none" stroke="#22222b" stroke-width="3"/>' +
-        '        <line x1="205" y1="330" x2="205" y2="440" stroke="#22222b" stroke-width="2"/>' +
-        '      </svg>' +
+        '      <img class="dressup-bg" src="frontend_photos/wardrobe.png" alt="" />' +
         '      <span class="preview-type-tag" id="previewTypeTag" style="display:none;"></span>' +
         '    </div>' +
         '    <div class="builder-errors" id="builderErrors"></div>' +
         '    <button type="button" class="btn-done" id="doneBtn">Done</button>' +
+        '   </div>' +
         '  </div>' +
         '</div>';
 
