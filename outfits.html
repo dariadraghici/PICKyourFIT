@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="calendar-picker.js"></script>
 <style>
   :root{
     --linen: #F3EEE3;
@@ -215,7 +216,7 @@
     <a href="favorites.html" class="side-link" title="Favorites">
       <svg viewBox="0 0 24 24" fill="none"><path d="M12 20 C6.5 15.8, 3.5 12, 3.5 8.2 C3.5 5.1, 5.8 3, 8.5 3 C10.3 3, 11.7 4, 12 5.6 C12.3 4, 13.7 3, 15.5 3 C18.2 3, 20.5 5.1, 20.5 8.2 C20.5 12, 17.5 15.8, 12 20 Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
     </a>
-    <a href="#" class="side-link" title="Planner">
+    <a href="calendar.html" class="side-link" title="Calendar">
       <svg viewBox="0 0 24 24" fill="none"><rect x="4" y="5.5" width="16" height="14.5" rx="2" stroke="currentColor" stroke-width="1.6"/><line x1="4" y1="10" x2="20" y2="10" stroke="currentColor" stroke-width="1.6"/><line x1="8.3" y1="3" x2="8.3" y2="7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><line x1="15.7" y1="3" x2="15.7" y2="7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
     </a>
     <a href="wardrobe.html" class="side-link" title="Wardrobe">
@@ -717,31 +718,16 @@
     }
 
     function openCalendarPicker(outfit, actions, calBtn) {
-      if (actions.querySelector('.cal-picker')) return;
-      calBtn.style.display = 'none';
-
-      const picker = document.createElement('div');
-      picker.className = 'cal-picker';
-
-      const dateInput = document.createElement('input');
-      dateInput.type = 'date';
-      dateInput.min = new Date().toISOString().slice(0, 10);
-      dateInput.value = dateInput.min;
-      picker.appendChild(dateInput);
-
-      const confirmBtn = document.createElement('button');
-      confirmBtn.type = 'button';
-      confirmBtn.textContent = 'Save';
-      confirmBtn.onclick = () => {
-        scheduleOutfit(outfit, dateInput.value);
-        picker.remove();
-        calBtn.style.display = '';
-        calBtn.classList.add('is-active');
-        calBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none"><path d="M5 12.5 L10 17 L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Scheduled for ' + dateInput.value;
-      };
-      picker.appendChild(confirmBtn);
-
-      actions.appendChild(picker);
+      PYFDatePicker.open({
+        minDate: new Date().toISOString().slice(0, 10),
+        initialDate: new Date().toISOString().slice(0, 10),
+        onSelect: (dateStr) => {
+          scheduleOutfit(outfit, dateStr);
+          calBtn.classList.add('is-active');
+          calBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none"><path d="M5 12.5 L10 17 L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Scheduled for ' + dateStr;
+          showToast('Added to your calendar for ' + dateStr + '.');
+        },
+      });
     }
 
     function renderIntro() {
