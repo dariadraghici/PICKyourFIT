@@ -347,8 +347,8 @@
     // ---------- Slot config (mirrors wardrobe.html / outfits.html) ----------
     const SLOT_ORDER = ['upperBody', 'lowerBody', 'body', 'jacket', 'sock', 'shoes', 'head', 'purse'];
     const SLOT_LABELS = {
-      upperBody: 'Upper body', lowerBody: 'Lower body', body: 'Body (dress / jumpsuit)',
-      jacket: 'Jacket', sock: 'Socks / Tights', shoes: 'Shoes', head: 'Head', purse: 'Purse'
+      upperBody: 'Upper body', lowerBody: 'Lower body', body: 'Body',
+      jacket: 'Jacket', sock: 'Hosiery', shoes: 'Shoes', head: 'Head', purse: 'Purse'
     };
     const SLOT_CATEGORIES = {
       upperBody: ['T-shirt', 'Crop Top', 'Bodysuit', 'Turtle Neck', 'Tank top', 'Blouse', 'Shirt', 'Pullovers', 'Hoodie'],
@@ -747,7 +747,7 @@
     }
 
     function closeModalDiscard() {
-      const ok = confirm('Sigur vrei să renunți la acest outfit?');
+      const ok = confirm('Are you sure you want to discard this outfit?');
       if (ok) {
         modalOverlay.classList.remove('show');
         currentModalOutfit = null;
