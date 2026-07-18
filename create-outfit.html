@@ -125,13 +125,14 @@
   }
 
   /* ----- Right: preview ----- */
-  .builder-preview-col{ flex:0 0 380px; align-self:stretch; }
+  .builder-preview-col{ flex:0 0 560px; align-self:stretch; }
   .preview-sticky-wrap{ position:sticky; top:50%; transform:translateY(-50%); }
+  .preview-row{ display:flex; gap:16px; align-items:flex-start; }
   .preview-frame-box{
-    position:relative; width:100%; height:520px; border-radius:16px; overflow:hidden;
+    position:relative; flex:0 0 380px; width:380px; height:520px; border-radius:16px; overflow:hidden;
     border:1px solid var(--line); background: var(--linen-card);
   }
-  .dressup-bg{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center; opacity:0.3; pointer-events:none; }
+  .dressup-bg{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center; opacity:0.5; pointer-events:none; }
   .preview-type-tag{
     position:absolute; top:14px; left:14px; z-index:5;
     font-family:'JetBrains Mono', monospace; font-size:10px; letter-spacing:0.1em;
@@ -143,6 +144,33 @@
     position:absolute; object-fit:contain;
     filter: drop-shadow(0 4px 8px rgba(34,34,43,0.14));
   }
+
+  .selected-list{
+    flex:1; min-width:150px; height:520px; overflow-y:auto;
+    display:flex; flex-direction:column; gap:8px;
+    background: var(--linen-card); border:1px solid var(--line); border-radius:16px; padding:12px;
+  }
+  .selected-list-empty{ font-size:11.5px; color:var(--ink-soft); font-style:italic; text-align:center; padding:20px 8px; }
+  .selected-item{
+    display:flex; align-items:center; gap:8px; background:#fff; border:1px solid var(--line);
+    border-radius:8px; padding:6px 8px;
+  }
+  .selected-item img{
+    width:38px; height:38px; object-fit:contain; border-radius:6px; background:#EFE8D9; flex-shrink:0; padding:3px;
+  }
+  .selected-item-info{ flex:1; min-width:0; display:flex; flex-direction:column; gap:1px; }
+  .selected-item-slot{
+    font-family:'JetBrains Mono', monospace; font-size:9px; letter-spacing:0.06em; text-transform:uppercase; color:var(--sage);
+  }
+  .selected-item-cat{
+    font-size:11.5px; color:var(--ink); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  }
+  .selected-item-remove{
+    flex-shrink:0; width:22px; height:22px; border-radius:50%; border:1px solid var(--line);
+    background:#fff; color:var(--ink-soft); display:flex; align-items:center; justify-content:center;
+    font-size:14px; line-height:1; transition: background .15s ease, color .15s ease, border-color .15s ease;
+  }
+  .selected-item-remove:hover{ background:var(--thread); border-color:var(--thread); color:#fff; }
   .preview-placeholder{
     position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
     text-align:center; padding:0 40px; font-size:13px; color:var(--ink-soft); font-style:italic; z-index:1;
@@ -211,7 +239,9 @@
   @media (max-width: 860px){
     .builder-preview-col{ flex:1 1 100%; }
     .preview-sticky-wrap{ position:static; transform:none; }
-    .preview-frame-box{ height:420px; }
+    .preview-row{ flex-direction:column; }
+    .preview-frame-box{ height:420px; width:100%; flex-basis:auto; }
+    .selected-list{ width:100%; height:auto; max-height:260px; }
   }
 </style>
 </head>
@@ -393,6 +423,15 @@
       hideErrors();
       renderSlots();
       renderPreview();
+      renderSelectedList();
+    }
+
+    function removeSelected(slot) {
+      selected[slot] = null;
+      hideErrors();
+      renderSlots();
+      renderPreview();
+      renderSelectedList();
     }
 
     // ---------- Rendering: slot rows ----------
@@ -543,6 +582,54 @@
       const frame = buildFrame();
       frame.className = 'preview-outfit-frame';
       box.appendChild(frame);
+    }
+
+    function renderSelectedList() {
+      const list = document.getElementById('selectedList');
+      if (!list) return;
+      list.innerHTML = '';
+
+      const chosen = SLOT_ORDER.filter(slot => selected[slot]);
+      if (!chosen.length) {
+        const empty = document.createElement('div');
+        empty.className = 'selected-list-empty';
+        empty.textContent = 'Pieces you pick will be listed here.';
+        list.appendChild(empty);
+        return;
+      }
+
+      chosen.forEach(slot => {
+        const item = selected[slot];
+        const card = document.createElement('div');
+        card.className = 'selected-item';
+
+        const img = document.createElement('img');
+        img.src = item.imageUrl;
+        img.alt = item.category || '';
+        card.appendChild(img);
+
+        const info = document.createElement('div');
+        info.className = 'selected-item-info';
+        const slotLabel = document.createElement('span');
+        slotLabel.className = 'selected-item-slot';
+        slotLabel.textContent = SLOT_LABELS[slot];
+        info.appendChild(slotLabel);
+        const catLabel = document.createElement('span');
+        catLabel.className = 'selected-item-cat';
+        catLabel.textContent = item.category || '';
+        info.appendChild(catLabel);
+        card.appendChild(info);
+
+        const removeBtn = document.createElement('button');
+        removeBtn.type = 'button';
+        removeBtn.className = 'selected-item-remove';
+        removeBtn.title = 'Remove from outfit';
+        removeBtn.textContent = '\u00d7';
+        removeBtn.onclick = () => removeSelected(slot);
+        card.appendChild(removeBtn);
+
+        list.appendChild(card);
+      });
     }
 
     // ---------- Validation ----------
@@ -712,9 +799,12 @@
         '  <div class="builder-slots" id="builderSlots"></div>' +
         '  <div class="builder-preview-col">' +
         '   <div class="preview-sticky-wrap">' +
-        '    <div class="preview-frame-box" id="previewFrameBox">' +
-        '      <img class="dressup-bg" src="frontend_photos/wardrobe.png" alt="" />' +
-        '      <span class="preview-type-tag" id="previewTypeTag" style="display:none;"></span>' +
+        '    <div class="preview-row">' +
+        '     <div class="preview-frame-box" id="previewFrameBox">' +
+        '       <img class="dressup-bg" src="frontend_photos/wardrobe.png" alt="" />' +
+        '       <span class="preview-type-tag" id="previewTypeTag" style="display:none;"></span>' +
+        '     </div>' +
+        '     <div class="selected-list" id="selectedList"></div>' +
         '    </div>' +
         '    <div class="builder-errors" id="builderErrors"></div>' +
         '    <button type="button" class="btn-done" id="doneBtn">Done</button>' +
@@ -744,6 +834,7 @@
         buildPools();
         renderSlots();
         renderPreview();
+        renderSelectedList();
       } catch (err) {
         document.getElementById('builderSlots').innerHTML = '<p class="builder-sub">Could not load your wardrobe. Please refresh the page.</p>';
       }
