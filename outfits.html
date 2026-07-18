@@ -6,6 +6,7 @@
 <title>Outfits - Pick Your Fit</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
   :root{
     --linen: #F3EEE3;
@@ -113,7 +114,10 @@
     filter: drop-shadow(0 4px 8px rgba(34,34,43,0.14));
   }
 
-  .outfit-actions{ display:flex; gap:10px; width:100%; }
+  .outfit-actions{ display:flex; flex-wrap:wrap; gap:10px; width:100%; }
+  .outfit-actions .share-btn{ flex:1 1 100%; }
+  .outfit-actions .fav-btn,
+  .outfit-actions .cal-btn{ flex:1 1 auto; }
   .outfit-btn{
     flex:1; display:flex; align-items:center; justify-content:center; gap:6px;
     padding:11px 10px; border-radius:8px; font-size:11.5px; font-weight:600;
@@ -152,6 +156,50 @@
     header{padding:22px 24px;}
     nav.main-nav{display:none;}
   }
+
+  /* ---------- Share photo overlay ---------- */
+  .overlay{
+    position:fixed; inset:0; z-index:50;
+    background:rgba(28,26,23,0.55);
+    display:none; align-items:center; justify-content:center;
+    padding:24px;
+  }
+  .overlay.show{ display:flex; }
+  .overlay-box{
+    background:var(--linen-card); border-radius:16px; border:1px solid var(--line);
+    padding:26px; max-width:340px; width:100%;
+    box-shadow:0 30px 60px rgba(20,15,10,0.35);
+    text-align:center;
+  }
+  .share-box{ max-width:320px; }
+  .share-title{ font-family:'Fraunces',serif; font-size:19px; font-weight:600; margin-bottom:16px; }
+  .share-photo-wrap{
+    width:100%; border-radius:10px; overflow:hidden; margin-bottom:18px;
+    border:1px solid var(--line); background:var(--linen);
+    display:flex; align-items:center; justify-content:center; min-height:200px;
+  }
+  .share-photo-wrap img{ width:100%; display:block; }
+  .share-loading{ font-size:12.5px; color:var(--ink-soft); padding:60px 0; }
+  .share-actions{ display:flex; gap:10px; }
+  .share-actions button{
+    flex:1; display:flex; align-items:center; justify-content:center; gap:6px;
+    padding:11px 10px; border-radius:8px; font-size:11.5px; font-weight:600;
+    letter-spacing:0.03em; text-transform:uppercase; border:1px solid var(--ink);
+  }
+  .share-actions svg{ width:14px; height:14px; }
+  .share-discard{ background:transparent; color:var(--ink); }
+  .share-discard:hover{ background:rgba(0,0,0,0.05); }
+  .share-save{ background:var(--ink); color:var(--linen-card); }
+  .share-save:hover{ opacity:0.9; }
+  .share-save.saved{ background:var(--sage); border-color:var(--sage); }
+
+  .toast{
+    position:fixed; bottom:26px; left:50%; transform:translateX(-50%) translateY(20px);
+    background:var(--ink); color:var(--linen-card); padding:12px 20px; border-radius:8px;
+    font-size:12.5px; font-weight:600; letter-spacing:0.02em; z-index:60;
+    opacity:0; pointer-events:none; transition:opacity .2s ease, transform .2s ease;
+  }
+  .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
 </style>
 </head>
 <body>
@@ -208,6 +256,28 @@
   <div class="outfits-container" id="outfitsContainer">
   </div>
 </main>
+
+<!-- Share photo overlay -->
+<div class="overlay" id="shareOverlay">
+  <div class="overlay-box share-box">
+    <p class="share-title">Share this outfit</p>
+    <div class="share-photo-wrap" id="sharePhotoWrap">
+      <p class="share-loading">Preparing photo…</p>
+    </div>
+    <div class="share-actions">
+      <button type="button" class="share-discard" id="shareDiscardBtn">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        Delete
+      </button>
+      <button type="button" class="share-save" id="shareSaveBtn">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M5 12.5v5.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-5.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 3v12M7.5 11l4.5 4.5 4.5-4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Save to gallery
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
 
 <script>
   // Auth logic
@@ -486,10 +556,65 @@
       writeStore(CALENDAR_KEY, cal);
     }
 
+    // ---------- Toast ----------
+    let toastTimer = null;
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove('show'), 2600);
+    }
+
+    // ---------- Share photo (screenshot of the outfit only) ----------
+    const shareOverlay = document.getElementById('shareOverlay');
+    const sharePhotoWrap = document.getElementById('sharePhotoWrap');
+    const shareDiscardBtn = document.getElementById('shareDiscardBtn');
+    const shareSaveBtn = document.getElementById('shareSaveBtn');
+    let currentShareDataUrl = null;
+
+    function openSharePhoto(frameEl) {
+      shareOverlay.classList.add('show');
+      sharePhotoWrap.innerHTML = '<p class="share-loading">Preparing photo…</p>';
+      shareSaveBtn.classList.remove('saved');
+      shareSaveBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none"><path d="M5 12.5v5.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-5.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 3v12M7.5 11l4.5 4.5 4.5-4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg> Save to gallery';
+      currentShareDataUrl = null;
+
+      html2canvas(frameEl, { backgroundColor: '#FAF7EF', useCORS: true, scale: 2 }).then(canvas => {
+        currentShareDataUrl = canvas.toDataURL('image/png');
+        sharePhotoWrap.innerHTML = '';
+        const img = document.createElement('img');
+        img.src = currentShareDataUrl;
+        sharePhotoWrap.appendChild(img);
+      }).catch(() => {
+        sharePhotoWrap.innerHTML = '<p class="share-loading">Could not generate the photo. Please try again.</p>';
+      });
+    }
+
+    shareDiscardBtn.onclick = () => {
+      shareOverlay.classList.remove('show');
+      currentShareDataUrl = null;
+    };
+
+    shareSaveBtn.onclick = () => {
+      if (!currentShareDataUrl) return;
+      const link = document.createElement('a');
+      link.href = currentShareDataUrl;
+      link.download = 'pick-your-fit-outfit-' + Date.now() + '.png';
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      shareSaveBtn.classList.add('saved');
+      shareSaveBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none"><path d="M5 12.5 L10 17 L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Saved!';
+      showToast('Photo saved to your device.');
+      setTimeout(() => { shareOverlay.classList.remove('show'); }, 700);
+    };
+
     // ---------- Rendering ----------
     function place(frame, item, pos, z) {
       if (!item || !pos) return;
       const img = document.createElement('img');
+      img.crossOrigin = 'anonymous';
       img.src = item.imageUrl;
       img.alt = item.category || '';
       img.style.top = pos.top;
@@ -551,10 +676,18 @@
       }
       card.appendChild(tag);
 
-      card.appendChild(buildOutfitFrame(outfit));
+      const frame = buildOutfitFrame(outfit);
+      card.appendChild(frame);
 
       const actions = document.createElement('div');
       actions.className = 'outfit-actions';
+
+      const shareBtn = document.createElement('button');
+      shareBtn.type = 'button';
+      shareBtn.className = 'outfit-btn share-btn';
+      shareBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none"><circle cx="18" cy="5" r="2.4" stroke="currentColor" stroke-width="1.6"/><circle cx="6" cy="12" r="2.4" stroke="currentColor" stroke-width="1.6"/><circle cx="18" cy="19" r="2.4" stroke="currentColor" stroke-width="1.6"/><line x1="8.2" y1="10.8" x2="15.8" y2="6.2" stroke="currentColor" stroke-width="1.6"/><line x1="8.2" y1="13.2" x2="15.8" y2="17.8" stroke="currentColor" stroke-width="1.6"/></svg> Share photo';
+      shareBtn.onclick = () => openSharePhoto(frame);
+      actions.appendChild(shareBtn);
 
       const favBtn = document.createElement('button');
       favBtn.type = 'button';
