@@ -652,14 +652,20 @@
   });
 
   // ---------- Continue with Google ----------
+  // IMPORTANT: we kick this off immediately on page load (not inside the
+  // click handler). If we awaited this fetch inside the click handler, the
+  // delay would happen *before* signInWithPopup runs, which makes browsers
+  // treat the popup as not user-initiated and silently block it. By starting
+  // it now, the promise is (almost always) already settled by the time the
+  // user clicks, so signInWithPopup runs right away, still within the click.
   let firebaseApp = null;
-  async function ensureFirebase() {
-    if (firebaseApp) return firebaseApp;
+  const firebaseReadyPromise = (async () => {
     const res = await fetch('/api/firebase-config');
     const config = await res.json();
     firebaseApp = firebase.initializeApp(config);
-    return firebaseApp;
-  }
+  })().catch((err) => {
+    console.error('Could not load Firebase config:', err);
+  });
 
   const googleBtn = document.getElementById('googleBtn');
   googleBtn.addEventListener('click', async () => {
@@ -668,7 +674,12 @@
     googleBtn.disabled = true;
 
     try {
-      await ensureFirebase();
+      await firebaseReadyPromise;
+      if (!firebaseApp) {
+        showMsg('Google sign-in is not available right now. Please try again in a moment.', 'error');
+        return;
+      }
+
       const provider = new firebase.auth.GoogleAuthProvider();
       const result = await firebase.auth().signInWithPopup(provider);
       const idToken = await result.user.getIdToken();
@@ -703,12 +714,18 @@
       showMsg('Login successful! You are being redirected...', 'success');
       setTimeout(() => { window.location.href = 'index.html'; }, 700);
     } catch (err) {
+      console.error(err);
       if (err.code === 'auth/popup-closed-by-user' || err.code === 'auth/cancelled-popup-request') {
         // user closed the popup, nothing to show
+      } else if (err.code === 'auth/popup-blocked') {
+        showMsg('Your browser blocked the Google sign-in popup. Please allow popups for this site and try again.', 'error');
+      } else if (err.code === 'auth/unauthorized-domain') {
+        showMsg('This domain is not authorized for Google sign-in yet (check Firebase Console → Authentication → Settings → Authorized domains).', 'error');
+      } else if (err.code === 'auth/operation-not-allowed') {
+        showMsg('Google sign-in is not enabled for this project yet (check Firebase Console → Authentication → Sign-in method).', 'error');
       } else if (err.code === 'auth/account-exists-with-different-credential') {
         showMsg('An account already exists with this email using a password. Please log in with your password instead.', 'error');
       } else {
-        console.error(err);
         showMsg('Could not sign in with Google. Please try again.', 'error');
       }
     } finally {

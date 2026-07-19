@@ -650,14 +650,18 @@
   });
 
   // ---------- Sign up with Google ----------
+  // Kicked off immediately on page load, not inside the click handler — see
+  // login.html for why: awaiting a fetch before signInWithPopup breaks the
+  // "user gesture" the browser needs to allow the popup, and it gets
+  // silently blocked otherwise.
   let firebaseApp = null;
-  async function ensureFirebase() {
-    if (firebaseApp) return firebaseApp;
+  const firebaseReadyPromise = (async () => {
     const res = await fetch('/api/firebase-config');
     const config = await res.json();
     firebaseApp = firebase.initializeApp(config);
-    return firebaseApp;
-  }
+  })().catch((err) => {
+    console.error('Could not load Firebase config:', err);
+  });
 
   const googleBtn = document.getElementById('googleBtn');
   googleBtn.addEventListener('click', async () => {
@@ -674,7 +678,12 @@
     googleBtn.disabled = true;
 
     try {
-      await ensureFirebase();
+      await firebaseReadyPromise;
+      if (!firebaseApp) {
+        showMsg('Google sign-in is not available right now. Please try again in a moment.', 'error');
+        return;
+      }
+
       const provider = new firebase.auth.GoogleAuthProvider();
       const result = await firebase.auth().signInWithPopup(provider);
       const idToken = await result.user.getIdToken();
@@ -696,12 +705,18 @@
       showMsg('Account created! Redirecting...', 'success');
       setTimeout(() => { window.location.href = 'index.html'; }, 1000);
     } catch (err) {
+      console.error(err);
       if (err.code === 'auth/popup-closed-by-user' || err.code === 'auth/cancelled-popup-request') {
         // user closed the popup, nothing to show
+      } else if (err.code === 'auth/popup-blocked') {
+        showMsg('Your browser blocked the Google sign-in popup. Please allow popups for this site and try again.', 'error');
+      } else if (err.code === 'auth/unauthorized-domain') {
+        showMsg('This domain is not authorized for Google sign-in yet (check Firebase Console → Authentication → Settings → Authorized domains).', 'error');
+      } else if (err.code === 'auth/operation-not-allowed') {
+        showMsg('Google sign-in is not enabled for this project yet (check Firebase Console → Authentication → Sign-in method).', 'error');
       } else if (err.code === 'auth/account-exists-with-different-credential') {
         showMsg('An account already exists with this email using a password. Please log in with your password instead.', 'error');
       } else {
-        console.error(err);
         showMsg('Could not sign up with Google. Please try again.', 'error');
       }
     } finally {
