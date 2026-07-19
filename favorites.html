@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="calendar-core.js"></script>
 <script src="calendar-picker.js"></script>
 <style>
   :root{
@@ -329,9 +330,6 @@
 
   if (isLoggedIn) {
 
-    const FAVORITES_KEY = 'pyf_outfit_favorites';
-    const CALENDAR_KEY = 'pyf_outfit_calendar';
-
     const POS_A = {
       head:      { top: '0%',  left: '50%', width: '16%', height: '8%'  },
       jacket:    { top: '9%',  left: '21%', width: '42%', height: '27%' },
@@ -352,24 +350,19 @@
       shoes:     { top: '82%', left: '50%', width: '24%', height: '14%' },
     };
 
-    // ---------- Storage helpers (shared format with outfits.html / create-outfit.html) ----------
-    function readStore(key) {
-      try { return JSON.parse(localStorage.getItem(key)) || []; } catch (e) { return []; }
-    }
-    function writeStore(key, arr) {
-      localStorage.setItem(key, JSON.stringify(arr));
-    }
+    // ---------- Storage (Firestore, via PYFCal / calendar-core.js) ----------
     function getFavorites() {
-      return readStore(FAVORITES_KEY);
+      return PYFCal.getFavorites();
     }
-    function removeFavorite(signature) {
-      const favs = getFavorites().filter(f => f.signature !== signature);
-      writeStore(FAVORITES_KEY, favs);
+    async function removeFavorite(favoriteId) {
+      const fav = PYFCal.getFavorites().find((f) => f.id === favoriteId);
+      if (!fav) return;
+      // toggleFavorite removes it if already favorited (which it is, since
+      // we're looking at the favorites page).
+      await PYFCal.toggleFavorite(fav);
     }
-    function scheduleOutfit(outfit, dateStr) {
-      const cal = readStore(CALENDAR_KEY);
-      cal.push({ signature: outfit.signature, type: outfit.type, items: outfit.items, date: dateStr, savedAt: new Date().toISOString() });
-      writeStore(CALENDAR_KEY, cal);
+    async function scheduleOutfit(outfit, dateStr) {
+      return PYFCal.scheduleOutfit(outfit, dateStr);
     }
 
     // ---------- Toast ----------
@@ -427,22 +420,26 @@
     const confirmOverlay = document.getElementById('confirmOverlay');
     const confirmCancelBtn = document.getElementById('confirmCancelBtn');
     const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
-    let pendingRemoval = null; // { signature, cardEl }
+    let pendingRemoval = null; // { id, cardEl }
 
-    function askRemove(signature, cardEl) {
-      pendingRemoval = { signature, cardEl };
+    function askRemove(favoriteId, cardEl) {
+      pendingRemoval = { id: favoriteId, cardEl };
       confirmOverlay.classList.add('show');
     }
     confirmCancelBtn.onclick = () => {
       pendingRemoval = null;
       confirmOverlay.classList.remove('show');
     };
-    confirmDeleteBtn.onclick = () => {
+    confirmDeleteBtn.onclick = async () => {
       if (pendingRemoval) {
-        removeFavorite(pendingRemoval.signature);
-        pendingRemoval.cardEl.remove();
-        showToast('Removed from favorites.');
-        if (!feed.querySelector('.outfit-card')) renderEmptyIfNeeded();
+        try {
+          await removeFavorite(pendingRemoval.id);
+          pendingRemoval.cardEl.remove();
+          showToast('Removed from favorites.');
+          if (!feed.querySelector('.outfit-card')) renderEmptyIfNeeded();
+        } catch (err) {
+          showToast('Could not remove this favorite. Please try again.');
+        }
       }
       pendingRemoval = null;
       confirmOverlay.classList.remove('show');
@@ -497,8 +494,17 @@
       PYFDatePicker.open({
         minDate: new Date().toISOString().slice(0, 10),
         initialDate: new Date().toISOString().slice(0, 10),
-        onSelect: (dateStr) => {
-          scheduleOutfit(outfit, dateStr);
+        onSelect: async (dateStr) => {
+          try {
+            await scheduleOutfit(outfit, dateStr);
+          } catch (err) {
+            if (err.duplicate) {
+              showToast('This outfit is already scheduled for that day.');
+            } else {
+              showToast('Could not schedule this outfit. Please try again.');
+            }
+            return;
+          }
           calBtn.classList.add('is-active');
           calBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none"><path d="M5 12.5 L10 17 L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Scheduled for ' + dateStr;
           showToast('Added to your calendar for ' + dateStr + '.');
@@ -516,7 +522,7 @@
       removeBadge.className = 'remove-badge';
       removeBadge.title = 'Remove from favorites';
       removeBadge.innerHTML = '<svg viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
-      removeBadge.onclick = () => askRemove(favorite.signature, card);
+      removeBadge.onclick = () => askRemove(favorite.id, card);
       card.appendChild(removeBadge);
 
       const tag = document.createElement('p');
@@ -583,7 +589,16 @@
 
     let feed;
 
-    function init() {
+    async function init() {
+      favoritesContainer.innerHTML = '<p class="favorites-sub">Loading your favorites…</p>';
+      try {
+        await PYFCal.init();
+      } catch (err) {
+        console.error('Favorites load error:', err);
+        favoritesContainer.innerHTML = '<div class="login-prompt"><h2>Could not load your favorites</h2><p>Please refresh the page, or log in again.</p></div>';
+        return;
+      }
+      favoritesContainer.innerHTML = '';
       renderIntro();
       const favorites = getFavorites();
 

@@ -349,14 +349,14 @@
       del.type = 'button';
       del.title = 'Delete';
       del.innerHTML = '<svg viewBox="0 0 24 24" fill="none" width="12" height="12"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>';
-      del.onclick = (e) => { e.stopPropagation(); deleteCalendarEntry(entry); showToast('Removed from calendar.'); onChange(); };
+      del.onclick = async (e) => { e.stopPropagation(); await deleteCalendarEntry(entry); showToast('Removed from calendar.'); onChange(); };
 
       const fav = document.createElement('button');
       fav.type = 'button';
       fav.className = 'fav-mini';
       fav.title = 'Delete and save to favorites';
       fav.innerHTML = '<svg viewBox="0 0 24 24" fill="none" width="12" height="12"><path d="M12 20 C6.5 15.8, 3.5 12, 3.5 8.2 C3.5 5.1, 5.8 3, 8.5 3 C10.3 3, 11.7 4, 12 5.6 C12.3 4, 13.7 3, 15.5 3 C18.2 3, 20.5 5.1, 20.5 8.2 C20.5 12, 17.5 15.8, 12 20 Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>';
-      fav.onclick = (e) => { e.stopPropagation(); moveCalendarEntryToFavorites(entry); showToast('Moved to favorites.'); onChange(); };
+      fav.onclick = async (e) => { e.stopPropagation(); await moveCalendarEntryToFavorites(entry); showToast('Moved to favorites.'); onChange(); };
 
       wrap.appendChild(del);
       wrap.appendChild(fav);
@@ -390,13 +390,13 @@
           const delBtn = document.createElement('button');
           delBtn.type = 'button';
           delBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg> Delete';
-          delBtn.onclick = () => { deleteCalendarEntry(entry); showToast('Removed from calendar.'); openDetail(dateStr, dateObj); render(); };
+          delBtn.onclick = async () => { await deleteCalendarEntry(entry); showToast('Removed from calendar.'); openDetail(dateStr, dateObj); render(); };
 
           const favBtn = document.createElement('button');
           favBtn.type = 'button';
           favBtn.className = 'fav-move-btn';
           favBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none"><path d="M12 20 C6.5 15.8, 3.5 12, 3.5 8.2 C3.5 5.1, 5.8 3, 8.5 3 C10.3 3, 11.7 4, 12 5.6 C12.3 4, 13.7 3, 15.5 3 C18.2 3, 20.5 5.1, 20.5 8.2 C20.5 12, 17.5 15.8, 12 20 Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg> Delete & favorite';
-          favBtn.onclick = () => { moveCalendarEntryToFavorites(entry); showToast('Moved to favorites.'); openDetail(dateStr, dateObj); render(); };
+          favBtn.onclick = async () => { await moveCalendarEntryToFavorites(entry); showToast('Moved to favorites.'); openDetail(dateStr, dateObj); render(); };
 
           actions.appendChild(delBtn);
           actions.appendChild(favBtn);
@@ -546,7 +546,13 @@
       else renderYear();
     }
 
-    render();
+    viewBody.innerHTML = '<p class="cal-sub">Loading your calendar…</p>';
+    PYFCal.init()
+      .then(() => render())
+      .catch((err) => {
+        console.error('Calendar load error:', err);
+        viewBody.innerHTML = '<div class="login-prompt"><h2>Could not load your calendar</h2><p>Please refresh the page, or log in again.</p></div>';
+      });
   }
 </script>
 

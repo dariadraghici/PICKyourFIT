@@ -1,8 +1,11 @@
-/* ---------- Pick Your Fit — shared calendar logic ---------- */
+/* ---------- Pick Your Fit — shared calendar logic ----------
+   Calendar entries and favorites are stored server-side in Firestore
+   (see calendarRoutes.js / favoritesRoutes.js). This module keeps a local
+   in-memory cache so pages can keep reading getCalendarEntries()/getFavorites()
+   synchronously after calling PYFCal.init() once — only the mutating calls
+   (scheduleOutfit, toggleFavorite, deleteCalendarEntry,
+   moveCalendarEntryToFavorites) are async and need `await`. */
 (function (global) {
-  const CALENDAR_KEY = 'pyf_outfit_calendar';
-  const FAVORITES_KEY = 'pyf_outfit_favorites';
-
   const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
   const WEEKDAY_SHORT = ['Mo','Tu','We','Th','Fr','Sa','Su'];
 
@@ -26,13 +29,47 @@
     shoes:     { top: '82%', left: '50%', width: '24%', height: '14%' },
   };
 
-  function readStore(key) {
-    try { return JSON.parse(localStorage.getItem(key)) || []; } catch (e) { return []; }
+  // ---------- API helpers ----------
+  function authHeaders(extra) {
+    const idToken = localStorage.getItem('pyf_idToken');
+    return Object.assign(
+      { 'Content-Type': 'application/json' },
+      idToken ? { Authorization: 'Bearer ' + idToken } : {},
+      extra || {}
+    );
   }
-  function writeStore(key, arr) { localStorage.setItem(key, JSON.stringify(arr)); }
 
-  function getCalendarEntries() { return readStore(CALENDAR_KEY); }
-  function getFavorites() { return readStore(FAVORITES_KEY); }
+  async function apiRequest(path, options) {
+    const res = await fetch('/api' + path, Object.assign({}, options, { headers: authHeaders((options && options.headers) || {}) }));
+    let data = null;
+    try { data = await res.json(); } catch (e) { /* no body */ }
+    if (!res.ok) {
+      const err = new Error((data && data.error) || 'Request failed');
+      err.status = res.status;
+      err.data = data;
+      throw err;
+    }
+    return data;
+  }
+
+  // ---------- Local cache (populated by init(), kept in sync by mutations) ----------
+  let calendarCache = [];
+  let favoritesCache = [];
+  let initialized = false;
+
+  async function init() {
+    const [calRes, favRes] = await Promise.all([
+      apiRequest('/calendar', { method: 'GET' }),
+      apiRequest('/favorites', { method: 'GET' }),
+    ]);
+    calendarCache = (calRes && calRes.entries) || [];
+    favoritesCache = (favRes && favRes.favorites) || [];
+    initialized = true;
+    return { calendar: calendarCache, favorites: favoritesCache };
+  }
+
+  function getCalendarEntries() { return calendarCache; }
+  function getFavorites() { return favoritesCache; }
 
   // local (not UTC) YYYY-MM-DD, so it lines up with real-world "today"
   function toDateStr(d) {
@@ -53,21 +90,79 @@
     return map;
   }
 
-  function entryKey(e) { return (e.date || '') + '|' + (e.savedAt || '') + '|' + (e.signature || ''); }
+  // Kept for backward compatibility with any code that still needs a
+  // composite key; prefer entry.id (Firestore doc id) wherever possible.
+  function entryKey(e) { return e.id || ((e.date || '') + '|' + (e.savedAt || '') + '|' + (e.signature || '')); }
 
-  function deleteCalendarEntry(entry) {
-    const arr = getCalendarEntries().filter((e) => entryKey(e) !== entryKey(entry));
-    writeStore(CALENDAR_KEY, arr);
-    return arr;
+  function outfitSignature(outfit) {
+    return outfit.type + ':' + Object.values(outfit.items).filter((i) => i).map((i) => i.id).sort().join(',');
   }
 
-  function moveCalendarEntryToFavorites(entry) {
-    const favs = getFavorites();
-    if (!favs.some((f) => f.signature === entry.signature)) {
-      favs.push({ signature: entry.signature, type: entry.type, items: entry.items, savedAt: new Date().toISOString() });
-      writeStore(FAVORITES_KEY, favs);
+  function isFavorited(signature) {
+    return favoritesCache.some((f) => f.signature === signature);
+  }
+
+  // Schedules an outfit on dateStr. Checks the local cache first (fast,
+  // avoids an obviously-duplicate request) and the server also rejects
+  // duplicates (409) as the source of truth in case of a stale cache.
+  async function scheduleOutfit(outfit, dateStr) {
+    const alreadyThere = calendarCache.some((e) => e.date === dateStr && e.signature === outfit.signature);
+    if (alreadyThere) {
+      const err = new Error('DUPLICATE');
+      err.duplicate = true;
+      throw err;
     }
-    return deleteCalendarEntry(entry);
+    try {
+      const created = await apiRequest('/calendar', {
+        method: 'POST',
+        body: JSON.stringify({
+          signature: outfit.signature,
+          type: outfit.type,
+          items: outfit.items,
+          isTights: !!outfit.isTights,
+          date: dateStr,
+        }),
+      });
+      calendarCache.push(created);
+      return created;
+    } catch (err) {
+      if (err.status === 409) {
+        err.duplicate = true;
+      }
+      throw err;
+    }
+  }
+
+  // Adds/removes the outfit from favorites (toggle), mirroring the old
+  // localStorage behaviour. Returns true if now favorited, false if removed.
+  async function toggleFavorite(outfit) {
+    const existing = favoritesCache.find((f) => f.signature === outfit.signature);
+    if (existing) {
+      await apiRequest('/favorites/' + existing.id, { method: 'DELETE' });
+      favoritesCache = favoritesCache.filter((f) => f.id !== existing.id);
+      return false;
+    }
+    const created = await apiRequest('/favorites', {
+      method: 'POST',
+      body: JSON.stringify({ signature: outfit.signature, type: outfit.type, items: outfit.items }),
+    });
+    favoritesCache = favoritesCache.filter((f) => f.signature !== created.signature);
+    favoritesCache.push(created);
+    return true;
+  }
+
+  async function deleteCalendarEntry(entry) {
+    await apiRequest('/calendar/' + entry.id, { method: 'DELETE' });
+    calendarCache = calendarCache.filter((e) => e.id !== entry.id);
+    return calendarCache;
+  }
+
+  async function moveCalendarEntryToFavorites(entry) {
+    const result = await apiRequest('/calendar/' + entry.id + '/favorite', { method: 'POST' });
+    calendarCache = calendarCache.filter((e) => e.id !== entry.id);
+    favoritesCache = favoritesCache.filter((f) => f.id !== result.favorite.id);
+    favoritesCache.push(result.favorite);
+    return calendarCache;
   }
 
   // Builds a div containing the layered outfit images (no card, no background).
@@ -135,10 +230,11 @@
   }
 
   global.PYFCal = {
-    CALENDAR_KEY, FAVORITES_KEY, MONTH_NAMES, WEEKDAY_SHORT,
+    MONTH_NAMES, WEEKDAY_SHORT,
+    init, isInitialized: () => initialized,
     getCalendarEntries, getFavorites,
-    toDateStr, todayStr, buildDateMap, entryKey,
-    deleteCalendarEntry, moveCalendarEntryToFavorites,
+    toDateStr, todayStr, buildDateMap, entryKey, outfitSignature, isFavorited,
+    scheduleOutfit, toggleFavorite, deleteCalendarEntry, moveCalendarEntryToFavorites,
     renderOutfitComposite, monthMatrix,
   };
 })(window);

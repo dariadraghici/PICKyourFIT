@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="calendar-core.js"></script>
 <script src="calendar-picker.js"></script>
 <style>
   :root{
@@ -453,9 +454,6 @@
       shoes:     { top: '82%', left: '50%', width: '24%', height: '14%' },
     };
 
-    const FAVORITES_KEY = 'pyf_outfit_favorites';
-    const CALENDAR_KEY = 'pyf_outfit_calendar';
-
     let items = [];
     const pools = {}; // slot -> array of wardrobe items
     const offsets = {}; // slot -> carousel offset
@@ -787,33 +785,12 @@
       document.getElementById('builderErrors').classList.remove('show');
     }
 
-    // ---------- Favorites / Calendar (shared format with outfits.html) ----------
-    function readStore(key) {
-      try { return JSON.parse(localStorage.getItem(key)) || []; } catch (e) { return []; }
-    }
-    function writeStore(key, arr) {
-      localStorage.setItem(key, JSON.stringify(arr));
-    }
-    function outfitSignature(outfit) {
-      return outfit.type + ':' + Object.values(outfit.items).filter(i => i).map(i => i.id).sort().join(',');
-    }
+    // ---------- Favorites / Calendar ----------
+    // Favorites and the calendar are stored server-side in Firestore; PYFCal
+    // (calendar-core.js) handles the API calls and keeps a local cache so
+    // isFavorited() below can stay a plain synchronous check.
     function isFavorited(sig) {
-      return readStore(FAVORITES_KEY).some(f => f.signature === sig);
-    }
-    function toggleFavorite(outfit) {
-      let favs = readStore(FAVORITES_KEY);
-      if (favs.some(f => f.signature === outfit.signature)) {
-        favs = favs.filter(f => f.signature !== outfit.signature);
-      } else {
-        favs.push({ signature: outfit.signature, type: outfit.type, items: outfit.items, savedAt: new Date().toISOString() });
-      }
-      writeStore(FAVORITES_KEY, favs);
-      return favs.some(f => f.signature === outfit.signature);
-    }
-    function scheduleOutfit(outfit, dateStr) {
-      const cal = readStore(CALENDAR_KEY);
-      cal.push({ signature: outfit.signature, type: outfit.type, items: outfit.items, date: dateStr, savedAt: new Date().toISOString() });
-      writeStore(CALENDAR_KEY, cal);
+      return PYFCal.isFavorited(sig);
     }
 
     function currentOutfitObject(type) {
@@ -826,7 +803,7 @@
       }
       
       const outfit = { type, isTights: isTightsSelected(), items: itemsObj };
-      outfit.signature = outfitSignature(outfit);
+      outfit.signature = PYFCal.outfitSignature(outfit);
       return outfit;
     }
 
@@ -928,9 +905,15 @@
       }
     }
 
-    modalFavBtn.onclick = () => {
+    modalFavBtn.onclick = async () => {
       if (!currentModalOutfit) return;
-      const active = toggleFavorite(currentModalOutfit);
+      let active;
+      try {
+        active = await PYFCal.toggleFavorite(currentModalOutfit);
+      } catch (err) {
+        showToast('Could not update favorites. Please try again.');
+        return;
+      }
       modalFavBtn.classList.toggle('is-active', active);
       const svgElement = modalFavBtn.querySelector('svg');
       if (active) {
@@ -945,8 +928,17 @@
       PYFDatePicker.open({
         minDate: new Date().toISOString().slice(0, 10),
         initialDate: new Date().toISOString().slice(0, 10),
-        onSelect: (dateStr) => {
-          scheduleOutfit(currentModalOutfit, dateStr);
+        onSelect: async (dateStr) => {
+          try {
+            await PYFCal.scheduleOutfit(currentModalOutfit, dateStr);
+          } catch (err) {
+            if (err.duplicate) {
+              showToast('This outfit is already scheduled for that day.');
+            } else {
+              showToast('Could not schedule this outfit. Please try again.');
+            }
+            return;
+          }
           modalCalBtn.classList.add('is-active');
           const svgElement = modalCalBtn.querySelector('svg');
           svgElement.setAttribute('fill', 'currentColor');
@@ -999,7 +991,10 @@
     async function init() {
       renderSkeleton();
       try {
-        const response = await fetch('/api/wardrobe', { headers: authHeaders() });
+        const [response] = await Promise.all([
+          fetch('/api/wardrobe', { headers: authHeaders() }),
+          PYFCal.init(),
+        ]);
         if (!response.ok) throw new Error('LOAD_FAILED');
         const data = await response.json();
         items = data.items || [];

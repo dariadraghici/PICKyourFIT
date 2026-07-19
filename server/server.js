@@ -7,6 +7,8 @@ const path = require('path');
 const authRoutes = require('./authRoutes');
 const wardrobeRoutes = require('./wardrobeRoutes');
 const profileRoutes = require('./profileRoutes');
+const calendarRoutes = require('./calendarRoutes');
+const favoritesRoutes = require('./favoritesRoutes');
 
 const app = express();
 const upload = multer(); // keeps uploaded file in memory, doesn't write to disk
@@ -53,6 +55,10 @@ app.use('/api', authRoutes);
 app.use('/api', profileRoutes);
 
 app.use('/api/wardrobe', wardrobeRoutes);
+
+app.use('/api/calendar', calendarRoutes);
+
+app.use('/api/favorites', favoritesRoutes);
 
 app.post('/api/remove-bg', upload.single('image_file'), async (req, res) => {
   try {
