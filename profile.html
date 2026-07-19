@@ -208,12 +208,13 @@
   hr.sep{ border:none; border-top:1px solid var(--line); margin:22px 0; }
 
   .verify-banner{
-    display:flex; align-items:center; justify-content:space-between; gap:18px;
+    display:flex; flex-direction:column; align-items:flex-start; gap:14px;
     background:#fdf3e4; border:1px solid #eccb96; border-radius:14px;
     padding:16px 20px; margin-bottom:22px;
   }
   .verify-banner-title{ font-size:14px; font-weight:600; color:#7a5410; margin-bottom:4px; }
   .verify-banner p{ font-size:12.5px; color:#8a6a2c; line-height:1.5; max-width:520px; }
+  .verify-banner-actions{ display:flex; flex-wrap:wrap; gap:10px; }
   .verify-banner .btn-header{ border-color:#7a5410; color:#7a5410; flex-shrink:0; }
   .verify-banner .btn-header:hover{ background:rgba(122,84,16,0.08); }
   .verify-banner .btn-header:disabled{ opacity:0.6; cursor:not-allowed; }
@@ -462,8 +463,10 @@
             <div class="verify-banner-title">Confirm your email address</div>
             <p>Your account has limited access until you verify your email: up to 2 items per wardrobe category, up to 2 favorites, up to 2 planned outfits, and personal info/avatar editing is disabled.</p>
           </div>
-          <button type="button" class="btn-header" id="resendVerificationBtn">Resend verification email</button>
-          <button type="button" class="btn-header" id="refreshVerificationBtn">I've verified — refresh status</button>
+          <div class="verify-banner-actions">
+            <button type="button" class="btn-header" id="resendVerificationBtn">Resend verification email</button>
+            <button type="button" class="btn-header" id="refreshVerificationBtn">I've verified — refresh status</button>
+          </div>
         </div>
 
         <div class="card">

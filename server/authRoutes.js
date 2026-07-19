@@ -91,7 +91,7 @@ router.post('/signup', async (req, res) => {
     );
 
     // authenticate the user immediately after signup to return an ID token
-    const idToken = await signInWithPassword(normalizedEmail, password);
+    const { idToken } = await signInWithPassword(normalizedEmail, password);
 
     try {
       await sendVerificationEmail(idToken);
