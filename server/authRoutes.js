@@ -157,6 +157,108 @@ router.post('/login', async (req, res) => {
   }
 });
 
+// body: { idToken }
+// idToken here is a real Firebase ID token obtained client-side after
+// firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider()).
+// We verify it server-side, then either log the (already existing) user in
+// or create their Firestore profile the first time they use Google.
+router.post('/google-auth', async (req, res) => {
+  try {
+    const { idToken } = req.body || {};
+    if (!idToken) {
+      return res.status(400).json({ error: 'Missing Google sign-in token.' });
+    }
+
+    let decoded;
+    try {
+      decoded = await auth.verifyIdToken(idToken);
+    } catch (err) {
+      return res.status(401).json({ error: 'Invalid or expired Google sign-in token.' });
+    }
+
+    if (decoded.firebase?.sign_in_provider !== 'google.com') {
+      return res.status(400).json({ error: 'This endpoint only accepts Google sign-in tokens.' });
+    }
+
+    const uid = decoded.uid;
+    const userRef = db.collection('users').doc(uid);
+    const userDoc = await userRef.get();
+
+    // Existing account -> this is effectively a login.
+    if (userDoc.exists) {
+      const data = userDoc.data();
+      return res.status(200).json({
+        uid,
+        idToken,
+        firstName: data.firstName || '',
+        lastName: data.lastName || '',
+        email: data.email || decoded.email || '',
+        emailVerified: true,
+      });
+    }
+
+    // No Firestore profile yet -> this is effectively a signup.
+    const normalizedEmail = (decoded.email || '').trim().toLowerCase();
+
+    // Don't let a Google sign-in silently take over an email that already
+    // has a password-based account.
+    const existingByEmail = await db.collection('users').where('email', '==', normalizedEmail).limit(1).get();
+    if (!existingByEmail.empty) {
+      return res.status(409).json({
+        error: 'There is already an account with this email. Please log in with your password instead.',
+      });
+    }
+
+    const ip = getClientIp(req);
+    const ipDocRef = db.collection('ipAccounts').doc(encodeIpKey(ip));
+    const ipDoc = await ipDocRef.get();
+    const currentCount = ipDoc.exists ? (ipDoc.data().count || 0) : 0;
+
+    if (currentCount >= MAX_ACCOUNTS_PER_IP) {
+      return res.status(429).json({
+        error: 'You have reached the maximum number of accounts allowed (2) created from this network.',
+      });
+    }
+
+    const fullName = (decoded.name || '').trim();
+    const [firstName, ...rest] = fullName ? fullName.split(/\s+/) : ['User'];
+    const lastName = rest.join(' ');
+
+    await userRef.set({
+      firstName: firstName || 'User',
+      lastName: lastName || '',
+      email: normalizedEmail,
+      ip,
+      provider: 'google',
+      dataConsent: true,
+      termsConsent: true,
+      consentAt: new Date().toISOString(),
+      createdAt: new Date().toISOString(),
+    });
+
+    await ipDocRef.set(
+      {
+        count: currentCount + 1,
+        uids: (ipDoc.exists ? ipDoc.data().uids || [] : []).concat(uid),
+        lastUsed: new Date().toISOString(),
+      },
+      { merge: true }
+    );
+
+    return res.status(201).json({
+      uid,
+      idToken,
+      firstName: firstName || 'User',
+      lastName: lastName || '',
+      email: normalizedEmail,
+      emailVerified: true,
+    });
+  } catch (err) {
+    console.error('Google auth error:', err);
+    return res.status(500).json({ error: 'Internal error. Please try again.' });
+  }
+});
+
 async function signInWithPassword(email, password, throwOnFail = false) {
   const url = `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${FIREBASE_WEB_API_KEY}`;
   const response = await fetch(url, {

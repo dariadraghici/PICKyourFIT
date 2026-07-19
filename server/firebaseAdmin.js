@@ -15,4 +15,4 @@ admin.initializeApp({
 const db = admin.firestore();
 const auth = admin.auth();
 
-module.exports = { admin, db, auth };
+module.exports = { admin, db, auth, projectId: serviceAccount.project_id };

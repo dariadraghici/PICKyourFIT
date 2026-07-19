@@ -465,7 +465,7 @@
           </div>
           <div class="verify-banner-actions">
             <button type="button" class="btn-header" id="resendVerificationBtn">Resend verification email</button>
-            <button type="button" class="btn-header" id="refreshVerificationBtn">I've verified — refresh status</button>
+            <button type="button" class="btn-header" id="refreshVerificationBtn">I've verified my email</button>
           </div>
         </div>
 
@@ -982,7 +982,7 @@
       } else if (data.alreadyVerified) {
         setVerifiedState(true);
       } else {
-        resendVerificationBtn.textContent = 'Sent! Check your inbox';
+        resendVerificationBtn.textContent = 'Sent! Check your inbox/ spam.';
         setTimeout(() => { resendVerificationBtn.textContent = originalLabel; }, 4000);
       }
     } catch (err) {

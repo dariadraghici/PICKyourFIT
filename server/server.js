@@ -4,6 +4,7 @@ const express = require('express');
 const multer = require('multer');
 const path = require('path');
 
+const { projectId } = require('./firebaseAdmin');
 const authRoutes = require('./authRoutes');
 const wardrobeRoutes = require('./wardrobeRoutes');
 const profileRoutes = require('./profileRoutes');
@@ -48,6 +49,17 @@ app.get('/calendar-core.js', (req, res) => {
 app.get('/calendar-picker.js', (req, res) => {
   res.type('application/javascript');
   res.sendFile(path.join(__dirname, 'calendar-picker.js'));
+});
+
+// Public Firebase web config for the client-side SDK (needed for "Continue
+// with Google"). None of these values are secret — this is the same config
+// Firebase expects apps to ship inside their client-side JS.
+app.get('/api/firebase-config', (req, res) => {
+  res.json({
+    apiKey: process.env.FIREBASE_WEB_API_KEY,
+    authDomain: `${projectId}.firebaseapp.com`,
+    projectId,
+  });
 });
 
 app.use('/api', authRoutes);
