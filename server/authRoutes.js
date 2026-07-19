@@ -3,6 +3,7 @@ const { db, auth } = require('./firebaseAdmin');
 const { encodeIpKey } = require('./ipUtils');
 const { sendVerificationEmail, domainHasMx } = require('./emailVerification');
 const { requireAuth } = require('./authMiddleware');
+const { uploadBuffer } = require('./cloudinaryClient');
 
 const router = express.Router();
 
@@ -157,6 +158,28 @@ router.post('/login', async (req, res) => {
   }
 });
 
+// Downloads the user's Google profile photo and re-uploads it to Cloudinary,
+// so it's stored the same way as manually-uploaded avatars (and gets cleaned
+// up correctly on account deletion / avatar replacement). Best-effort: on
+// any failure we just skip the avatar rather than failing the signup.
+async function mirrorGooglePhoto(pictureUrl, uid) {
+  if (!pictureUrl) return null;
+  try {
+    // Google's default photo URLs are small (e.g. "=s96-c"); ask for a
+    // larger version when that sizing suffix is present.
+    const biggerUrl = pictureUrl.replace(/=s\d+-c$/, '=s400-c');
+    const imgRes = await fetch(biggerUrl);
+    if (!imgRes.ok) return null;
+    const arrayBuffer = await imgRes.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+    const result = await uploadBuffer(buffer, `avatars/${uid}`);
+    return { photoUrl: result.secure_url, photoPublicId: result.public_id };
+  } catch (err) {
+    console.error('Could not mirror Google profile photo:', err);
+    return null;
+  }
+}
+
 // body: { idToken }
 // idToken here is a real Firebase ID token obtained client-side after
 // firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider()).
@@ -193,6 +216,7 @@ router.post('/google-auth', async (req, res) => {
         firstName: data.firstName || '',
         lastName: data.lastName || '',
         email: data.email || decoded.email || '',
+        photoUrl: data.photoUrl || null,
         emailVerified: true,
       });
     }
@@ -224,6 +248,8 @@ router.post('/google-auth', async (req, res) => {
     const [firstName, ...rest] = fullName ? fullName.split(/\s+/) : ['User'];
     const lastName = rest.join(' ');
 
+    const mirroredPhoto = await mirrorGooglePhoto(decoded.picture, uid);
+
     await userRef.set({
       firstName: firstName || 'User',
       lastName: lastName || '',
@@ -234,6 +260,7 @@ router.post('/google-auth', async (req, res) => {
       termsConsent: true,
       consentAt: new Date().toISOString(),
       createdAt: new Date().toISOString(),
+      ...(mirroredPhoto ? { photoUrl: mirroredPhoto.photoUrl, photoPublicId: mirroredPhoto.photoPublicId } : {}),
     });
 
     await ipDocRef.set(
@@ -251,6 +278,7 @@ router.post('/google-auth', async (req, res) => {
       firstName: firstName || 'User',
       lastName: lastName || '',
       email: normalizedEmail,
+      photoUrl: mirroredPhoto ? mirroredPhoto.photoUrl : null,
       emailVerified: true,
     });
   } catch (err) {
