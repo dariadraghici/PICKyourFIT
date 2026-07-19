@@ -8,6 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
+<script src="calendar-core.js"></script>
 <style>
   :root{
     --linen: #F3EEE3;
@@ -265,10 +266,16 @@
   .stats-glass .stat-value{ font-family:'Fraunces',serif; font-size:32px; font-weight:500; margin:4px 0 2px; }
   .stats-glass .stat-sub{ font-size:12px; color:var(--ink-soft); margin-bottom:16px; }
 
+  /* flex-wrap + a viewport-relative max-height means the number of visible
+     thumbs adapts on its own to however much room the window/panel gives it:
+     wide+tall window -> many columns/rows fit (even 20+), small window ->
+     only a row or two (even 3). No JS measuring needed, just CSS reflow. */
   .recent-grid{ 
     display: flex; 
     gap: 8px; 
     flex-wrap: wrap; 
+    max-height: 21vh;
+    overflow: hidden;
   }
   .recent-grid .thumb{
     width: 65px; 
@@ -280,6 +287,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    position: relative;
+    flex-shrink: 0;
   }
   .recent-grid .thumb img{ 
     width: 100%; 
@@ -287,6 +296,34 @@
     object-fit: contain; 
     display: block; 
   }
+  .recent-grid .thumb .profile-outfit-thumb{
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+  .recent-grid .thumb .thumb-date-badge{
+    position: absolute;
+    left: 3px; bottom: 3px;
+    font-size: 9.5px; font-weight: 600;
+    padding: 2px 5px; border-radius: 5px;
+    background: rgba(34,34,43,0.72); color: #fdfcf9;
+    letter-spacing: 0.02em; z-index: 5;
+    pointer-events: none;
+  }
+
+  .mini-stats-row{
+    display: flex; gap: 10px;
+    margin: 16px 0 18px;
+  }
+  .mini-stat{
+    flex: 1;
+    background: rgba(34,34,43,0.035);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 12px 14px;
+  }
+  .mini-stat .mini-stat-value{ font-family:'Fraunces',serif; font-size:22px; font-weight:500; line-height:1.1; }
+  .mini-stat .mini-stat-label{ font-size:11px; color:var(--ink-soft); margin-top:4px; text-transform:uppercase; letter-spacing:0.03em; }
 
   .empty-note{ font-size:12.5px; color:var(--ink-soft); text-align:center; padding:14px 0; }
 
@@ -522,6 +559,21 @@
             <div class="stat-label" style="margin-bottom:10px;">Recently Added</div>
             <div id="recentItems" class="recent-grid"></div>
             <div class="empty-note" id="emptyCloset" style="display:none;">No items added yet. Go scan your first item!</div>
+
+            <div class="mini-stats-row">
+              <div class="mini-stat">
+                <div class="mini-stat-value" id="favCount">0</div>
+                <div class="mini-stat-label">Favorite outfits</div>
+              </div>
+              <div class="mini-stat">
+                <div class="mini-stat-value" id="plannedDaysCount">0</div>
+                <div class="mini-stat-label">Days planned</div>
+              </div>
+            </div>
+
+            <div class="stat-label" style="margin-bottom:10px;">Currently Planned</div>
+            <div id="plannedItems" class="recent-grid"></div>
+            <div class="empty-note" id="emptyPlanned" style="display:none;">No outfits scheduled yet.</div>
           </div>
         </div>
       </div>
@@ -620,7 +672,7 @@
     }
     emptyNote.style.display = 'none';
 
-    wardrobeItems.slice(0, 4).forEach(item => {
+    wardrobeItems.forEach(item => {
       const cell = document.createElement('div');
       cell.className = 'thumb';
       const img = document.createElement('img');
@@ -648,6 +700,55 @@
       console.error('Could not load wardrobe:', err);
     }
     renderCloset();
+  }
+
+  // ---------- Favorites / calendar overview (Firestore, via PYFCal) ----------
+  function formatShortDate(dateStr){
+    const parts = (dateStr || '').split('-');
+    if (parts.length !== 3) return dateStr || '';
+    return parts[1] + '/' + parts[2];
+  }
+
+  function renderPlanned(){
+    const grid = document.getElementById('plannedItems');
+    const emptyNote = document.getElementById('emptyPlanned');
+    grid.innerHTML = '';
+
+    const entries = PYFCal.getCalendarEntries();
+    if (!entries.length) {
+      emptyNote.style.display = 'block';
+      return;
+    }
+    emptyNote.style.display = 'none';
+
+    entries.forEach(entry => {
+      const cell = document.createElement('div');
+      cell.className = 'thumb';
+      cell.appendChild(PYFCal.renderOutfitComposite(entry, 'profile-outfit-thumb'));
+      const badge = document.createElement('span');
+      badge.className = 'thumb-date-badge';
+      badge.textContent = formatShortDate(entry.date);
+      cell.appendChild(badge);
+      grid.appendChild(cell);
+    });
+  }
+
+  function renderOutfitStats(){
+    document.getElementById('favCount').textContent = PYFCal.getFavorites().length;
+
+    const entries = PYFCal.getCalendarEntries();
+    const uniqueDays = new Set(entries.map(e => e.date)).size;
+    document.getElementById('plannedDaysCount').textContent = uniqueDays;
+  }
+
+  async function loadOutfitOverview(){
+    try {
+      await PYFCal.init();
+      renderPlanned();
+      renderOutfitStats();
+    } catch (err) {
+      console.error('Could not load favorites/calendar overview:', err);
+    }
   }
 
   // ---------- Avatar ----------
@@ -833,6 +934,7 @@
 
   loadProfile();
   loadWardrobe();
+  loadOutfitOverview();
 
   // ---------- Save profile ----------
   const profileForm = document.getElementById('profileForm');
