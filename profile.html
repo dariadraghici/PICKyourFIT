@@ -207,6 +207,17 @@
 
   hr.sep{ border:none; border-top:1px solid var(--line); margin:22px 0; }
 
+  .verify-banner{
+    display:flex; align-items:center; justify-content:space-between; gap:18px;
+    background:#fdf3e4; border:1px solid #eccb96; border-radius:14px;
+    padding:16px 20px; margin-bottom:22px;
+  }
+  .verify-banner-title{ font-size:14px; font-weight:600; color:#7a5410; margin-bottom:4px; }
+  .verify-banner p{ font-size:12.5px; color:#8a6a2c; line-height:1.5; max-width:520px; }
+  .verify-banner .btn-header{ border-color:#7a5410; color:#7a5410; flex-shrink:0; }
+  .verify-banner .btn-header:hover{ background:rgba(122,84,16,0.08); }
+  .verify-banner .btn-header:disabled{ opacity:0.6; cursor:not-allowed; }
+
   .danger-row{
     display:flex; align-items:center; justify-content:space-between; gap:16px;
   }
@@ -444,6 +455,14 @@
         <div class="page-head">
           <h1 class="serif">My Account</h1>
           <p>Manage your personal information and account settings.</p>
+        </div>
+
+        <div class="verify-banner" id="verifyBanner" style="display:none;">
+          <div>
+            <div class="verify-banner-title">Confirm your email address</div>
+            <p>Your account has limited access until you verify your email: up to 2 items per wardrobe category, up to 2 favorites, up to 2 planned outfits, and personal info/avatar editing is disabled.</p>
+          </div>
+          <button type="button" class="btn-header" id="resendVerificationBtn">Resend verification email</button>
         </div>
 
         <div class="card">
@@ -904,6 +923,11 @@
   firstNameInput.addEventListener('input', updateWelcomeName);
   lastNameInput.addEventListener('input', updateWelcomeName);
 
+  function setVerifiedState(verified){
+    const banner = document.getElementById('verifyBanner');
+    banner.style.display = verified ? 'none' : 'flex';
+  }
+
   async function loadProfile(){
     try {
       const res = await fetch('/api/profile', { headers: authHeaders() });
@@ -913,6 +937,7 @@
         firstNameInput.value = data.firstName || '';
         lastNameInput.value = data.lastName || '';
         emailInput.value = data.email || '';
+        setVerifiedState(!!data.emailVerified);
         if (data.photoUrl) {
           setAvatarDisplay(data.photoUrl);
           localStorage.setItem('pyf_userPhoto', data.photoUrl);
@@ -935,6 +960,34 @@
   loadProfile();
   loadWardrobe();
   loadOutfitOverview();
+
+  const resendVerificationBtn = document.getElementById('resendVerificationBtn');
+  resendVerificationBtn.addEventListener('click', async () => {
+    resendVerificationBtn.disabled = true;
+    const originalLabel = resendVerificationBtn.textContent;
+    resendVerificationBtn.textContent = 'Sending...';
+    try {
+      const res = await fetch('/api/resend-verification', {
+        method: 'POST',
+        headers: authHeaders()
+      });
+      if (handleAuthFailure(res)) return;
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        showMsg(profileMsg, data.error || 'Could not resend the verification email.', 'error');
+      } else if (data.alreadyVerified) {
+        setVerifiedState(true);
+      } else {
+        resendVerificationBtn.textContent = 'Sent! Check your inbox';
+        setTimeout(() => { resendVerificationBtn.textContent = originalLabel; }, 4000);
+      }
+    } catch (err) {
+      console.error(err);
+      showMsg(profileMsg, 'Could not contact the server. Please try again.', 'error');
+    } finally {
+      resendVerificationBtn.disabled = false;
+    }
+  });
 
   // ---------- Save profile ----------
   const profileForm = document.getElementById('profileForm');
@@ -972,7 +1025,12 @@
       if (!res.ok) {
         showMsg(profileMsg, data.error || 'An error occurred while saving.', 'error');
       } else {
-        showMsg(profileMsg, 'Changes saved successfully!', 'success');
+        setVerifiedState(!!data.emailVerified);
+        if (data.emailVerified === false) {
+          showMsg(profileMsg, 'Changes saved! Since your email changed, please verify it again — we just sent a new link.', 'success');
+        } else {
+          showMsg(profileMsg, 'Changes saved successfully!', 'success');
+        }
         updateWelcomeName();
       }
     } catch (err) {

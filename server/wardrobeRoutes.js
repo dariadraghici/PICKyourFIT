@@ -19,11 +19,14 @@ async function requireAuth(req, res, next) {
 
     const decoded = await auth.verifyIdToken(token);
     req.uid = decoded.uid;
+    req.emailVerified = decoded.email_verified === true;
     next();
   } catch (err) {
     return res.status(401).json({ error: 'Sesiune invalidă sau expirată.' });
   }
 }
+
+const UNVERIFIED_ITEM_LIMIT_PER_CATEGORY = 2;
 
 
 router.post('/', requireAuth, upload.single('image'), async (req, res) => {
@@ -32,6 +35,21 @@ router.post('/', requireAuth, upload.single('image'), async (req, res) => {
       return res.status(400).json({ error: 'Nicio imagine trimisă.' });
     }
     const { description = '', brand = '', category = '' } = req.body;
+
+    if (!req.emailVerified) {
+      const existingInCategory = await db
+        .collection('users')
+        .doc(req.uid)
+        .collection('wardrobe')
+        .where('category', '==', category)
+        .get();
+      if (existingInCategory.size >= UNVERIFIED_ITEM_LIMIT_PER_CATEGORY) {
+        return res.status(403).json({
+          error: `Conturile neverificate pot avea maximum ${UNVERIFIED_ITEM_LIMIT_PER_CATEGORY} articole per categorie. Verifică-ți emailul pentru a adăuga mai multe.`,
+        });
+      }
+    }
+
     const itemId = randomUUID();
 
     const result = await uploadBuffer(req.file.buffer, `wardrobe/${req.uid}`);

@@ -501,7 +501,7 @@
             if (err.duplicate) {
               showToast('This outfit is already scheduled for that day.');
             } else {
-              showToast('Could not schedule this outfit. Please try again.');
+              showToast(PYFCal.friendlyError(err, 'Could not schedule this outfit. Please try again.'));
             }
             return;
           }

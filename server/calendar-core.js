@@ -229,12 +229,20 @@
     return cells;
   }
 
+  // For 403s (unverified-account limits) the server message is the useful
+  // part ("max 2 favorites until you verify..."); for everything else fall
+  // back to a generic message so we don't leak raw error internals.
+  function friendlyError(err, fallback) {
+    if (err && err.status === 403 && err.data && err.data.error) return err.data.error;
+    return fallback;
+  }
+
   global.PYFCal = {
     MONTH_NAMES, WEEKDAY_SHORT,
     init, isInitialized: () => initialized,
     getCalendarEntries, getFavorites,
     toDateStr, todayStr, buildDateMap, entryKey, outfitSignature, isFavorited,
     scheduleOutfit, toggleFavorite, deleteCalendarEntry, moveCalendarEntryToFavorites,
-    renderOutfitComposite, monthMatrix,
+    renderOutfitComposite, monthMatrix, friendlyError,
   };
 })(window);

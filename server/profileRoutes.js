@@ -3,6 +3,7 @@ const multer = require('multer');
 const { db, auth } = require('./firebaseAdmin');
 const { uploadBuffer, deleteAsset } = require('./cloudinaryClient');
 const { encodeIpKey } = require('./ipUtils');
+const { sendVerificationEmail } = require('./emailVerification');
 
 const router = express.Router();
 
@@ -30,10 +31,23 @@ async function requireAuth(req, res, next) {
 
     const decoded = await auth.verifyIdToken(token);
     req.uid = decoded.uid;
+    req.rawIdToken = token;
+    req.emailVerified = decoded.email_verified === true;
     next();
   } catch (err) {
     return res.status(401).json({ error: 'Sesiune invalidă sau expirată.' });
   }
+}
+
+// Unverified accounts can't touch their personal info (name/email/avatar)
+// until they confirm the email address.
+function requireVerified(req, res, next) {
+  if (!req.emailVerified) {
+    return res.status(403).json({
+      error: 'Trebuie să-ți verifici adresa de email înainte de a modifica informațiile personale.',
+    });
+  }
+  next();
 }
 
 async function signInWithPassword(email, password) {
@@ -63,6 +77,7 @@ router.get('/profile', requireAuth, async (req, res) => {
       lastName: data.lastName || '',
       email: data.email || '',
       photoUrl: data.photoUrl || null,
+      emailVerified: req.emailVerified,
     });
   } catch (err) {
     console.error('Get profile error:', err);
@@ -71,7 +86,7 @@ router.get('/profile', requireAuth, async (req, res) => {
 });
 
 // PUT /api/profile  body: { firstName, lastName, email }
-router.put('/profile', requireAuth, async (req, res) => {
+router.put('/profile', requireAuth, requireVerified, async (req, res) => {
   try {
     const { firstName, lastName, email } = req.body || {};
 
@@ -97,7 +112,15 @@ router.put('/profile', requireAuth, async (req, res) => {
       await auth.updateUser(req.uid, {
         email: normalizedEmail,
         displayName: `${firstName} ${lastName}`,
+        emailVerified: false,
       });
+      // best-effort: user keeps their access, they just need to re-verify
+      // the new address before touching personal info again.
+      try {
+        await sendVerificationEmail(req.rawIdToken);
+      } catch (verifyErr) {
+        console.error('Could not send verification email after email change:', verifyErr);
+      }
     } else {
       await auth.updateUser(req.uid, { displayName: `${firstName} ${lastName}` });
     }
@@ -112,7 +135,12 @@ router.put('/profile', requireAuth, async (req, res) => {
       { merge: true }
     );
 
-    return res.status(200).json({ firstName, lastName, email: normalizedEmail });
+    return res.status(200).json({
+      firstName,
+      lastName,
+      email: normalizedEmail,
+      emailVerified: normalizedEmail !== currentEmail ? false : req.emailVerified,
+    });
   } catch (err) {
     console.error('Update profile error:', err);
     if (err.code === 'auth/email-already-exists') {
@@ -126,7 +154,7 @@ router.put('/profile', requireAuth, async (req, res) => {
 });
 
 // POST /api/profile/avatar  multipart/form-data, field name "avatar"
-router.post('/profile/avatar', requireAuth, (req, res) => {
+router.post('/profile/avatar', requireAuth, requireVerified, (req, res) => {
   upload.single('avatar')(req, res, async (err) => {
     if (err) {
       const msg = err.message === 'INVALID_FILE_TYPE'

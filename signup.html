@@ -636,8 +636,8 @@
 
       localStorage.setItem('pyf_idToken', data.idToken);
       localStorage.setItem('pyf_uid', data.uid);
-      showMsg('Account created successfully! You are being redirected...', 'success');
-      setTimeout(() => { window.location.href = 'index.html'; }, 900);
+      showMsg('Account created! We sent a verification link to your email — please confirm it soon. Redirecting...', 'success');
+      setTimeout(() => { window.location.href = 'index.html'; }, 1600);
 
     } catch (err) {
       console.error(err);

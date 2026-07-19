@@ -688,7 +688,7 @@
           const active = await PYFCal.toggleFavorite(outfit);
           setFavLabel(active);
         } catch (err) {
-          showToast('Could not update favorites. Please try again.');
+          showToast(PYFCal.friendlyError(err, 'Could not update favorites. Please try again.'));
         }
       };
       actions.appendChild(favBtn);
@@ -715,7 +715,7 @@
             if (err.duplicate) {
               showToast('This outfit is already scheduled for that day.');
             } else {
-              showToast('Could not schedule this outfit. Please try again.');
+              showToast(PYFCal.friendlyError(err, 'Could not schedule this outfit. Please try again.'));
             }
             return;
           }

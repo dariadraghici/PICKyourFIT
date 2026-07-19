@@ -12,11 +12,14 @@ async function requireAuth(req, res, next) {
 
     const decoded = await auth.verifyIdToken(token);
     req.uid = decoded.uid;
+    req.emailVerified = decoded.email_verified === true;
     next();
   } catch (err) {
     return res.status(401).json({ error: 'Sesiune invalidă sau expirată.' });
   }
 }
+
+const UNVERIFIED_FAVORITES_LIMIT = 2;
 
 function favoritesCol(uid) {
   return db.collection('users').doc(uid).collection('favorites');
@@ -52,6 +55,15 @@ router.post('/', requireAuth, async (req, res) => {
 
     if (!existing.empty) {
       return res.status(200).json({ id: existing.docs[0].id, ...existing.docs[0].data() });
+    }
+
+    if (!req.emailVerified) {
+      const currentFavs = await favoritesCol(req.uid).get();
+      if (currentFavs.size >= UNVERIFIED_FAVORITES_LIMIT) {
+        return res.status(403).json({
+          error: `Conturile neverificate pot avea maximum ${UNVERIFIED_FAVORITES_LIMIT} outfituri favorite. Verifică-ți emailul pentru a salva mai multe.`,
+        });
+      }
     }
 
     const favData = {

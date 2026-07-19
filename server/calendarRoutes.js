@@ -12,11 +12,14 @@ async function requireAuth(req, res, next) {
 
     const decoded = await auth.verifyIdToken(token);
     req.uid = decoded.uid;
+    req.emailVerified = decoded.email_verified === true;
     next();
   } catch (err) {
     return res.status(401).json({ error: 'Sesiune invalidă sau expirată.' });
   }
 }
+
+const UNVERIFIED_CALENDAR_LIMIT = 2;
 
 function calendarCol(uid) {
   return db.collection('users').doc(uid).collection('calendar');
@@ -47,6 +50,15 @@ router.post('/', requireAuth, async (req, res) => {
 
     if (!signature || !type || !items || !date) {
       return res.status(400).json({ error: 'Date de outfit incomplete.' });
+    }
+
+    if (!req.emailVerified) {
+      const currentEntries = await calendarCol(req.uid).get();
+      if (currentEntries.size >= UNVERIFIED_CALENDAR_LIMIT) {
+        return res.status(403).json({
+          error: `Conturile neverificate pot avea maximum ${UNVERIFIED_CALENDAR_LIMIT} outfituri în calendar. Verifică-ți emailul pentru a planifica mai multe.`,
+        });
+      }
     }
 
     const existing = await calendarCol(req.uid)
@@ -115,6 +127,15 @@ router.post('/:entryId/favorite', requireAuth, async (req, res) => {
       .where('signature', '==', entry.signature)
       .limit(1)
       .get();
+
+    if (existingFav.empty && !req.emailVerified) {
+      const currentFavs = await favoritesCol(req.uid).get();
+      if (currentFavs.size >= UNVERIFIED_CALENDAR_LIMIT) {
+        return res.status(403).json({
+          error: `Conturile neverificate pot avea maximum ${UNVERIFIED_CALENDAR_LIMIT} outfituri favorite. Verifică-ți emailul pentru a salva mai multe.`,
+        });
+      }
+    }
 
     let favorite;
     if (!existingFav.empty) {

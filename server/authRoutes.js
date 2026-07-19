@@ -1,6 +1,7 @@
 const express = require('express');
 const { db, auth } = require('./firebaseAdmin');
 const { encodeIpKey } = require('./ipUtils');
+const { sendVerificationEmail, domainHasMx } = require('./emailVerification');
 
 const router = express.Router();
 
@@ -34,6 +35,9 @@ router.post('/signup', async (req, res) => {
       return res.status(400).json({
         error: 'The password must be at least 8 characters long and contain at least one letter and one digit.',
       });
+    }
+    if (!(await domainHasMx(email))) {
+      return res.status(400).json({ error: "This email's domain does not appear to accept mail. Please check for typos." });
     }
 
     const normalizedEmail = email.trim().toLowerCase();
@@ -88,7 +92,16 @@ router.post('/signup', async (req, res) => {
     // authenticate the user immediately after signup to return an ID token
     const idToken = await signInWithPassword(normalizedEmail, password);
 
-    return res.status(201).json({ uid: userRecord.uid, idToken });
+    // best-effort: don't fail signup if the verification email couldn't be
+    // sent (e.g. transient Firebase issue) — the user can resend it later
+    // from their profile page.
+    try {
+      await sendVerificationEmail(idToken);
+    } catch (verifyErr) {
+      console.error('Could not send verification email:', verifyErr);
+    }
+
+    return res.status(201).json({ uid: userRecord.uid, idToken, emailVerified: false });
   } catch (err) {
     console.error('Signup error:', err);
     if (err.code === 'auth/email-already-exists') {
@@ -130,6 +143,7 @@ router.post('/login', async (req, res) => {
     }
 
     const userDoc = existing.docs[0].data();
+    const userRecord = await auth.getUser(localId);
 
     return res.status(200).json({
       uid: localId,
@@ -137,6 +151,7 @@ router.post('/login', async (req, res) => {
       firstName: userDoc.firstName,
       lastName: userDoc.lastName,
       email: userDoc.email,
+      emailVerified: !!userRecord.emailVerified,
     });
   } catch (err) {
     console.error('Login error:', err);
@@ -158,5 +173,38 @@ async function signInWithPassword(email, password, throwOnFail = false) {
   }
   return data; // { idToken, localId, ... }
 }
+
+// Same auth guard pattern as wardrobeRoutes.js / profileRoutes.js
+async function requireAuth(req, res, next) {
+  try {
+    const header = req.headers.authorization || '';
+    const token = header.startsWith('Bearer ') ? header.slice(7) : null;
+    if (!token) return res.status(401).json({ error: 'Autentificare necesară.' });
+
+    const decoded = await auth.verifyIdToken(token);
+    req.uid = decoded.uid;
+    req.rawIdToken = token;
+    next();
+  } catch (err) {
+    return res.status(401).json({ error: 'Sesiune invalidă sau expirată.' });
+  }
+}
+
+// POST /api/resend-verification — lets an already-logged-in but unverified
+// user request a fresh verification email (e.g. if the first one expired
+// or got lost).
+router.post('/resend-verification', requireAuth, async (req, res) => {
+  try {
+    const userRecord = await auth.getUser(req.uid);
+    if (userRecord.emailVerified) {
+      return res.status(200).json({ alreadyVerified: true });
+    }
+    await sendVerificationEmail(req.rawIdToken);
+    return res.status(200).json({ sent: true });
+  } catch (err) {
+    console.error('Resend verification error:', err);
+    return res.status(500).json({ error: 'Nu s-a putut retrimite emailul de verificare. Încearcă din nou.' });
+  }
+});
 
 module.exports = router;
