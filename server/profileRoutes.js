@@ -65,7 +65,7 @@ router.get('/profile', requireAuth, async (req, res) => {
     });
   } catch (err) {
     console.error('Get profile error:', err);
-    return res.status(500).json({ error: 'Nu s-a putut încărca profilul.' });
+    return res.status(500).json({ error: 'Could not load the profile.' });
   }
 });
 
@@ -75,10 +75,10 @@ router.put('/profile', requireAuth, requireVerified, async (req, res) => {
     const { firstName, lastName, email } = req.body || {};
 
     if (!firstName || !lastName) {
-      return res.status(400).json({ error: 'Prenumele și numele sunt obligatorii.' });
+      return res.status(400).json({ error: 'First name and last name are required.' });
     }
     if (!email || !EMAIL_RE.test(email)) {
-      return res.status(400).json({ error: 'Introdu o adresă de email validă.' });
+      return res.status(400).json({ error: 'Please enter a valid email address.' });
     }
 
     const normalizedEmail = email.trim().toLowerCase();
@@ -91,7 +91,7 @@ router.put('/profile', requireAuth, requireVerified, async (req, res) => {
     if (normalizedEmail !== currentEmail) {
       const existing = await db.collection('users').where('email', '==', normalizedEmail).limit(1).get();
       if (!existing.empty && existing.docs[0].id !== req.uid) {
-        return res.status(409).json({ error: 'Există deja un cont cu acest email.' });
+        return res.status(409).json({ error: 'There is already an account with this email.' });
       }
       await auth.updateUser(req.uid, {
         email: normalizedEmail,
@@ -128,12 +128,12 @@ router.put('/profile', requireAuth, requireVerified, async (req, res) => {
   } catch (err) {
     console.error('Update profile error:', err);
     if (err.code === 'auth/email-already-exists') {
-      return res.status(409).json({ error: 'Există deja un cont cu acest email.' });
+      return res.status(409).json({ error: 'There is already an account with this email.' });
     }
     if (err.code === 'auth/invalid-email') {
-      return res.status(400).json({ error: 'Adresa de email nu este validă.' });
+      return res.status(400).json({ error: 'Please enter a valid email address.' });
     }
-    return res.status(500).json({ error: 'Nu s-au putut salva modificările.' });
+    return res.status(500).json({ error: 'Could not save the changes.' });
   }
 });
 
@@ -142,13 +142,13 @@ router.post('/profile/avatar', requireAuth, requireVerified, (req, res) => {
   upload.single('avatar')(req, res, async (err) => {
     if (err) {
       const msg = err.message === 'INVALID_FILE_TYPE'
-        ? 'Doar imagini PNG sau JPG sunt acceptate.'
-        : 'Imaginea este prea mare (limită 5MB).';
+        ? 'Only PNG or JPG images are accepted.'
+        : 'The image is too large (max 5MB).';
       return res.status(400).json({ error: msg });
     }
     try {
       if (!req.file) {
-        return res.status(400).json({ error: 'Nicio imagine trimisă.' });
+        return res.status(400).json({ error: 'No image uploaded.' });
       }
 
       const userRef = db.collection('users').doc(req.uid);
@@ -168,7 +168,7 @@ router.post('/profile/avatar', requireAuth, requireVerified, (req, res) => {
       return res.status(200).json({ photoUrl: result.secure_url });
     } catch (innerErr) {
       console.error('Avatar upload error:', innerErr);
-      return res.status(500).json({ error: 'Nu s-a putut încărca poza.' });
+      return res.status(500).json({ error: 'Could not upload the image.' });
     }
   });
 });
@@ -179,11 +179,11 @@ router.post('/change-password', requireAuth, async (req, res) => {
     const { currentPassword, newPassword } = req.body || {};
 
     if (!currentPassword || !newPassword) {
-      return res.status(400).json({ error: 'Completează ambele câmpuri.' });
+      return res.status(400).json({ error: 'Please fill in all fields.' });
     }
     if (newPassword.length < 8 || !/[0-9]/.test(newPassword) || !/[a-zA-Z]/.test(newPassword)) {
       return res.status(400).json({
-        error: 'Parola nouă trebuie să aibă minim 8 caractere și să conțină cel puțin o literă și o cifră.',
+        error: 'New password must be at least 8 characters long and contain at least one letter and one digit.',
       });
     }
 
@@ -202,7 +202,7 @@ router.post('/change-password', requireAuth, async (req, res) => {
     return res.status(200).json({ success: true });
   } catch (err) {
     console.error('Change password error:', err);
-    return res.status(500).json({ error: 'Nu s-a putut actualiza parola.' });
+    return res.status(500).json({ error: 'Could not update the password.' });
   }
 });
 

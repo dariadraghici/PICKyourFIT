@@ -1,15 +1,11 @@
-/* ---------- Pick Your Fit — themed date-picker popup ----------
-   Replaces the plain <input type=date>. Uses the host page's own
-   CSS variables (--ink, --thread, --linen-card, --line, --side-bg…)
-   so it always matches whichever page opens it.
-   Usage: PYFDatePicker.open({ minDate, initialDate, onSelect }) */
 (function (global) {
   const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
   const WEEKDAY_SHORT = ['Mo','Tu','We','Th','Fr','Sa','Su'];
 
   let styleInjected = false;
   function injectStyle() {
-    if (styleInjected) return;
+    if (styleInjected) 
+      return;
     styleInjected = true;
     const style = document.createElement('style');
     style.textContent = `

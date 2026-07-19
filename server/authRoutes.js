@@ -93,9 +93,6 @@ router.post('/signup', async (req, res) => {
     // authenticate the user immediately after signup to return an ID token
     const idToken = await signInWithPassword(normalizedEmail, password);
 
-    // best-effort: don't fail signup if the verification email couldn't be
-    // sent (e.g. transient Firebase issue) — the user can resend it later
-    // from their profile page.
     try {
       await sendVerificationEmail(idToken);
     } catch (verifyErr) {
@@ -175,9 +172,7 @@ async function signInWithPassword(email, password, throwOnFail = false) {
   return data; // { idToken, localId, ... }
 }
 
-// POST /api/resend-verification — lets an already-logged-in but unverified
-// user request a fresh verification email (e.g. if the first one expired
-// or got lost).
+
 router.post('/resend-verification', requireAuth, async (req, res) => {
   try {
     const userRecord = await auth.getUser(req.uid);
@@ -188,7 +183,7 @@ router.post('/resend-verification', requireAuth, async (req, res) => {
     return res.status(200).json({ sent: true });
   } catch (err) {
     console.error('Resend verification error:', err);
-    return res.status(500).json({ error: 'Nu s-a putut retrimite emailul de verificare. Încearcă din nou.' });
+    return res.status(500).json({ error: 'Could not resend verification email. Please try again.' });
   }
 });
 

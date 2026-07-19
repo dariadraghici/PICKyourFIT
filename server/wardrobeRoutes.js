@@ -18,7 +18,7 @@ const UNVERIFIED_ITEM_LIMIT_PER_CATEGORY = 2;
 router.post('/', requireAuth, upload.single('image'), async (req, res) => {
   try {
     if (!req.file) {
-      return res.status(400).json({ error: 'Nicio imagine trimisă.' });
+      return res.status(400).json({ error: 'No image uploaded.' });
     }
     const { description = '', brand = '', category = '' } = req.body;
 
@@ -31,7 +31,7 @@ router.post('/', requireAuth, upload.single('image'), async (req, res) => {
         .get();
       if (existingInCategory.size >= UNVERIFIED_ITEM_LIMIT_PER_CATEGORY) {
         return res.status(403).json({
-          error: `Conturile neverificate pot avea maximum ${UNVERIFIED_ITEM_LIMIT_PER_CATEGORY} articole per categorie. Verifică-ți emailul pentru a adăuga mai multe.`,
+          error: `Unverified accounts can have at most ${UNVERIFIED_ITEM_LIMIT_PER_CATEGORY} items per category. Please verify your email to add more.`,
         });
       }
     }
@@ -59,7 +59,7 @@ router.post('/', requireAuth, upload.single('image'), async (req, res) => {
     return res.status(201).json({ id: itemId, ...itemData });
   } catch (err) {
     console.error('Wardrobe add error:', err);
-    return res.status(500).json({ error: 'Nu s-a putut salva articolul.' });
+    return res.status(500).json({ error: 'Could not save the item.' });
   }
 });
 
@@ -77,7 +77,7 @@ router.get('/', requireAuth, async (req, res) => {
     return res.status(200).json({ items });
   } catch (err) {
     console.error('Wardrobe list error:', err);
-    return res.status(500).json({ error: 'Nu s-a putut încărca dulapul.' });
+    return res.status(500).json({ error: 'Could not load the wardrobe.' });
   }
 });
 
@@ -91,7 +91,7 @@ router.patch('/:itemId', requireAuth, async (req, res) => {
     const itemDoc = await itemRef.get();
 
     if (!itemDoc.exists) {
-      return res.status(404).json({ error: 'Articolul nu a fost găsit.' });
+      return res.status(404).json({ error: 'Item not found.' });
     }
 
     const updates = { updatedAt: new Date().toISOString() };
@@ -104,7 +104,7 @@ router.patch('/:itemId', requireAuth, async (req, res) => {
     return res.status(200).json({ id: itemId, ...updatedDoc.data() });
   } catch (err) {
     console.error('Wardrobe update error:', err);
-    return res.status(500).json({ error: 'Nu s-a putut actualiza articolul.' });
+    return res.status(500).json({ error: 'Could not update the item.' });
   }
 });
 
@@ -116,7 +116,7 @@ router.delete('/:itemId', requireAuth, async (req, res) => {
     const itemDoc = await itemRef.get();
 
     if (!itemDoc.exists) {
-      return res.status(404).json({ error: 'Articolul nu a fost găsit.' });
+      return res.status(404).json({ error: 'Item not found.' });
     }
 
     const { imagePublicId } = itemDoc.data();
@@ -126,7 +126,7 @@ router.delete('/:itemId', requireAuth, async (req, res) => {
     return res.status(200).json({ success: true });
   } catch (err) {
     console.error('Wardrobe delete error:', err);
-    return res.status(500).json({ error: 'Nu s-a putut șterge articolul.' });
+    return res.status(500).json({ error: 'Could not delete the item.' });
   }
 });
 

@@ -21,7 +21,7 @@ router.get('/', requireAuth, async (req, res) => {
     return res.status(200).json({ entries });
   } catch (err) {
     console.error('Calendar list error:', err);
-    return res.status(500).json({ error: 'Nu s-a putut încărca calendarul.' });
+    return res.status(500).json({ error: 'Could not load the calendar.' });
   }
 });
 
@@ -34,14 +34,14 @@ router.post('/', requireAuth, async (req, res) => {
     const { signature, type, items, isTights, date } = req.body || {};
 
     if (!signature || !type || !items || !date) {
-      return res.status(400).json({ error: 'Date de outfit incomplete.' });
+      return res.status(400).json({ error: 'Incomplete outfit data.' });
     }
 
     if (!req.emailVerified) {
       const currentEntries = await calendarCol(req.uid).get();
       if (currentEntries.size >= UNVERIFIED_CALENDAR_LIMIT) {
         return res.status(403).json({
-          error: `Conturile neverificate pot avea maximum ${UNVERIFIED_CALENDAR_LIMIT} outfituri în calendar. Verifică-ți emailul pentru a planifica mai multe.`,
+          error: `Unverified account can have at most ${UNVERIFIED_CALENDAR_LIMIT} outfits in the calendar. Verify your email to schedule more.`,
         });
       }
     }
@@ -53,7 +53,7 @@ router.post('/', requireAuth, async (req, res) => {
       .get();
 
     if (!existing.empty) {
-      return res.status(409).json({ error: 'Acest outfit este deja planificat pentru ziua respectivă.' });
+      return res.status(409).json({ error: 'This outfit is already scheduled for the given day.' });
     }
 
     const entryData = {
@@ -70,7 +70,7 @@ router.post('/', requireAuth, async (req, res) => {
     return res.status(201).json({ id: docRef.id, ...entryData });
   } catch (err) {
     console.error('Calendar add error:', err);
-    return res.status(500).json({ error: 'Nu s-a putut planifica outfitul.' });
+    return res.status(500).json({ error: 'Could not schedule the outfit.' });
   }
 });
 
@@ -82,7 +82,7 @@ router.delete('/:entryId', requireAuth, async (req, res) => {
     const entryDoc = await entryRef.get();
 
     if (!entryDoc.exists) {
-      return res.status(404).json({ error: 'Intrarea nu a fost găsită.' });
+      return res.status(404).json({ error: 'Entry not found.' });
     }
 
     await entryRef.delete();
@@ -90,7 +90,7 @@ router.delete('/:entryId', requireAuth, async (req, res) => {
     return res.status(200).json({ success: true });
   } catch (err) {
     console.error('Calendar delete error:', err);
-    return res.status(500).json({ error: 'Nu s-a putut șterge intrarea din calendar.' });
+    return res.status(500).json({ error: 'Could not delete the calendar entry.' });
   }
 });
 
@@ -103,7 +103,7 @@ router.post('/:entryId/favorite', requireAuth, async (req, res) => {
     const entryDoc = await entryRef.get();
 
     if (!entryDoc.exists) {
-      return res.status(404).json({ error: 'Intrarea nu a fost găsită.' });
+      return res.status(404).json({ error: 'Entry not found.' });
     }
 
     const entry = entryDoc.data();
@@ -117,7 +117,7 @@ router.post('/:entryId/favorite', requireAuth, async (req, res) => {
       const currentFavs = await favoritesCol(req.uid).get();
       if (currentFavs.size >= UNVERIFIED_CALENDAR_LIMIT) {
         return res.status(403).json({
-          error: `Conturile neverificate pot avea maximum ${UNVERIFIED_CALENDAR_LIMIT} outfituri favorite. Verifică-ți emailul pentru a salva mai multe.`,
+          error: `Unverified account can have at most ${UNVERIFIED_CALENDAR_LIMIT} outfits in favorites. Verify your email to save more.`,
         });
       }
     }
@@ -141,7 +141,7 @@ router.post('/:entryId/favorite', requireAuth, async (req, res) => {
     return res.status(200).json({ removedEntryId: entryId, favorite });
   } catch (err) {
     console.error('Calendar move-to-favorites error:', err);
-    return res.status(500).json({ error: 'Nu s-a putut muta outfitul la favorite.' });
+    return res.status(500).json({ error: 'Could not move the outfit to favorites.' });
   }
 });
 

@@ -4,7 +4,7 @@ let serviceAccount;
 try {
   serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
 } catch (err) {
-  console.error('ERROR: FIREBASE_SERVICE_ACCOUNT lipsește sau nu este JSON valid în .env');
+  console.error('ERROR: FIREBASE_SERVICE_ACCOUNT missing or invalid. Please set it in your environment variables as a JSON string.');
   process.exit(1);
 }
 

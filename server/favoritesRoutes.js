@@ -18,7 +18,7 @@ router.get('/', requireAuth, async (req, res) => {
     return res.status(200).json({ favorites });
   } catch (err) {
     console.error('Favorites list error:', err);
-    return res.status(500).json({ error: 'Nu s-au putut încărca favoritele.' });
+    return res.status(500).json({ error: 'Could not load the favorites.' });
   }
 });
 
@@ -30,7 +30,7 @@ router.post('/', requireAuth, async (req, res) => {
     const { signature, type, items } = req.body || {};
 
     if (!signature || !type || !items) {
-      return res.status(400).json({ error: 'Date de outfit incomplete.' });
+      return res.status(400).json({ error: 'Incomplete outfit data.' });
     }
 
     const existing = await favoritesCol(req.uid)
@@ -46,7 +46,7 @@ router.post('/', requireAuth, async (req, res) => {
       const currentFavs = await favoritesCol(req.uid).get();
       if (currentFavs.size >= UNVERIFIED_FAVORITES_LIMIT) {
         return res.status(403).json({
-          error: `Conturile neverificate pot avea maximum ${UNVERIFIED_FAVORITES_LIMIT} outfituri favorite. Verifică-ți emailul pentru a salva mai multe.`,
+          error: `Unverified account can have at most ${UNVERIFIED_FAVORITES_LIMIT} outfits in favorites. Verify your email to save more.`,
         });
       }
     }
@@ -62,7 +62,7 @@ router.post('/', requireAuth, async (req, res) => {
     return res.status(201).json({ id: docRef.id, ...favData });
   } catch (err) {
     console.error('Favorites add error:', err);
-    return res.status(500).json({ error: 'Nu s-a putut salva la favorite.' });
+    return res.status(500).json({ error: 'Could not save the outfit to favorites.' });
   }
 });
 
@@ -74,7 +74,7 @@ router.delete('/:favId', requireAuth, async (req, res) => {
     const favDoc = await favRef.get();
 
     if (!favDoc.exists) {
-      return res.status(404).json({ error: 'Favoritul nu a fost găsit.' });
+      return res.status(404).json({ error: 'Favorite not found.' });
     }
 
     await favRef.delete();
@@ -82,7 +82,7 @@ router.delete('/:favId', requireAuth, async (req, res) => {
     return res.status(200).json({ success: true });
   } catch (err) {
     console.error('Favorites delete error:', err);
-    return res.status(500).json({ error: 'Nu s-a putut șterge favoritul.' });
+    return res.status(500).json({ error: 'Could not delete the favorite.' });
   }
 });
 
