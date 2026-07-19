@@ -1,8 +1,9 @@
 const express = require('express');
 const multer = require('multer');
 const { randomUUID } = require('crypto');
-const { db, auth } = require('./firebaseAdmin');
+const { db } = require('./firebaseAdmin');
 const { uploadBuffer, deleteAsset } = require('./cloudinaryClient');
+const { requireAuth } = require('./authMiddleware');
 
 const router = express.Router();
 
@@ -10,21 +11,6 @@ const upload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 8 * 1024 * 1024 }, // 8MB per poză
 });
-
-async function requireAuth(req, res, next) {
-  try {
-    const header = req.headers.authorization || '';
-    const token = header.startsWith('Bearer ') ? header.slice(7) : null;
-    if (!token) return res.status(401).json({ error: 'Autentificare necesară.' });
-
-    const decoded = await auth.verifyIdToken(token);
-    req.uid = decoded.uid;
-    req.emailVerified = decoded.email_verified === true;
-    next();
-  } catch (err) {
-    return res.status(401).json({ error: 'Sesiune invalidă sau expirată.' });
-  }
-}
 
 const UNVERIFIED_ITEM_LIMIT_PER_CATEGORY = 2;
 

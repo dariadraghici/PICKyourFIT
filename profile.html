@@ -463,6 +463,7 @@
             <p>Your account has limited access until you verify your email: up to 2 items per wardrobe category, up to 2 favorites, up to 2 planned outfits, and personal info/avatar editing is disabled.</p>
           </div>
           <button type="button" class="btn-header" id="resendVerificationBtn">Resend verification email</button>
+          <button type="button" class="btn-header" id="refreshVerificationBtn">I've verified — refresh status</button>
         </div>
 
         <div class="card">
@@ -986,6 +987,22 @@
       showMsg(profileMsg, 'Could not contact the server. Please try again.', 'error');
     } finally {
       resendVerificationBtn.disabled = false;
+    }
+  });
+
+  // The server now checks live Firebase Auth state on every request (see
+  // authMiddleware.js), so simply re-fetching the profile is enough to pick
+  // up a verification that just happened — no need to log out/in again.
+  const refreshVerificationBtn = document.getElementById('refreshVerificationBtn');
+  refreshVerificationBtn.addEventListener('click', async () => {
+    refreshVerificationBtn.disabled = true;
+    const originalLabel = refreshVerificationBtn.textContent;
+    refreshVerificationBtn.textContent = 'Checking...';
+    try {
+      await loadProfile();
+    } finally {
+      refreshVerificationBtn.disabled = false;
+      refreshVerificationBtn.textContent = originalLabel;
     }
   });
 

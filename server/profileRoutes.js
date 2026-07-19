@@ -4,6 +4,7 @@ const { db, auth } = require('./firebaseAdmin');
 const { uploadBuffer, deleteAsset } = require('./cloudinaryClient');
 const { encodeIpKey } = require('./ipUtils');
 const { sendVerificationEmail } = require('./emailVerification');
+const { requireAuth } = require('./authMiddleware');
 
 const router = express.Router();
 
@@ -21,23 +22,6 @@ const upload = multer({
     }
   },
 });
-
-// Same auth guard pattern as wardrobeRoutes.js
-async function requireAuth(req, res, next) {
-  try {
-    const header = req.headers.authorization || '';
-    const token = header.startsWith('Bearer ') ? header.slice(7) : null;
-    if (!token) return res.status(401).json({ error: 'Autentificare necesară.' });
-
-    const decoded = await auth.verifyIdToken(token);
-    req.uid = decoded.uid;
-    req.rawIdToken = token;
-    req.emailVerified = decoded.email_verified === true;
-    next();
-  } catch (err) {
-    return res.status(401).json({ error: 'Sesiune invalidă sau expirată.' });
-  }
-}
 
 // Unverified accounts can't touch their personal info (name/email/avatar)
 // until they confirm the email address.

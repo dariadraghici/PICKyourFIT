@@ -1,23 +1,8 @@
 const express = require('express');
-const { db, auth } = require('./firebaseAdmin');
+const { db } = require('./firebaseAdmin');
+const { requireAuth } = require('./authMiddleware');
 
 const router = express.Router();
-
-// Same auth guard pattern as wardrobeRoutes.js / profileRoutes.js
-async function requireAuth(req, res, next) {
-  try {
-    const header = req.headers.authorization || '';
-    const token = header.startsWith('Bearer ') ? header.slice(7) : null;
-    if (!token) return res.status(401).json({ error: 'Autentificare necesară.' });
-
-    const decoded = await auth.verifyIdToken(token);
-    req.uid = decoded.uid;
-    req.emailVerified = decoded.email_verified === true;
-    next();
-  } catch (err) {
-    return res.status(401).json({ error: 'Sesiune invalidă sau expirată.' });
-  }
-}
 
 const UNVERIFIED_CALENDAR_LIMIT = 2;
 

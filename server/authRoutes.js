@@ -2,6 +2,7 @@ const express = require('express');
 const { db, auth } = require('./firebaseAdmin');
 const { encodeIpKey } = require('./ipUtils');
 const { sendVerificationEmail, domainHasMx } = require('./emailVerification');
+const { requireAuth } = require('./authMiddleware');
 
 const router = express.Router();
 
@@ -172,22 +173,6 @@ async function signInWithPassword(email, password, throwOnFail = false) {
     throw new Error(data.error?.message || 'AUTH_FAILED');
   }
   return data; // { idToken, localId, ... }
-}
-
-// Same auth guard pattern as wardrobeRoutes.js / profileRoutes.js
-async function requireAuth(req, res, next) {
-  try {
-    const header = req.headers.authorization || '';
-    const token = header.startsWith('Bearer ') ? header.slice(7) : null;
-    if (!token) return res.status(401).json({ error: 'Autentificare necesară.' });
-
-    const decoded = await auth.verifyIdToken(token);
-    req.uid = decoded.uid;
-    req.rawIdToken = token;
-    next();
-  } catch (err) {
-    return res.status(401).json({ error: 'Sesiune invalidă sau expirată.' });
-  }
 }
 
 // POST /api/resend-verification — lets an already-logged-in but unverified
