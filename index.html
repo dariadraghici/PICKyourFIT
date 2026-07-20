@@ -108,7 +108,7 @@
     position:fixed; top:0; left:88px; right:0; z-index:12;
     display:flex;align-items:center;justify-content:space-between;
     gap:14px;
-    padding:26px 44px;
+    padding:16px 36px;
     background:rgba(243,238,227,0.82);
     backdrop-filter:blur(16px);
     -webkit-backdrop-filter:blur(16px);
@@ -117,25 +117,25 @@
   }
   .logo{
     font-family:'Fraunces',serif;
-    font-size:clamp(10px, 1.6vw, 14px);font-weight:600;letter-spacing:0.16em;
+    font-size:clamp(10px, 1.4vw, 13px);font-weight:600;letter-spacing:0.08em;
     text-transform:uppercase;color:var(--ink);
     flex-shrink:0;
     white-space:nowrap;
   }
-  nav.main-nav{display:flex;gap:clamp(10px, 2.4vw, 34px); flex-shrink:1; min-width:0;}
+  nav.main-nav{display:flex;gap:clamp(6px, 1.8vw, 24px); flex-shrink:1; min-width:0; align-items:center;}
   nav.main-nav a{
-    font-size:clamp(9.5px, 1.4vw, 12.5px);font-weight:600;letter-spacing:0.03em;
+    font-size:clamp(8.5px, 1.1vw, 11.5px);font-weight:600;letter-spacing:0.02em;
     text-transform:uppercase;color:var(--ink-soft);
     transition:color .15s ease;
     white-space:nowrap;
   }
   nav.main-nav a:hover{color:var(--ink);}
-  .header-actions{display:flex;align-items:center;gap:clamp(6px, 1.2vw, 12px); flex-shrink:0;}
+  .header-actions{display:flex;align-items:center;gap:clamp(4px, 1vw, 10px); flex-shrink:0;}
   
   .btn-header {
-    display:inline-flex;align-items:center;justify-content:center;gap:8px;
-    padding:clamp(6px, 1vw, 10px) clamp(10px, 2vw, 20px);border-radius:8px;
-    font-size:clamp(9px, 1.3vw, 12.5px);font-weight:600;
+    display:inline-flex;align-items:center;justify-content:center;gap:4px;
+    padding:clamp(4px, 0.8vw, 8px) clamp(8px, 1.5vw, 16px);border-radius:6px;
+    font-size:clamp(8.5px, 1.1vw, 11.5px);font-weight:600;
     letter-spacing:0.02em;text-transform:uppercase;
     cursor:pointer;border:1px solid var(--ink);
     background:transparent;color:var(--ink);
@@ -401,7 +401,7 @@
   @media (max-width: 980px){
     .sidebar{width:64px;}
     .main-content{margin-left:64px;}
-    header{left:64px; padding:20px 24px;}
+    header{left:64px; padding:16px 20px;}
   }
   @media (max-width: 860px){
     .scan-grid{
@@ -417,7 +417,7 @@
     .preview-card{ overflow-y:visible; }
   }
 
-  /* ---------- Mobile menu toggle (phone only) ---------- */
+  /* ---------- Mobile menu toggle & Header optimizations ---------- */
   .menu-toggle{
     display:none;
     position:fixed; top:16px; left:16px; z-index:40;
@@ -433,24 +433,56 @@
     position:fixed;inset:0;z-index:15;
     background:rgba(20,15,10,0.45);
   }
+
   @media (max-width: 700px){
-    .menu-toggle{ display:flex; top:9px; width:32px; height:32px; }
+    .menu-toggle{ display:flex; top:8px; left:8px; width:32px; height:32px; }
     .menu-toggle svg{ width:16px; height:16px; }
     .sidebar{ transform:translateX(-100%); transition:transform .25s ease; z-index:20; }
     .sidebar.open{ transform:translateX(0); box-shadow:8px 0 30px rgba(0,0,0,0.3); }
     .sidebar-backdrop.open{ display:block; }
     .main-content{ margin-left:0; }
-    /* Compact header, still fixed to the top and still showing every link */
+
+    /* Compact header to fit nicely on smartphones without overlaps */
     header{
       left:0;
-      padding:9px 14px 9px 52px;
+      padding:6px 10px 6px 46px;
       gap:6px;
       flex-wrap:nowrap;
+      height: 48px;
+      align-items: center;
     }
+    .logo{
+      font-size: 10px;
+      letter-spacing: 0.04em;
+    }
+    nav.main-nav{
+      gap: 6px;
+    }
+    nav.main-nav a{
+      font-size: 8.5px;
+      letter-spacing: 0;
+    }
+    .header-actions{
+      gap: 4px;
+    }
+    .btn-header{
+      padding: 4px 7px;
+      font-size: 8.5px;
+      border-radius: 5px;
+      letter-spacing: 0;
+    }
+
     .app-container{ 
       justify-content: flex-start; 
-      padding-top: 68px; 
+      padding-top: 60px; 
       padding-bottom: 24px; 
+    }
+  }
+
+  @media (max-width: 380px){
+    /* On extra narrow screens, hide middle text links to guarantee zero overlap */
+    nav.main-nav {
+      display: none;
     }
   }
 </style>
@@ -785,8 +817,6 @@
     }
 
     postActions.classList.add('show');
-    // Regardless of what was predicted, always let the person say "that's not right"
-    // and pick the correct category themselves.
     categoryOverride.classList.add('show');
 
     updateActionButtons(category);
@@ -809,8 +839,6 @@
     }
   }
 
-  // Populate the manual category dropdown from the same categories the
-  // model can recognize, so a person can always correct a wrong prediction.
   Object.keys(SECTION_MAP).forEach(cat => {
     const opt = document.createElement('option');
     opt.value = cat;
@@ -848,7 +876,7 @@
   async function removeBackgroundAPI(imageFile) {
     const formData = new FormData();
     formData.append('size', 'auto');
-    formData.append('image_file', imageFile); // send the original file to the backend for processing
+    formData.append('image_file', imageFile);
 
     try {
       const response = await fetch('/api/remove-bg', {
@@ -870,7 +898,6 @@
   addToWardrobeBtn.addEventListener('click', async () => {
     if(!currentResult || !isLoggedIn) return;
 
-    // change button state to indicate processing
     addToWardrobeBtn.textContent = 'Removing background...';
     addToWardrobeBtn.disabled = true;
     addToWardrobeBtn.style.opacity = '0.7';
