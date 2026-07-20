@@ -22,11 +22,7 @@
     
     /* Variables from landing */
     --side-bg: rgba(42, 34, 27, 0.85);
-
-    /* Fixed height for the dropzone/preview row so it never resizes
-       between the empty and filled states. Sized to comfortably fit
-       the filled preview card (image + result + actions). */
-    --scan-box-h: 600px;
+    --scan-box-h: clamp(400px, 55vw, 600px);
   }
 
   *{ box-sizing: border-box; margin: 0; padding: 0; }
@@ -108,30 +104,38 @@
     z-index:0;
   }
 
-  /* ---------- Header ---------- */
   header{
-    position:relative;z-index:4;
+    position:fixed; top:0; left:88px; right:0; z-index:12;
     display:flex;align-items:center;justify-content:space-between;
+    gap:14px;
     padding:26px 44px;
-    background:transparent;
+    background:rgba(243,238,227,0.82);
+    backdrop-filter:blur(16px);
+    -webkit-backdrop-filter:blur(16px);
+    border-bottom:1px solid rgba(217,208,189,0.7);
+    transition:left .2s ease, padding .2s ease;
   }
   .logo{
     font-family:'Fraunces',serif;
-    font-size:14px;font-weight:600;letter-spacing:0.16em;
+    font-size:clamp(10px, 1.6vw, 14px);font-weight:600;letter-spacing:0.16em;
     text-transform:uppercase;color:var(--ink);
+    flex-shrink:0;
+    white-space:nowrap;
   }
-  nav.main-nav{display:flex;gap:34px;}
+  nav.main-nav{display:flex;gap:clamp(10px, 2.4vw, 34px); flex-shrink:1; min-width:0;}
   nav.main-nav a{
-    font-size:12.5px;font-weight:600;letter-spacing:0.03em;
+    font-size:clamp(9.5px, 1.4vw, 12.5px);font-weight:600;letter-spacing:0.03em;
     text-transform:uppercase;color:var(--ink-soft);
     transition:color .15s ease;
+    white-space:nowrap;
   }
   nav.main-nav a:hover{color:var(--ink);}
-  .header-actions{display:flex;align-items:center;gap:12px;}
+  .header-actions{display:flex;align-items:center;gap:clamp(6px, 1.2vw, 12px); flex-shrink:0;}
   
   .btn-header {
     display:inline-flex;align-items:center;justify-content:center;gap:8px;
-    padding:10px 20px;border-radius:8px;font-size:12.5px;font-weight:600;
+    padding:clamp(6px, 1vw, 10px) clamp(10px, 2vw, 20px);border-radius:8px;
+    font-size:clamp(9px, 1.3vw, 12.5px);font-weight:600;
     letter-spacing:0.02em;text-transform:uppercase;
     cursor:pointer;border:1px solid var(--ink);
     background:transparent;color:var(--ink);
@@ -151,7 +155,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: flex-end;
-    padding: 6px 20px 48px;
+    padding: clamp(78px, 11vw, 104px) 20px 48px;
   }
 
   .scan-grid{
@@ -164,7 +168,7 @@
       "text ."
       "drop side";
     align-items:stretch;
-    gap: 1px 40px;
+    gap: 1px clamp(18px, 4vw, 40px);
   }
   .scan-text{ grid-area:text; }
   .scan-drop{ grid-area:drop; display:flex; flex-direction:column; height:var(--scan-box-h); }
@@ -191,16 +195,16 @@
   h1{
     font-family:'Fraunces', serif;
     font-weight:600;
-    font-size:38px;
+    font-size:clamp(24px, 4.5vw, 38px);
     line-height:1.08;
     margin:0 0 10px;
     letter-spacing:-0.01em;
   }
   p.lead{
     color:var(--ink-soft);
-    font-size:15.5px;
+    font-size:clamp(13px, 1.6vw, 15.5px);
     line-height:1.6;
-    margin:0 0 36px;
+    margin:0 0 clamp(18px, 4vw, 36px);
     max-width:100%;
   }
   
@@ -213,25 +217,33 @@
     border: 1px solid rgba(255,255,255,0.45);
     box-shadow: 0 20px 50px rgba(60,45,25,0.06);
     border-radius: 14px;
-    padding: 48px 32px;
+    padding: clamp(34px, 6vw, 56px) clamp(16px, 4vw, 32px);
+    min-height: 320px;
+    width: 94%;
+    margin: 0 auto;
     text-align:center;
     cursor:pointer;
     flex: 1;
-    display:flex; flex-direction:column; justify-content:center;
-    transition: background 0.18s ease, border-color 0.18s ease;
+    display: flex; 
+    flex-direction: column; 
+    justify-content: center;
+    align-items: center;
+    transition: background 0.18s ease, border-color 0.18s ease, padding 0.2s ease;
     outline: none;
   }
   .dropzone::before{
     content:'';
     position:absolute;
-    inset:10px;
-    border:1.5px dashed rgba(107,98,88,0.3);
+    inset:12px 20px;
+    border:1.5px dashed var(--ink);
+    opacity: 0.55;
     border-radius:10px;
     pointer-events:none;
-    transition: border-color 0.18s ease;
+    transition: border-color 0.18s ease, opacity 0.18s ease;
   }
   .dropzone:hover::before, .dropzone:focus-visible::before{
     border-color: var(--thread);
+    opacity: 1;
   }
   .dropzone.dragover{
     background:rgba(246,237,226,0.32);
@@ -241,27 +253,27 @@
     border-style: solid;
   }
 
-  .spool{ width:80px; height:80px; margin:0 auto 18px; display: block; object-fit: contain; }
-  .dz-title{ font-family:'Fraunces', serif; font-size:19px; font-weight:500; margin:0 0 6px; }
-  .dz-sub{ font-size:13.5px; color: var(--ink-soft); margin:0 0 22px; }
+  .spool{ width:clamp(44px, 9vw, 80px); height:clamp(44px, 9vw, 80px); margin:0 auto clamp(10px, 2vw, 18px); display: block; object-fit: contain; }
+  .dz-title{ font-family:'Fraunces', serif; font-size:clamp(15px, 2.4vw, 19px); font-weight:500; margin:0 0 6px; }
+  .dz-sub{ font-size:clamp(11.5px, 1.6vw, 13.5px); color: var(--ink-soft); margin:0 0 clamp(14px, 3vw, 22px); }
   .dz-sub b{ color:var(--ink); font-weight:600; }
 
   .browse-btn{
     font-family:'JetBrains Mono', monospace;
-    font-size:12.5px;
+    font-size:clamp(10.5px, 1.4vw, 12.5px);
     letter-spacing:0.04em;
     background: transparent;
     border:1px solid var(--ink);
     color: var(--ink);
-    padding:10px 20px;
+    padding:clamp(7px, 1.4vw, 10px) clamp(14px, 2.6vw, 20px);
     border-radius:2px;
     cursor:pointer;
     transition: background 0.15s ease, color 0.15s ease;
   }
   .browse-btn:hover{ background: var(--ink); color: var(--linen-card); }
-  .formats{ margin-top:18px; display:flex; justify-content:center; gap:8px; }
+  .formats{ margin-top:clamp(10px, 2vw, 18px); display:flex; justify-content:center; gap:8px; flex-wrap:wrap; }
   .formats span{
-    font-family:'JetBrains Mono', monospace; font-size:10.5px; letter-spacing:0.06em;
+    font-family:'JetBrains Mono', monospace; font-size:clamp(9px, 1.2vw, 10.5px); letter-spacing:0.06em;
     color: var(--ink-soft); border:1px solid var(--line); padding:3px 8px; border-radius:20px;
   }
   .error-msg{
@@ -279,13 +291,13 @@
     border: 1px solid rgba(255,255,255,0.45);
     box-shadow: 0 20px 50px rgba(60,45,25,0.06);
     border-radius: 14px;
-    padding: 22px 22px 24px;
+    padding: clamp(14px, 2.6vw, 22px) clamp(14px, 2.6vw, 22px) clamp(16px, 2.8vw, 24px);
     flex:1;
     min-height:0;
     overflow-y:auto;
     display:flex; flex-direction:column;
   }
-  .preview-card-header{ display:flex; align-items:center; gap:10px; margin-bottom:18px; }
+  .preview-card-header{ display:flex; align-items:center; gap:10px; margin-bottom:clamp(10px, 2vw, 18px); }
   .preview-card-header svg{ width:18px; height:18px; color: var(--thread); flex-shrink:0; }
   .preview-card-title{ font-family:'Fraunces', serif; font-weight:600; font-size:14.5px; color:var(--ink); }
   .preview-card-sub{ font-size:11.5px; color: var(--ink-soft); }
@@ -293,15 +305,15 @@
   .preview-empty{
     flex:1;
     display:flex; flex-direction:column; align-items:center; justify-content:center;
-    text-align:center; gap:14px; padding: 34px 10px; border:1px dashed rgba(107,98,88,0.28); border-radius:10px;
+    text-align:center; gap:10px; padding: clamp(18px, 4vw, 34px) 10px; border:1px dashed rgba(107,98,88,0.28); border-radius:10px;
     background: rgba(255,255,255,0.08);
   }
-  .preview-empty svg{ width:34px; height:34px; color: var(--ink-soft); }
+  .preview-empty svg{ width:clamp(24px, 4vw, 34px); height:clamp(24px, 4vw, 34px); color: var(--ink-soft); }
   .preview-empty p{ font-size:13px; color: var(--ink-soft); line-height:1.4; max-width:150px; }
 
   .preview-filled{ display:flex; flex-direction:column; flex:1; }
   .preview-image-box{
-    width:240px; height:240px; max-width:100%; flex-shrink:0; margin:0 auto 16px;
+    width:clamp(120px, 30vw, 240px); height:clamp(120px, 30vw, 240px); max-width:100%; flex-shrink:0; margin:0 auto clamp(10px, 2vw, 16px);
     border-radius:10px; overflow:hidden;
     background: rgba(239,232,217,0.4); display:flex; align-items:center; justify-content:center;
     border:1px solid rgba(255,255,255,0.45);
@@ -309,12 +321,32 @@
   .preview-image-box img{ max-width:100%; max-height:100%; width:auto; height:auto; object-fit:contain; display:block; }
 
   .tag-label{ font-family:'JetBrains Mono', monospace; font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color: var(--sage); margin:0 0 4px; }
-  .tag-value{ font-family:'Fraunces', serif; font-weight:600; font-size:20px; margin:0 0 10px; color: var(--ink); }
+  .category-header-row { display: flex; justify-content: space-between; align-items: center; margin: 0 0 10px; }
+  .tag-value{ font-family:'Fraunces', serif; font-weight:600; font-size:clamp(16px, 2.4vw, 20px); margin:0; color: var(--ink); }
   .tag-value.loading{ color: var(--ink-soft); font-style: italic; font-size:18px; }
   .confidence-row{ display:flex; align-items:center; gap:10px; margin-bottom:0; }
   .confidence-bar{ flex:1; height:6px; background:rgba(231,222,203,0.8); border-radius:10px; overflow:hidden; }
   .confidence-fill{ height:100%; background: var(--denim); border-radius:10px; width:0%; transition: width 0.5s ease; }
   .confidence-pct{ font-family:'JetBrains Mono', monospace; font-size:12px; color: var(--ink-soft); min-width:40px; text-align:right; }
+
+  /* "not the right category?" override — always available, whatever the model predicted */
+  .category-override{ margin-top:0; display:none; }
+  .category-override.show{ display:block; }
+  .category-override-toggle{
+    display:inline-flex; align-items:center; gap:6px;
+    background:none; border:none; padding:0; cursor:pointer;
+    font-family:'Inter', sans-serif; font-size:12px; font-weight:600;
+    color: var(--thread); text-decoration:underline; text-underline-offset:2px;
+  }
+  .category-override-toggle svg{ flex-shrink:0; transition: transform 0.15s ease; }
+  .category-override-toggle.open svg{ transform: rotate(180deg); }
+  .category-override-select{
+    margin-top:0; margin-bottom: 12px; width:100%;
+    font-family:'Inter', sans-serif; font-size:13px; color:var(--ink);
+    background: rgba(255,255,255,0.55);
+    border:1px solid var(--line); border-radius:6px;
+    padding:8px 10px; cursor:pointer;
+  }
 
   input[type=file]{ display:none; }
 
@@ -369,8 +401,7 @@
   @media (max-width: 980px){
     .sidebar{width:64px;}
     .main-content{margin-left:64px;}
-    header{padding:22px 24px;}
-    nav.main-nav{display:none;}
+    header{left:64px; padding:20px 24px;}
   }
   @media (max-width: 860px){
     .scan-grid{
@@ -379,13 +410,11 @@
         "text"
         "drop"
         "side";
-      max-width:620px;
+      max-width:480px;
+      gap:24px 0;
     }
-    .scan-drop, .side-col{ height:auto; min-height:var(--scan-box-h); }
-  }
-  @media (max-width:480px){
-    h1{ font-size:30px; }
-    .dropzone{ padding:36px 18px; }
+    .scan-drop, .side-col{ height:auto; min-height:0; }
+    .preview-card{ overflow-y:visible; }
   }
 
   /* ---------- Mobile menu toggle (phone only) ---------- */
@@ -405,12 +434,24 @@
     background:rgba(20,15,10,0.45);
   }
   @media (max-width: 700px){
-    .menu-toggle{ display:flex; }
+    .menu-toggle{ display:flex; top:9px; width:32px; height:32px; }
+    .menu-toggle svg{ width:16px; height:16px; }
     .sidebar{ transform:translateX(-100%); transition:transform .25s ease; z-index:20; }
     .sidebar.open{ transform:translateX(0); box-shadow:8px 0 30px rgba(0,0,0,0.3); }
     .sidebar-backdrop.open{ display:block; }
     .main-content{ margin-left:0; }
-    header{ padding-left:64px; }
+    /* Compact header, still fixed to the top and still showing every link */
+    header{
+      left:0;
+      padding:9px 14px 9px 52px;
+      gap:6px;
+      flex-wrap:nowrap;
+    }
+    .app-container{ 
+      justify-content: flex-start; 
+      padding-top: 68px; 
+      padding-bottom: 24px; 
+    }
   }
 </style>
 </head>
@@ -530,8 +571,24 @@
             <div class="preview-image-box">
               <img id="previewImg" src="" alt="Preview">
             </div>
+            
             <p class="tag-label">Predicted Category</p>
-            <p class="tag-value" id="resultLabel">—</p>
+            
+            <div class="category-header-row">
+              <p class="tag-value" id="resultLabel">—</p>
+              
+              <div class="category-override" id="categoryOverride">
+                <button type="button" class="category-override-toggle" id="categoryOverrideToggle">
+                  Not the right category?
+                  <svg viewBox="0 0 24 24" fill="none" width="11" height="11"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+              </div>
+            </div>
+            
+            <select class="category-override-select" id="categorySelect" style="display:none;">
+              <option value="" disabled selected>Choose the correct category…</option>
+            </select>
+            
             <div class="confidence-row">
               <div class="confidence-bar"><div class="confidence-fill" id="confFill"></div></div>
               <span class="confidence-pct" id="confPct">0%</span>
@@ -597,6 +654,9 @@
   const confFill = document.getElementById('confFill');
   const confPct = document.getElementById('confPct');
   const postActions = document.getElementById('postActions');
+  const categoryOverride = document.getElementById('categoryOverride');
+  const categoryOverrideToggle = document.getElementById('categoryOverrideToggle');
+  const categorySelect = document.getElementById('categorySelect');
   const addToWardrobeBtn = document.getElementById('addToWardrobeBtn');
   const registerToSaveBtn = document.getElementById('registerToSaveBtn');
   const orText = document.getElementById('orText');
@@ -653,6 +713,10 @@
     confFill.style.width = '0%';
     confPct.textContent = '0%';
     postActions.classList.remove('show');
+    categoryOverride.classList.remove('show');
+    categorySelect.style.display = 'none';
+    categorySelect.selectedIndex = 0;
+    categoryOverrideToggle.classList.remove('open');
     successMsg.style.display = 'none';
     currentResult = null;
 
@@ -721,7 +785,14 @@
     }
 
     postActions.classList.add('show');
-    
+    // Regardless of what was predicted, always let the person say "that's not right"
+    // and pick the correct category themselves.
+    categoryOverride.classList.add('show');
+
+    updateActionButtons(category);
+  }
+
+  function updateActionButtons(category){
     if (category !== NOT_CLOTHING) {
       orText.style.display = 'inline';
       if (isLoggedIn) {
@@ -737,6 +808,42 @@
       orText.style.display = 'none';
     }
   }
+
+  // Populate the manual category dropdown from the same categories the
+  // model can recognize, so a person can always correct a wrong prediction.
+  Object.keys(SECTION_MAP).forEach(cat => {
+    const opt = document.createElement('option');
+    opt.value = cat;
+    opt.textContent = cat;
+    categorySelect.appendChild(opt);
+  });
+
+  categoryOverrideToggle.addEventListener('click', () => {
+    const isOpen = categorySelect.style.display !== 'none';
+    categorySelect.style.display = isOpen ? 'none' : 'block';
+    categoryOverrideToggle.classList.toggle('open', !isOpen);
+  });
+
+  categorySelect.addEventListener('change', () => {
+    const chosen = categorySelect.value;
+    if (!chosen || !currentResult) return;
+
+    currentResult.category = chosen;
+    resultLabel.textContent = chosen;
+    resultLabel.classList.remove('loading');
+    confFill.style.width = '100%';
+    confPct.textContent = 'manual';
+
+    successMsg.style.display = 'none';
+    addToWardrobeBtn.textContent = 'Add to wardrobe';
+    addToWardrobeBtn.disabled = false;
+    addToWardrobeBtn.style.opacity = '1';
+
+    updateActionButtons(chosen);
+
+    categorySelect.style.display = 'none';
+    categoryOverrideToggle.classList.remove('open');
+  });
 
   async function removeBackgroundAPI(imageFile) {
     const formData = new FormData();
