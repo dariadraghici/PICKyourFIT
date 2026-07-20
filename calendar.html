@@ -168,6 +168,31 @@
     .pyf-mini-composite{ width:32px; height:56px; }
     .week-grid{ grid-template-columns:repeat(7,minmax(90px,1fr)); overflow-x:auto; }
   }
+
+  /* ---------- Mobile menu toggle (phone only) ---------- */
+  .menu-toggle{
+    display:none;
+    position:fixed; top:16px; left:16px; z-index:40;
+    width:38px;height:38px;border-radius:9px;
+    align-items:center;justify-content:center;
+    background:var(--ink); color:#fff;
+    border:none; cursor:pointer;
+    box-shadow:0 4px 14px rgba(0,0,0,0.25);
+  }
+  .menu-toggle svg{width:19px;height:19px;}
+  .sidebar-backdrop{
+    display:none;
+    position:fixed;inset:0;z-index:15;
+    background:rgba(20,15,10,0.45);
+  }
+  @media (max-width: 700px){
+    .menu-toggle{ display:flex; }
+    .sidebar{ transform:translateX(-100%); transition:transform .25s ease; z-index:20; }
+    .sidebar.open{ transform:translateX(0); box-shadow:8px 0 30px rgba(0,0,0,0.3); }
+    .sidebar-backdrop.open{ display:block; }
+    .main-content{ margin-left:0; }
+    header{ padding-left:64px; }
+  }
 </style>
 </head>
 <body>
@@ -206,6 +231,29 @@
     </a>
   </div>
 </aside>
+
+<button id="mobileMenuToggle" class="menu-toggle" type="button" aria-label="Deschide meniul">
+  <svg viewBox="0 0 24 24" fill="none"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+</button>
+<div id="sidebarBackdrop" class="sidebar-backdrop"></div>
+<script>
+  (function(){
+    var toggle = document.getElementById('mobileMenuToggle');
+    var sidebar = document.querySelector('.sidebar');
+    var backdrop = document.getElementById('sidebarBackdrop');
+    if(!toggle || !sidebar || !backdrop) return;
+    function closeMenu(){ sidebar.classList.remove('open'); backdrop.classList.remove('open'); }
+    function openMenu(){ sidebar.classList.add('open'); backdrop.classList.add('open'); }
+    toggle.addEventListener('click', function(){
+      if (sidebar.classList.contains('open')) { closeMenu(); } else { openMenu(); }
+    });
+    backdrop.addEventListener('click', closeMenu);
+    sidebar.querySelectorAll('a').forEach(function(a){
+      a.addEventListener('click', closeMenu);
+    });
+  })();
+</script>
+
 
 <main class="main-content">
   <header>
