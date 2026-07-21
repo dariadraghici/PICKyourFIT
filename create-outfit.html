@@ -355,19 +355,25 @@
       align-items:center;
     }
 
-    .builder-container{ padding:44px 16px 96px; }
+    .builder-container{ padding:44px 12px 96px; }
 
-    /* ----- Category carousels: show a single, larger item on phone ----- */
-    .builder-slots{ gap:14px; }
-    .slot-row{ padding:14px 14px 16px; }
-    .slot-label{ font-size:11.5px; }
-    .slot-hint{ font-size:10px; }
-    .slot-carousel{ gap:10px; }
-    .carousel-arrow{ width:36px; height:36px; font-size:17px; }
+    /* ----- Two-column layout: categories on the left, preview on the right ----- */
+    .builder-grid{ flex-wrap:nowrap; align-items:flex-start; gap:8px; }
+    .builder-slots{ flex:0 0 124px; width:124px; min-width:0; gap:8px; }
+    .builder-preview-col{ flex:1 1 auto; min-width:0; }
+    .preview-frame-box{ width:100%; height:auto; aspect-ratio:380/520; flex-basis:auto; }
+
+    /* ----- Category carousels: a single item sized for the narrow column ----- */
+    .slot-row{ padding:9px 6px 10px; border-radius:10px; }
+    .slot-header{ flex-direction:column; align-items:flex-start; gap:1px; margin-bottom:6px; }
+    .slot-label{ font-size:9px; letter-spacing:0.05em; }
+    .slot-hint{ display:none; }
+    .slot-carousel{ gap:3px; }
+    .carousel-arrow{ width:20px; height:20px; font-size:11px; flex:0 0 20px; }
     .carousel-track{ grid-template-columns: 1fr; justify-items:center; }
     .carousel-track > *:not(:first-child){ display:none; }
-    .thumb-slot{ width:100%; max-width:240px; aspect-ratio:1/1; border-radius:12px; }
-    .thumb-slot .thumb-cat{ font-size:10.5px; padding:5px 4px; }
+    .thumb-slot{ width:100%; max-width:78px; aspect-ratio:1/1; border-radius:8px; }
+    .thumb-slot .thumb-cat{ font-size:7.5px; padding:3px 2px; line-height:1.15; }
   }
 </style>
 </head>
