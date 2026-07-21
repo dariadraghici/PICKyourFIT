@@ -198,28 +198,28 @@
     .wardrobe-container{ padding:44px 14px 96px; }
 
     /* ----- Smaller title, tighter spacing ----- */
-    .wardrobe-heading{ font-size:21px; margin:0 0 18px; text-align:center; width:100%; }
-    .wardrobe-group{ margin-bottom:30px; }
+    .wardrobe-heading{ font-size:20px !important; margin:0 0 18px !important; text-align:center !important; width:100% !important; }
+    .wardrobe-group{ margin-bottom:26px; }
     .wardrobe-group-label{ font-size:9.5px; margin-bottom:10px; }
 
     /* ----- Filters: always a single scrollable row ----- */
     .subcat-tabs{
-      display:flex; flex-wrap:nowrap; overflow-x:auto; -webkit-overflow-scrolling:touch;
+      display:flex !important; flex-wrap:nowrap !important; overflow-x:auto !important; -webkit-overflow-scrolling:touch;
       gap:6px; margin-bottom:14px; padding-bottom:4px;
       scrollbar-width:none;
     }
     .subcat-tabs::-webkit-scrollbar{ display:none; }
-    .subcat-tab{ flex:0 0 auto; white-space:nowrap; font-size:9.5px; padding:5px 10px; }
+    .subcat-tab{ flex:0 0 auto !important; white-space:nowrap; font-size:9.5px; padding:5px 10px; }
 
-    /* ----- Grid: exactly 3 items per row on phone ----- */
-    .wardrobe-grid{ grid-template-columns: repeat(3, 1fr); gap:10px; }
-    .wardrobe-thumb{ height:auto; aspect-ratio:1/1; }
-    .wardrobe-thumb img{ padding:8px; }
-    .wardrobe-delete{ width:22px; height:22px; top:6px; right:6px; }
-    .wardrobe-delete svg{ width:11px; height:11px; }
-    .wardrobe-card-body{ padding:8px 8px; gap:5px; }
-    .wardrobe-input.brand-input{ font-size:10px; }
-    .wardrobe-input.desc-input{ font-size:9.5px; }
+    /* ----- Grid: exactly 3 items per row on phone, small square cards ----- */
+    .wardrobe-grid{ display:grid !important; grid-template-columns: repeat(3, minmax(0, 1fr)) !important; gap:8px !important; }
+    .wardrobe-thumb{ height:auto !important; aspect-ratio:1/1 !important; border-radius:6px 6px 0 0; }
+    .wardrobe-thumb img{ padding:6px !important; }
+    .wardrobe-delete{ width:18px; height:18px; top:4px; right:4px; }
+    .wardrobe-delete svg{ width:9px; height:9px; }
+    .wardrobe-card-body{ padding:6px 6px !important; gap:3px !important; }
+    .wardrobe-input.brand-input{ font-size:9px !important; }
+    .wardrobe-input.desc-input{ font-size:8px !important; line-height:1.25; }
   }
 </style>
 </head>
