@@ -154,9 +154,28 @@
   footer a:hover{color:var(--ink);}
 
   @media (max-width: 900px){
-    .layout{grid-template-columns:1fr;}
-    .visual-panel{display:none;}
-    .form-panel{padding:36px 24px;}
+    .layout{
+      grid-template-columns:1fr;
+      position:relative;
+    }
+    .form-panel{
+      padding:36px 24px;
+      background:transparent;
+      position:relative;
+      z-index:2;
+    }
+    .visual-panel{
+      display:block;
+      position:absolute;
+      inset:0;
+      z-index:1;
+      opacity:0.1;
+      pointer-events:none;
+    }
+    .visual-panel .feature-card,
+    .visual-panel .visual-copy{
+      display:none;
+    }
     footer{flex-direction:column;gap:8px;text-align:center;}
   }
 
@@ -672,7 +691,6 @@
       localStorage.setItem('pyf_idToken', data.idToken);
       localStorage.setItem('pyf_uid', data.uid);
 
-      // Best-effort: cache the profile photo so it shows up immediately in the sidebar.
       try {
         const profileRes = await fetch('/api/profile', {
           headers: { 'Authorization': 'Bearer ' + data.idToken }
@@ -696,13 +714,6 @@
     }
   });
 
-  // ---------- Continue with Google ----------
-  // IMPORTANT: we kick this off immediately on page load (not inside the
-  // click handler). If we awaited this fetch inside the click handler, the
-  // delay would happen *before* signInWithPopup runs, which makes browsers
-  // treat the popup as not user-initiated and silently block it. By starting
-  // it now, the promise is (almost always) already settled by the time the
-  // user clicks, so signInWithPopup runs right away, still within the click.
   let firebaseApp = null;
   const firebaseReadyPromise = (async () => {
     const res = await fetch('/api/firebase-config');
@@ -761,15 +772,15 @@
     } catch (err) {
       console.error(err);
       if (err.code === 'auth/popup-closed-by-user' || err.code === 'auth/cancelled-popup-request') {
-        // user closed the popup, nothing to show
+        // user closed the popup
       } else if (err.code === 'auth/popup-blocked') {
         showMsg('Your browser blocked the Google sign-in popup. Please allow popups for this site and try again.', 'error');
       } else if (err.code === 'auth/unauthorized-domain') {
-        showMsg('This domain is not authorized for Google sign-in yet (check Firebase Console → Authentication → Settings → Authorized domains).', 'error');
+        showMsg('This domain is not authorized for Google sign-in yet.', 'error');
       } else if (err.code === 'auth/operation-not-allowed') {
-        showMsg('Google sign-in is not enabled for this project yet (check Firebase Console → Authentication → Sign-in method).', 'error');
+        showMsg('Google sign-in is not enabled for this project yet.', 'error');
       } else if (err.code === 'auth/account-exists-with-different-credential') {
-        showMsg('An account already exists with this email using a password. Please log in with your password instead.', 'error');
+        showMsg('An account already exists with this email using a password.', 'error');
       } else {
         showMsg('Could not sign in with Google. Please try again.', 'error');
       }
