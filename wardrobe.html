@@ -198,21 +198,21 @@
     .wardrobe-container{ padding:44px 14px 96px; }
 
     /* ----- Smaller title, tighter spacing ----- */
-    .wardrobe-heading{ font-size:21px; margin:0 0 18px; }
+    .wardrobe-heading{ font-size:21px; margin:0 0 18px; text-align:center; width:100%; }
     .wardrobe-group{ margin-bottom:30px; }
     .wardrobe-group-label{ font-size:9.5px; margin-bottom:10px; }
 
-    /* ----- Filters: one scrollable row instead of wrapping ----- */
+    /* ----- Filters: always a single scrollable row ----- */
     .subcat-tabs{
-      flex-wrap:nowrap; overflow-x:auto; -webkit-overflow-scrolling:touch;
+      display:flex; flex-wrap:nowrap; overflow-x:auto; -webkit-overflow-scrolling:touch;
       gap:6px; margin-bottom:14px; padding-bottom:4px;
       scrollbar-width:none;
     }
     .subcat-tabs::-webkit-scrollbar{ display:none; }
     .subcat-tab{ flex:0 0 auto; white-space:nowrap; font-size:9.5px; padding:5px 10px; }
 
-    /* ----- Grid: 3-4 items per row depending on phone width ----- */
-    .wardrobe-grid{ grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap:10px; }
+    /* ----- Grid: exactly 3 items per row on phone ----- */
+    .wardrobe-grid{ grid-template-columns: repeat(3, 1fr); gap:10px; }
     .wardrobe-thumb{ height:auto; aspect-ratio:1/1; }
     .wardrobe-thumb img{ padding:8px; }
     .wardrobe-delete{ width:22px; height:22px; top:6px; right:6px; }
