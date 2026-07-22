@@ -14,12 +14,14 @@ const GEMINI_MODEL = 'gemini-2.5-flash-image';
 const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
 
 const ARRANGE_PROMPT =
-  'This photo shows a single clothing item. Redraw it as a clean, ' +
-  'professionally lit e-commerce product photo of the exact same garment: ' +
-  'laid flat or on an invisible mannequin, centered, wrinkle-free, no ' +
-  'background clutter, plain light-gray studio background, no people, no ' +
+  'This photo may show one or more clothing items, possibly worn by a ' +
+  'person or surrounded by other objects. Identify the single primary/most ' +
+  'prominent clothing item and redraw ONLY that item as a clean, ' +
+  'professionally lit e-commerce product photo: laid flat or on an ' +
+  'invisible mannequin, centered, wrinkle-free, no background clutter, ' +
+  'plain light-gray studio background, no people, no other garments, no ' +
   'text, no watermark, no logos added. Keep the original color, pattern, ' +
-  'material and shape exactly as shown.';
+  'material and shape of that one item exactly as shown.';
 
 // buffer: Buffer of the uploaded image. mimeType: e.g. 'image/jpeg'.
 // Returns { buffer, mimeType } of the generated image.
