@@ -29,10 +29,6 @@ if (!process.env.FIREBASE_WEB_API_KEY) {
   console.error('ERROR: FIREBASE_WEB_API_KEY is not set. Create a .env file (see .env.example).');
   process.exit(1);
 }
-if (!process.env.GEMINI_API_KEY) {
-  console.error('ERROR: GEMINI_API_KEY is not set. Get a free key at https://aistudio.google.com/apikey and add it to .env.');
-  process.exit(1);
-}
 
 // Serve landing.html when the site root is opened, instead of index.html
 app.get('/', (req, res) => {
