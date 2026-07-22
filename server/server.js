@@ -10,6 +10,7 @@ const wardrobeRoutes = require('./wardrobeRoutes');
 const profileRoutes = require('./profileRoutes');
 const calendarRoutes = require('./calendarRoutes');
 const favoritesRoutes = require('./favoritesRoutes');
+const enhanceRoutes = require('./enhanceRoutes');
 
 const app = express();
 const upload = multer(); // keeps uploaded file in memory, doesn't write to disk
@@ -26,6 +27,10 @@ if (!REMOVE_BG_API_KEY) {
 }
 if (!process.env.FIREBASE_WEB_API_KEY) {
   console.error('ERROR: FIREBASE_WEB_API_KEY is not set. Create a .env file (see .env.example).');
+  process.exit(1);
+}
+if (!process.env.GEMINI_API_KEY) {
+  console.error('ERROR: GEMINI_API_KEY is not set. Get a free key at https://aistudio.google.com/apikey and add it to .env.');
   process.exit(1);
 }
 
@@ -71,6 +76,8 @@ app.use('/api/wardrobe', wardrobeRoutes);
 app.use('/api/calendar', calendarRoutes);
 
 app.use('/api/favorites', favoritesRoutes);
+
+app.use('/api', enhanceRoutes);
 
 app.post('/api/remove-bg', upload.single('image_file'), async (req, res) => {
   try {

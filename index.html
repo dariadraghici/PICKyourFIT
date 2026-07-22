@@ -747,6 +747,25 @@
   }
   function clearError(){ errorMsg.classList.remove('show'); errorMsg.textContent = ''; }
 
+  // Sends the raw upload to the server, which asks Gemini ("Nano Banana") to
+  // redraw the garment as a clean, evenly-lit product photo. Best-effort:
+  // on any failure we just continue with the original photo.
+  async function enhanceImageAPI(imageFile) {
+    const formData = new FormData();
+    formData.append('image_file', imageFile);
+
+    const response = await fetch('/api/enhance-image', {
+      method: 'POST',
+      body: formData
+    });
+
+    if (!response.ok) {
+      throw new Error('Enhance request failed.');
+    }
+
+    return await response.blob();
+  }
+
   async function handleFile(file){
     clearError();
     scanStartTime = performance.now();
@@ -754,8 +773,8 @@
     statValue.textContent = '—';
     previewEmpty.style.display = 'none';
     previewFilled.style.display = 'flex';
-    previewSubtitle.textContent = 'Analyzing your item';
-    resultLabel.textContent = 'Analyzing...';
+    previewSubtitle.textContent = 'Generating a clean product photo';
+    resultLabel.textContent = 'Preparing photo...';
     resultLabel.classList.add('loading');
     confFill.style.width = '0%';
     confPct.textContent = '0%';
@@ -771,12 +790,31 @@
     addToWardrobeBtn.disabled = false;
     addToWardrobeBtn.style.opacity = '1';
 
+    // Show the raw upload right away so the preview isn't blank while we wait.
+    const rawReader = new FileReader();
+    rawReader.onload = (e) => { previewImg.src = e.target.result; };
+    rawReader.readAsDataURL(file);
+
+    // Step 1: AI-generated clean product photo (falls back to the original
+    // file if the enhance step errors out or the API key/quota isn't set up).
+    let workingFile = file;
+    try {
+      const enhancedBlob = await enhanceImageAPI(file);
+      workingFile = new File([enhancedBlob], 'enhanced.png', { type: enhancedBlob.type || 'image/png' });
+    } catch (err) {
+      console.error('Enhance step failed, continuing with the original photo:', err);
+    }
+
+    // Step 2: classify the (possibly enhanced) photo, same as before.
+    previewSubtitle.textContent = 'Analyzing your item';
+    resultLabel.textContent = 'Analyzing...';
+
     const reader = new FileReader();
     reader.onload = (e) => {
       previewImg.src = e.target.result;
-      classifyImage(file, e.target.result); 
+      classifyImage(workingFile, e.target.result);
     };
-    reader.readAsDataURL(file);
+    reader.readAsDataURL(workingFile);
   }
 
   function shannonEntropy(probs) {
