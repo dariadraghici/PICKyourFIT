@@ -11,6 +11,7 @@ const profileRoutes = require('./profileRoutes');
 const calendarRoutes = require('./calendarRoutes');
 const favoritesRoutes = require('./favoritesRoutes');
 const enhanceRoutes = require('./enhanceRoutes');
+const contactRoutes = require('./contactRoutes');
 
 const app = express();
 const upload = multer(); // keeps uploaded file in memory, doesn't write to disk
@@ -40,9 +41,6 @@ app.use(express.static(path.join(__dirname, '..'), { index: false }));
 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// calendar-core.js and calendar-picker.js live in the server/ folder (next to
-// server.js), not in the project root, so express.static above won't find
-// them. Serve those two files explicitly at the site root instead.
 app.get('/calendar-core.js', (req, res) => {
   res.type('application/javascript');
   res.sendFile(path.join(__dirname, 'calendar-core.js'));
@@ -52,9 +50,6 @@ app.get('/calendar-picker.js', (req, res) => {
   res.sendFile(path.join(__dirname, 'calendar-picker.js'));
 });
 
-// Public Firebase web config for the client-side SDK (needed for "Continue
-// with Google"). None of these values are secret — this is the same config
-// Firebase expects apps to ship inside their client-side JS.
 app.get('/api/firebase-config', (req, res) => {
   res.json({
     apiKey: process.env.FIREBASE_WEB_API_KEY,
@@ -74,6 +69,8 @@ app.use('/api/calendar', calendarRoutes);
 app.use('/api/favorites', favoritesRoutes);
 
 app.use('/api', enhanceRoutes);
+
+app.use('/api', contactRoutes);
 
 app.post('/api/remove-bg', upload.single('image_file'), async (req, res) => {
   try {

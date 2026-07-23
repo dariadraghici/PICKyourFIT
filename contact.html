@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contact - Pick Your Fit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --linen: #F3EEE3;
+    --linen-card: #FAF7EF;
+    --ink: #22222b;
+    --ink-soft: #6B6258;
+    --thread: #B5442F;
+    --sage: #7C8C72;
+    --line: #D9D0BD;
+    --side-bg: rgba(42, 34, 27, 0.85);
+  }
+
+  *{ box-sizing: border-box; margin: 0; padding: 0; }
+  body{
+    background: var(--linen);
+    background-image: repeating-linear-gradient(0deg, rgba(0,0,0,0.018) 0px, rgba(0,0,0,0.018) 1px, transparent 1px, transparent 3px);
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    min-height:100vh;
+    display: flex;
+  }
+
+  a { text-decoration: none; color: inherit; }
+  button { font-family: inherit; cursor: pointer; }
+
+  /* ---------- Sidebar ---------- */
+  .sidebar{
+    position:fixed;top:0;left:0;bottom:0;z-index:5;
+    width:88px; display:flex;flex-direction:column;align-items:center;
+    padding:22px 0 20px; background:var(--side-bg);
+    backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+    border-right:1px solid rgba(255,255,255,0.08);
+  }
+  .side-logo{ width:44px;height:44px;border-radius:12px; display:flex;align-items:center;justify-content:center; color:#fff;margin-bottom:26px; }
+  .side-logo svg{width:24px;height:24px;}
+  .side-nav{ display:flex;flex-direction:column;gap:8px; flex:1; }
+  .side-link{
+    width:46px;height:46px;border-radius:12px; display:flex;align-items:center;justify-content:center;
+    color:rgba(255,255,255,0.62); transition:background .15s ease, color .15s ease;
+  }
+  .side-link svg{width:20px;height:20px;}
+  .side-link:hover{color:#fff;background:rgba(255,255,255,0.08);}
+  .side-link.active{background:#fdfcf9;color:var(--ink);}
+  .side-bottom{ display:flex;flex-direction:column;align-items:center;gap:16px; margin-top:auto; }
+  .side-avatar{
+    width:38px;height:38px;border-radius:50%; overflow:hidden; border:1.5px solid rgba(255,255,255,0.5);
+    display:flex;align-items:center;justify-content:center; background:#c9c2b4; color:#5b5346;
+  }
+  .side-avatar img{width:100%;height:100%;object-fit:cover;display:block;}
+  .side-avatar svg{width:22px;height:22px;}
+
+  /* ---------- Main Layout & Header ---------- */
+  .main-content { flex: 1; margin-left: 88px; display: flex; flex-direction: column; }
+  header{ display:flex;align-items:center;justify-content:space-between; padding:26px 44px; position:relative; z-index:4; }
+  .logo{ font-family:'Fraunces',serif; font-size:14px;font-weight:600;letter-spacing:0.16em; text-transform:uppercase;color:var(--ink); }
+  nav.main-nav{display:flex;gap:clamp(10px, 2vw, 34px); flex-shrink:1; min-width:0; align-items:center;}
+  nav.main-nav a{ font-size:clamp(9px, 1.3vw, 12.5px);font-weight:600;letter-spacing:0.03em; text-transform:uppercase;color:var(--ink-soft); transition:color .15s ease; white-space:nowrap; }
+  nav.main-nav a:hover{color:var(--ink);}
+  nav.main-nav a.active{color:var(--thread);}
+
+  .header-actions{display:flex;align-items:center;gap:12px;}
+  .btn-header {
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    padding:10px 20px;border-radius:8px;font-size:12.5px;font-weight:600;
+    letter-spacing:0.02em;text-transform:uppercase; border:1px solid var(--ink);
+    background:transparent;color:var(--ink); transition:background .15s ease, opacity .15s ease;
+  }
+  .btn-header:hover{background:rgba(0,0,0,0.05);}
+  .btn-header-dark{background:var(--ink);color:var(--linen-card);}
+  .btn-header-dark:hover{opacity:0.9;background:var(--ink);}
+
+  /* ---------- Page shell ---------- */
+  .contact-container{ padding: 30px 24px 100px; max-width: 720px; margin: 0 auto; width: 100%; }
+  .page-heading{ font-family:'Fraunces', serif; font-weight:600; font-size:32px; margin:0 0 8px; text-align:center; }
+  .page-sub{ text-align:center; color:var(--ink-soft); font-size:13.5px; margin-bottom:36px; }
+
+  .panel{
+    background: var(--linen-card); border:1px solid var(--line); border-radius:14px;
+    padding:26px; margin-bottom:34px;
+  }
+  .panel-title{ font-family:'Fraunces',serif; font-weight:600; font-size:19px; margin-bottom:4px; }
+  .panel-note{ font-size:12.5px; color:var(--ink-soft); margin-bottom:20px; line-height:1.5; }
+
+  label.field-label{ display:block; font-size:11px; font-weight:600; letter-spacing:0.04em; text-transform:uppercase; color:var(--ink-soft); margin-bottom:6px; }
+  .field{ margin-bottom:16px; }
+  .field input[type=text], .field input[type=email], .field textarea, .field select{
+    width:100%; font-family:'Inter',sans-serif; font-size:13.5px; padding:11px 12px;
+    border:1px solid var(--line); border-radius:9px; background:#fff; color:var(--ink);
+  }
+  .field input:focus, .field textarea:focus, .field select:focus{ outline:none; border-color:var(--thread); }
+  .field textarea{ resize:vertical; min-height:96px; font-family:'Inter',sans-serif; }
+  .field-row{ display:flex; gap:14px; flex-wrap:wrap; }
+  .field-row .field{ flex:1; min-width:180px; }
+
+  /* Star rating */
+  .star-rating{ display:flex; gap:6px; }
+  .star-rating button{
+    background:none; border:none; padding:2px; color:var(--line); transition:color .15s ease, transform .1s ease;
+  }
+  .star-rating button svg{ width:26px; height:26px; }
+  .star-rating button:hover{ transform:scale(1.08); }
+  .star-rating button.filled{ color:var(--thread); }
+
+  /* Topic chips (multi-select) */
+  .topic-chips{ display:flex; flex-wrap:wrap; gap:8px; }
+  .topic-chip{
+    padding:8px 14px; border-radius:999px; border:1px solid var(--line);
+    background:#fff; color:var(--ink-soft); font-size:11.5px; font-weight:600;
+    letter-spacing:0.02em; text-transform:uppercase; transition:background .15s ease, color .15s ease, border-color .15s ease;
+  }
+  .topic-chip.selected{ background:var(--ink); border-color:var(--ink); color:var(--linen-card); }
+
+  .btn-submit{
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    padding:12px 22px; border-radius:9px; font-size:12.5px; font-weight:600;
+    letter-spacing:0.03em; text-transform:uppercase; border:1px solid var(--ink);
+    background:var(--ink); color:var(--linen-card); transition:opacity .15s ease;
+  }
+  .btn-submit:hover{ opacity:0.9; }
+  .btn-submit:disabled{ opacity:0.5; cursor:default; }
+
+  .form-msg{ font-size:12.5px; margin-top:12px; display:none; }
+  .form-msg.show{ display:block; }
+  .form-msg.ok{ color:var(--sage); }
+  .form-msg.err{ color:var(--thread); }
+
+  /* ---------- Reviews list ---------- */
+  .reviews-head{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:16px; flex-wrap:wrap; }
+  .reviews-head .panel-title{ margin-bottom:0; }
+  .sort-control{ display:flex; align-items:center; gap:8px; }
+  .sort-control label{ font-size:11px; font-weight:600; letter-spacing:0.03em; text-transform:uppercase; color:var(--ink-soft); }
+  .sort-control select{
+    font-family:'Inter',sans-serif; font-size:12.5px; padding:8px 10px; border-radius:8px;
+    border:1px solid var(--line); background:#fff; color:var(--ink);
+  }
+
+  .review-carousel{ position:relative; }
+  .review-track{
+    display:flex; gap:14px; overflow-x:auto; scroll-behavior:smooth; scroll-snap-type:x mandatory;
+    padding:2px 2px 6px;
+    -ms-overflow-style:none; scrollbar-width:none;
+  }
+  .review-track::-webkit-scrollbar{ display:none; }
+  .review-card{
+    background:#fff; border:1px solid var(--line); border-radius:12px; padding:16px 18px;
+    flex:0 0 280px; scroll-snap-align:start;
+  }
+  .carousel-arrow{
+    position:absolute; top:50%; transform:translateY(-50%); z-index:3;
+    width:34px; height:34px; border-radius:50%; border:1px solid var(--line);
+    background:var(--linen-card); color:var(--ink); display:flex; align-items:center; justify-content:center;
+    box-shadow:0 6px 14px rgba(20,15,10,0.12); transition:background .15s ease, color .15s ease, border-color .15s ease;
+  }
+  .carousel-arrow svg{ width:16px; height:16px; }
+  .carousel-arrow:hover{ background:var(--ink); border-color:var(--ink); color:#fff; }
+  .carousel-arrow.prev{ left:-14px; }
+  .carousel-arrow.next{ right:-14px; }
+  .carousel-arrow.is-hidden{ display:none; }
+  @media (max-width: 700px){
+    .carousel-arrow.prev{ left:-8px; }
+    .carousel-arrow.next{ right:-8px; }
+    .review-card{ flex-basis:240px; }
+  }
+  .review-top{ display:flex; align-items:flex-start; justify-content:space-between; gap:10px; margin-bottom:6px; }
+  .review-subject{ font-family:'Fraunces',serif; font-weight:600; font-size:15px; }
+  .review-stars{ display:flex; gap:1px; color:var(--thread); flex-shrink:0; }
+  .review-stars svg{ width:14px; height:14px; }
+  .review-meta{ font-size:11px; color:var(--ink-soft); margin-bottom:10px; }
+  .review-message{ font-size:13px; line-height:1.55; color:var(--ink); margin-bottom:10px; }
+  .review-topics{ display:flex; flex-wrap:wrap; gap:6px; }
+  .review-topic-tag{
+    font-family:'JetBrains Mono', monospace; font-size:9.5px; letter-spacing:0.06em;
+    text-transform:uppercase; color:var(--sage); border:1px solid var(--line); border-radius:6px; padding:3px 7px;
+  }
+  .reviews-empty{ text-align:center; color:var(--ink-soft); font-size:13px; padding:20px 0; }
+
+  @media (max-width: 980px){
+    .sidebar{width:64px;}
+    .main-content{margin-left:64px;}
+    header{padding:22px 24px;}
+  }
+
+  /* Toast */
+  .toast{
+    position:fixed; bottom:26px; left:50%; transform:translateX(-50%) translateY(20px);
+    background:var(--ink); color:var(--linen-card); padding:12px 20px; border-radius:8px;
+    font-size:12.5px; font-weight:600; letter-spacing:0.02em; z-index:60;
+    opacity:0; pointer-events:none; transition:opacity .2s ease, transform .2s ease;
+  }
+  .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+
+  /* ---------- Mobile footer nav (phone only, replaces header) ---------- */
+  .mobile-footer-nav{ display:none; }
+  .footer-nav-link{
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:3px; flex:1; padding:6px 2px 4px;
+    color:var(--ink-soft);
+    font-family:'JetBrains Mono', monospace;
+    font-size:8.5px; letter-spacing:0.02em; text-transform:uppercase;
+    transition:color .15s ease;
+  }
+  .footer-nav-link svg{ width:19px; height:19px; }
+  .footer-nav-link:hover{ color:var(--ink); }
+  .footer-nav-link.active{ color:var(--thread); }
+
+  /* ---------- Mobile menu toggle (phone only) ---------- */
+  .menu-toggle{
+    display:none;
+    position:fixed; top:16px; left:16px; z-index:40;
+    width:38px;height:38px;border-radius:9px;
+    align-items:center;justify-content:center;
+    background:var(--ink); color:#fff;
+    border:none; cursor:pointer;
+    box-shadow:0 4px 14px rgba(0,0,0,0.25);
+  }
+  .menu-toggle svg{width:19px;height:19px;}
+  .sidebar-backdrop{
+    display:none;
+    position:fixed;inset:0;z-index:15;
+    background:rgba(20,15,10,0.45);
+  }
+  @media (max-width: 700px){
+    .menu-toggle{ display:flex; }
+    .sidebar{ transform:translateX(-100%); transition:transform .25s ease; z-index:20; padding-bottom:calc(70px + env(safe-area-inset-bottom)); }
+    .sidebar.open{ transform:translateX(0); box-shadow:8px 0 30px rgba(0,0,0,0.3); }
+    .sidebar-backdrop.open{ display:block; }
+    .main-content{ margin-left:0; }
+
+    header{ display:none; }
+
+    .mobile-footer-nav{
+      display:flex;
+      position:fixed; left:0; right:0; bottom:0; z-index:30;
+      background:rgba(243,238,227,0.92);
+      backdrop-filter:blur(16px);
+      -webkit-backdrop-filter:blur(16px);
+      border-top:1px solid rgba(217,208,189,0.7);
+      padding:6px 4px calc(6px + env(safe-area-inset-bottom));
+      justify-content:space-around;
+      align-items:center;
+    }
+
+    .contact-container{ padding-top:44px; padding-bottom:96px; }
+    .page-heading{ font-size:22px; margin:0 0 4px; }
+    .page-sub{ font-size:12.5px; margin-bottom:16px; }
+    .panel{ padding:18px; }
+  }
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="side-logo">
+    <svg viewBox="0 0 24 24" fill="none"><path d="M12 3 L15.5 5.5 L12 8 L8.5 5.5 Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M12 8 L3 13 L3 14 L21 14 L21 13 Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+  </div>
+  <nav class="side-nav">
+    <a href="landing.html" class="side-link" title="Home">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M4 11.5 L12 5 L20 11.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 10.5 V19 a1 1 0 0 0 1 1 h10 a1 1 0 0 0 1 -1 V10.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
+    <a href="favorites.html" class="side-link" title="Favorites">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M12 20 C6.5 15.8, 3.5 12, 3.5 8.2 C3.5 5.1, 5.8 3, 8.5 3 C10.3 3, 11.7 4, 12 5.6 C12.3 4, 13.7 3, 15.5 3 C18.2 3, 20.5 5.1, 20.5 8.2 C20.5 12, 17.5 15.8, 12 20 Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+    </a>
+    <a href="calendar.html" class="side-link" title="Calendar">
+      <svg viewBox="0 0 24 24" fill="none"><rect x="4" y="5.5" width="16" height="14.5" rx="2" stroke="currentColor" stroke-width="1.6"/><line x1="4" y1="10" x2="20" y2="10" stroke="currentColor" stroke-width="1.6"/><line x1="8.3" y1="3" x2="8.3" y2="7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><line x1="15.7" y1="3" x2="15.7" y2="7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+    </a>
+    <a href="wardrobe.html" class="side-link" title="Wardrobe">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M8.5 4 L10 6 h4 l1.5 -2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M8.5 4 L4 7.5 L6.5 10.5 L8 9.3 V20 h8 V9.3 l1.5 1.2 L20 7.5 L15.5 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
+    <a href="outfits.html" class="side-link" title="Outfits">
+      <svg viewBox="0 0 24 24" fill="none"><rect x="7.5" y="3" width="11" height="14" rx="2" stroke="currentColor" stroke-width="1.6" transform="rotate(8 13 10)"/><rect x="5" y="6.5" width="14" height="15" rx="2" stroke="currentColor" stroke-width="1.6"/></svg>
+    </a>
+    <a href="create-outfit.html" class="side-link" title="Create your own outfit">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M4 20 L4 16.5 L15 5.5 a1.8 1.8 0 0 1 2.5 0 l1 1 a1.8 1.8 0 0 1 0 2.5 L7.5 20 Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M13.5 7 L16 9.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+    </a>
+    <a href="index.html" class="side-link" title="Scan an item">
+      <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/><path d="M9.3 9.5a2.7 2.7 0 0 1 5.2-1c0 1.7-2.5 1.9-2.5 3.7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="16.3" r="0.9" fill="currentColor"/></svg>
+    </a>
+    <a href="contact.html" class="side-link active" title="Contact">
+      <svg viewBox="0 0 24 24" fill="none"><rect x="3.5" y="6" width="17" height="12" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M4.5 7.5 L12 13 L19.5 7.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
+  </nav>
+  <div class="side-bottom">
+    <a href="login.html" id="sideAvatarLink" class="side-avatar" title="Account">
+      <svg id="defaultAvatarIcon" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8.5" r="3.6" stroke="currentColor" stroke-width="1.6"/><path d="M4.5 20 c0 -4.2 3.4 -6.3 7.5 -6.3 s7.5 2.1 7.5 6.3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      <img id="userAvatarImg" src="" alt="" style="display:none;" />
+    </a>
+  </div>
+</aside>
+
+<button id="mobileMenuToggle" class="menu-toggle" type="button" aria-label="Open mobile menu">
+  <svg viewBox="0 0 24 24" fill="none"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+</button>
+<div id="sidebarBackdrop" class="sidebar-backdrop"></div>
+<script>
+  (function(){
+    var toggle = document.getElementById('mobileMenuToggle');
+    var sidebar = document.querySelector('.sidebar');
+    var backdrop = document.getElementById('sidebarBackdrop');
+    if(!toggle || !sidebar || !backdrop) return;
+    function closeMenu(){ sidebar.classList.remove('open'); backdrop.classList.remove('open'); }
+    function openMenu(){ sidebar.classList.add('open'); backdrop.classList.add('open'); }
+    toggle.addEventListener('click', function(){
+      if (sidebar.classList.contains('open')) { closeMenu(); } else { openMenu(); }
+    });
+    backdrop.addEventListener('click', closeMenu);
+    sidebar.querySelectorAll('a').forEach(function(a){
+      a.addEventListener('click', closeMenu);
+    });
+  })();
+</script>
+
+<main class="main-content">
+  <header>
+    <div class="logo">Pick Your Fit</div>
+    <nav class="main-nav">
+      <a href="landing.html#features">Features</a>
+      <a href="landing.html#about">About</a>
+      <a href="contact.html" class="active">Contact</a>
+    </nav>
+    <div class="header-actions" id="headerActions">
+      <a href="login.html" class="btn-header">Log in</a>
+      <a href="signup.html" class="btn-header btn-header-dark">Register</a>
+    </div>
+  </header>
+
+  <div class="contact-container">
+    <p class="page-heading">Contact</p>
+    <p class="page-sub">Leave a public review, or write to us directly if you have a problem or question.</p>
+
+    <!-- Reviews list (carousel) -->
+    <section class="panel">
+      <div class="reviews-head">
+        <p class="panel-title">Reviews</p>
+        <div class="sort-control">
+          <label for="topicFilter">Filter by Topic</label>
+          <select id="topicFilter">
+            <option value="">All</option>
+          </select>
+        </div>
+      </div>
+      <div class="review-carousel">
+        <button type="button" class="carousel-arrow prev is-hidden" id="reviewPrevBtn" aria-label="Previous review">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M15 5l-7 7 7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <div class="review-track" id="reviewList">
+          <p class="reviews-empty">Loading reviews…</p>
+        </div>
+        <button type="button" class="carousel-arrow next is-hidden" id="reviewNextBtn" aria-label="Next review">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M9 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+    </section>
+
+    <!-- Public review -->
+    <section class="panel">
+      <p class="panel-title">Leave a Review</p>
+      <p class="panel-note">Your review will be visible to all visitors on this page.</p>
+      <form id="reviewForm" novalidate>
+        <div class="field-row">
+          <div class="field">
+            <label class="field-label" for="reviewName">Name (optional)</label>
+            <input type="text" id="reviewName" maxlength="60" placeholder="How you want to appear publicly">
+          </div>
+          <div class="field">
+            <label class="field-label" for="reviewSubject">Subject</label>
+            <input type="text" id="reviewSubject" maxlength="120" placeholder="A short title for your review" required>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field-label">Rating</label>
+          <div class="star-rating" id="reviewStars">
+            <button type="button" data-star="1" title="1 stea"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5l2.9 6.1 6.6.8-4.8 4.6 1.2 6.6L12 17.7 6.1 20.6l1.2-6.6-4.8-4.6 6.6-.8z"/></svg></button>
+            <button type="button" data-star="2" title="2 stele"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5l2.9 6.1 6.6.8-4.8 4.6 1.2 6.6L12 17.7 6.1 20.6l1.2-6.6-4.8-4.6 6.6-.8z"/></svg></button>
+            <button type="button" data-star="3" title="3 stele"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5l2.9 6.1 6.6.8-4.8 4.6 1.2 6.6L12 17.7 6.1 20.6l1.2-6.6-4.8-4.6 6.6-.8z"/></svg></button>
+            <button type="button" data-star="4" title="4 stele"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5l2.9 6.1 6.6.8-4.8 4.6 1.2 6.6L12 17.7 6.1 20.6l1.2-6.6-4.8-4.6 6.6-.8z"/></svg></button>
+            <button type="button" data-star="5" title="5 stele"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5l2.9 6.1 6.6.8-4.8 4.6 1.2 6.6L12 17.7 6.1 20.6l1.2-6.6-4.8-4.6 6.6-.8z"/></svg></button>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field-label">Topics</label>
+          <div class="topic-chips" id="reviewTopics"></div>
+        </div>
+
+        <div class="field">
+          <label class="field-label" for="reviewMessage">Message</label>
+          <textarea id="reviewMessage" maxlength="2000" placeholder="Tell us what you liked or what we could improve" required></textarea>
+        </div>
+
+        <button type="submit" class="btn-submit" id="reviewSubmitBtn">Submit Review</button>
+        <p class="form-msg" id="reviewFormMsg"></p>
+      </form>
+    </section>
+
+    <!-- Private message -->
+    <section class="panel">
+      <p class="panel-title">Don't want a public review?</p>
+      <p class="panel-note">Send us a private message: a question, complaint or help request. Only the Pick Your Fit team will see this message.</p>
+      <form id="privateForm" novalidate>
+        <div class="field-row">
+          <div class="field">
+            <label class="field-label" for="privateEmail">Email (optional, so we can respond)</label>
+            <input type="email" id="privateEmail" maxlength="200" placeholder="you@example.com">
+          </div>
+          <div class="field">
+            <label class="field-label" for="privateSubject">Subject</label>
+            <input type="text" id="privateSubject" maxlength="120" placeholder="Ex: Problem with my account" required>
+          </div>
+        </div>
+        <div class="field">
+          <label class="field-label" for="privateMessage">Message</label>
+          <textarea id="privateMessage" maxlength="3000" placeholder="Briefly describe the situation" required></textarea>
+        </div>
+        <button type="submit" class="btn-submit" id="privateSubmitBtn">Send Private Message</button>
+        <p class="form-msg" id="privateFormMsg"></p>
+      </form>
+    </section>
+  </div>
+</main>
+
+<nav class="mobile-footer-nav" aria-label="Meniu principal">
+  <a href="landing.html" class="footer-nav-link" title="Home">
+    <svg viewBox="0 0 24 24" fill="none"><path d="M4 11.5 L12 5 L20 11.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 10.5 V19 a1 1 0 0 0 1 1 h10 a1 1 0 0 0 1 -1 V10.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <span>Home</span>
+  </a>
+  <a href="landing.html#features" class="footer-nav-link" title="Features">
+    <svg viewBox="0 0 24 24" fill="none"><path d="M12 3 L13.4 9 L19.5 10.4 L13.4 11.8 L12 18 L10.6 11.8 L4.5 10.4 L10.6 9 Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
+    <span>Features</span>
+  </a>
+  <a href="index.html" class="footer-nav-link" title="Scan an item">
+    <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/><path d="M9.3 9.5a2.7 2.7 0 0 1 5.2-1c0 1.7-2.5 1.9-2.5 3.7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="16.3" r="0.9" fill="currentColor"/></svg>
+    <span>Scan</span>
+  </a>
+  <a href="landing.html#about" class="footer-nav-link" title="About">
+    <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/><line x1="12" y1="11" x2="12" y2="16.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="7.8" r="1" fill="currentColor"/></svg>
+    <span>About</span>
+  </a>
+  <a href="contact.html" class="footer-nav-link active" title="Contact">
+    <svg viewBox="0 0 24 24" fill="none"><rect x="3.5" y="6" width="17" height="12" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M4.5 7.5 L12 13 L19.5 7.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <span>Contact</span>
+  </a>
+</nav>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  const TOPICS = ['Scanning', 'Wardrobe', 'Outfits', 'Calendar', 'Favorites', 'Account', 'Bug', 'Other'];
+
+  const idToken = localStorage.getItem('pyf_idToken');
+  const userPhoto = localStorage.getItem('pyf_userPhoto');
+  const isLoggedIn = !!idToken;
+
+  if (isLoggedIn) {
+    const avatarLink = document.getElementById('sideAvatarLink');
+    if (userPhoto) {
+      document.getElementById('userAvatarImg').src = userPhoto;
+      document.getElementById('userAvatarImg').style.display = 'block';
+      document.getElementById('defaultAvatarIcon').style.display = 'none';
+    }
+    avatarLink.href = 'profile.html';
+    document.getElementById('headerActions').innerHTML = '<a href="index.html" class="btn-header btn-header-dark">Scan New Item</a>';
+  }
+
+  function authHeaders() {
+    const headers = { 'Content-Type': 'application/json' };
+    if (idToken) headers.Authorization = 'Bearer ' + idToken;
+    return headers;
+  }
+
+  // ---------- Toast ----------
+  let toastTimer = null;
+  function showToast(msg) {
+    const toast = document.getElementById('toast');
+    toast.textContent = msg;
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove('show'), 2600);
+  }
+
+  function showFormMsg(el, msg, ok) {
+    el.textContent = msg;
+    el.className = 'form-msg show ' + (ok ? 'ok' : 'err');
+  }
+
+  // ---------- Topic chips (review form) ----------
+  const reviewTopicsWrap = document.getElementById('reviewTopics');
+  const selectedTopics = new Set();
+  TOPICS.forEach((topic) => {
+    const chip = document.createElement('button');
+    chip.type = 'button';
+    chip.className = 'topic-chip';
+    chip.textContent = topic;
+    chip.onclick = () => {
+      if (selectedTopics.has(topic)) {
+        selectedTopics.delete(topic);
+        chip.classList.remove('selected');
+      } else {
+        selectedTopics.add(topic);
+        chip.classList.add('selected');
+      }
+    };
+    reviewTopicsWrap.appendChild(chip);
+  });
+
+  // ---------- Star rating ----------
+  const starsWrap = document.getElementById('reviewStars');
+  const starButtons = Array.from(starsWrap.querySelectorAll('button'));
+  let selectedRating = 0;
+  function renderStars() {
+    starButtons.forEach((btn) => {
+      btn.classList.toggle('filled', Number(btn.dataset.star) <= selectedRating);
+    });
+  }
+  starButtons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      selectedRating = Number(btn.dataset.star);
+      renderStars();
+    });
+  });
+
+  function starsMarkup(rating) {
+    let html = '';
+    for (let i = 1; i <= 5; i++) {
+      html += '<svg viewBox="0 0 24 24" fill="' + (i <= rating ? 'currentColor' : 'none') + '" stroke="currentColor" stroke-width="1.4"><path d="M12 2.5l2.9 6.1 6.6.8-4.8 4.6 1.2 6.6L12 17.7 6.1 20.6l1.2-6.6-4.8-4.6 6.6-.8z"/></svg>';
+    }
+    return html;
+  }
+
+  // ---------- Topic filter dropdown ----------
+  const topicFilterSelect = document.getElementById('topicFilter');
+  TOPICS.forEach((topic) => {
+    const opt = document.createElement('option');
+    opt.value = topic;
+    opt.textContent = topic;
+    topicFilterSelect.appendChild(opt);
+  });
+
+  // ---------- Reviews list (circular horizontal carousel) ----------
+  const reviewListEl = document.getElementById('reviewList');
+  const reviewPrevBtn = document.getElementById('reviewPrevBtn');
+  const reviewNextBtn = document.getElementById('reviewNextBtn');
+
+  function updateCarouselArrows() {
+    // Only show the arrows once there's actually more content than fits in view.
+    const hasOverflow = reviewListEl.scrollWidth > reviewListEl.clientWidth + 4;
+    reviewPrevBtn.classList.toggle('is-hidden', !hasOverflow);
+    reviewNextBtn.classList.toggle('is-hidden', !hasOverflow);
+  }
+
+  function scrollCarousel(direction) {
+    const cards = Array.from(reviewListEl.children).filter((el) => el.classList.contains('review-card'));
+    if (!cards.length) return;
+    const step = cards[0].getBoundingClientRect().width + 14; // card width + gap
+    const maxScroll = reviewListEl.scrollWidth - reviewListEl.clientWidth;
+
+    if (direction > 0) {
+      if (reviewListEl.scrollLeft >= maxScroll - 4) {
+        reviewListEl.scrollTo({ left: 0, behavior: 'smooth' }); // wrap to first
+      } else {
+        reviewListEl.scrollBy({ left: step, behavior: 'smooth' });
+      }
+    } else {
+      if (reviewListEl.scrollLeft <= 4) {
+        reviewListEl.scrollTo({ left: maxScroll, behavior: 'smooth' }); // wrap to last
+      } else {
+        reviewListEl.scrollBy({ left: -step, behavior: 'smooth' });
+      }
+    }
+  }
+
+  reviewPrevBtn.addEventListener('click', () => scrollCarousel(-1));
+  reviewNextBtn.addEventListener('click', () => scrollCarousel(1));
+  window.addEventListener('resize', updateCarouselArrows);
+
+  function renderReviews(reviews) {
+    reviewListEl.innerHTML = '';
+    if (!reviews.length) {
+      reviewListEl.innerHTML = '<p class="reviews-empty">Nicio recenzie momentan. Fii primul care lasă una!</p>';
+      reviewPrevBtn.classList.add('is-hidden');
+      reviewNextBtn.classList.add('is-hidden');
+      return;
+    }
+    reviews.forEach((review) => {
+      const card = document.createElement('div');
+      card.className = 'review-card';
+
+      const top = document.createElement('div');
+      top.className = 'review-top';
+
+      const subject = document.createElement('p');
+      subject.className = 'review-subject';
+      subject.textContent = review.subject;
+      top.appendChild(subject);
+
+      const stars = document.createElement('div');
+      stars.className = 'review-stars';
+      stars.innerHTML = starsMarkup(review.rating);
+      top.appendChild(stars);
+
+      card.appendChild(top);
+
+      const meta = document.createElement('p');
+      meta.className = 'review-meta';
+      const d = review.createdAt ? new Date(review.createdAt) : null;
+      meta.textContent = (review.name || 'Anonim') + (d && !isNaN(d) ? ' · ' + d.toLocaleDateString() : '');
+      card.appendChild(meta);
+
+      const message = document.createElement('p');
+      message.className = 'review-message';
+      message.textContent = review.message;
+      card.appendChild(message);
+
+      if (Array.isArray(review.topics) && review.topics.length) {
+        const topicsWrap = document.createElement('div');
+        topicsWrap.className = 'review-topics';
+        review.topics.forEach((t) => {
+          const tag = document.createElement('span');
+          tag.className = 'review-topic-tag';
+          tag.textContent = t;
+          topicsWrap.appendChild(tag);
+        });
+        card.appendChild(topicsWrap);
+      }
+
+      reviewListEl.appendChild(card);
+    });
+
+    reviewListEl.scrollLeft = 0;
+    // Wait a tick so scrollWidth reflects the freshly-appended cards.
+    requestAnimationFrame(updateCarouselArrows);
+  }
+
+  async function loadReviews(topic) {
+    reviewListEl.innerHTML = '<p class="reviews-empty">Loading reviews…</p>';
+    try {
+      const url = '/api/reviews' + (topic ? '?topic=' + encodeURIComponent(topic) : '');
+      const res = await fetch(url);
+      const data = await res.json();
+      if (!res.ok) throw new Error((data && data.error) || 'Request failed');
+      renderReviews(data.reviews || []);
+    } catch (err) {
+      reviewListEl.innerHTML = '<p class="reviews-empty">Reviews could not be loaded. Please try again later.</p>';
+    }
+  }
+
+  topicFilterSelect.addEventListener('change', () => loadReviews(topicFilterSelect.value));
+
+  // ---------- Submit review ----------
+  const reviewForm = document.getElementById('reviewForm');
+  const reviewSubmitBtn = document.getElementById('reviewSubmitBtn');
+  const reviewFormMsg = document.getElementById('reviewFormMsg');
+
+  reviewForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    reviewFormMsg.classList.remove('show');
+
+    const subject = document.getElementById('reviewSubject').value.trim();
+    const message = document.getElementById('reviewMessage').value.trim();
+    const name = document.getElementById('reviewName').value.trim();
+
+    if (!subject || !message) {
+      showFormMsg(reviewFormMsg, 'Subject and message are required.', false);
+      return;
+    }
+    if (!selectedRating) {
+      showFormMsg(reviewFormMsg, 'Please select a rating.', false);
+      return;
+    }
+    if (!selectedTopics.size) {
+      showFormMsg(reviewFormMsg, 'Please select at least one topic.', false);
+      return;
+    }
+
+    reviewSubmitBtn.disabled = true;
+    try {
+      const res = await fetch('/api/reviews', {
+        method: 'POST',
+        headers: authHeaders(),
+        body: JSON.stringify({
+          name,
+          subject,
+          rating: selectedRating,
+          message,
+          topics: Array.from(selectedTopics),
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error((data && data.error) || 'Request failed');
+
+      reviewForm.reset();
+      selectedRating = 0;
+      renderStars();
+      selectedTopics.clear();
+      reviewTopicsWrap.querySelectorAll('.topic-chip').forEach((chip) => chip.classList.remove('selected'));
+
+      showFormMsg(reviewFormMsg, 'Thank you! Your review has been submitted.', true);
+      showToast('Review has been submitted.');
+      loadReviews(topicFilterSelect.value);
+    } catch (err) {
+      showFormMsg(reviewFormMsg, err.message || 'The review could not be submitted.', false);
+    } finally {
+      reviewSubmitBtn.disabled = false;
+    }
+  });
+
+  // ---------- Submit private message ----------
+  const privateForm = document.getElementById('privateForm');
+  const privateSubmitBtn = document.getElementById('privateSubmitBtn');
+  const privateFormMsg = document.getElementById('privateFormMsg');
+
+  privateForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    privateFormMsg.classList.remove('show');
+
+    const subject = document.getElementById('privateSubject').value.trim();
+    const message = document.getElementById('privateMessage').value.trim();
+    const email = document.getElementById('privateEmail').value.trim();
+
+    if (!subject || !message) {
+      showFormMsg(privateFormMsg, 'Subject and message are required.', false);
+      return;
+    }
+
+    privateSubmitBtn.disabled = true;
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: authHeaders(),
+        body: JSON.stringify({ subject, message, email }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error((data && data.error) || 'Request failed');
+
+      privateForm.reset();
+      showFormMsg(privateFormMsg, 'Thank you! Your message has been sent to our team.', true);
+      showToast('Message has been sent.');
+    } catch (err) {
+      showFormMsg(privateFormMsg, err.message || 'The message could not be sent.', false);
+    } finally {
+      privateSubmitBtn.disabled = false;
+    }
+  });
+
+  loadReviews('');
+</script>
+
+</body>
+</html>
