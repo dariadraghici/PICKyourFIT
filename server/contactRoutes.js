@@ -3,7 +3,7 @@ const { db } = require('./firebaseAdmin');
 
 const router = express.Router();
 
-const TOPICS = ['Scanare', 'Garderobă', 'Ținute', 'Calendar', 'Favorite', 'Cont', 'Bug', 'Altele'];
+const TOPICS = ['Scanning', 'Wardrobe', 'Outfits', 'Calendar', 'Favorites', 'Account', 'Bug', 'Other'];
 
 function reviewsCol() {
   return db.collection('reviews');

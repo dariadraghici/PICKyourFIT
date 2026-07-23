@@ -336,7 +336,7 @@
     <h1 class="serif">Your closet.<br/>Digitized.<br/><em>Perfected.</em></h1>
     <p class="lead">Organize your clothes.<br/>Get outfit ideas.<br/>Always know what to wear.</p>
     <div class="hero-cta">
-      <a href="signup.html" class="btn btn-dark">
+      <a href="signup.html" class="btn btn-dark" id="getStartedBtn">
         Get Started
         <svg viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </a>
@@ -397,6 +397,7 @@
     const defaultIcon = document.getElementById('defaultAvatarIcon');
     const userImg = document.getElementById('userAvatarImg');
     const headerActions = document.getElementById('headerActions');
+    const getStartedBtn = document.getElementById('getStartedBtn');
 
     if (idToken) {
       if (userPhoto) {
@@ -408,6 +409,9 @@
       avatarLink.setAttribute('title', 'Contul meu');
       if (headerActions) {
         headerActions.innerHTML = '<a href="index.html" class="btn btn-dark">My Closet</a>';
+      }
+      if (getStartedBtn) {
+        getStartedBtn.setAttribute('href', 'index.html');
       }
     }
   })();

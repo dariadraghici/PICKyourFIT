@@ -78,7 +78,14 @@
   .btn-header-dark:hover{opacity:0.9;background:var(--ink);}
 
   /* ---------- Page shell ---------- */
-  .contact-container{ padding: 30px 24px 100px; max-width: 720px; margin: 0 auto; width: 100%; }
+  .contact-container{ padding: 30px 40px 100px; max-width: 1680px; margin: 0 auto; width: 100%; }
+
+  /* ---------- Two-column layout for review + private message forms ---------- */
+  .forms-grid{ display:grid; grid-template-columns: 1fr 1fr; gap:24px; align-items:start; }
+  .forms-grid .panel{ margin-bottom:0; }
+  @media (max-width: 980px){
+    .forms-grid{ grid-template-columns: 1fr; }
+  }
   .page-heading{ font-family:'Fraunces', serif; font-weight:600; font-size:32px; margin:0 0 8px; text-align:center; }
   .page-sub{ text-align:center; color:var(--ink-soft); font-size:13.5px; margin-bottom:36px; }
 
@@ -359,6 +366,7 @@
       </div>
     </section>
 
+    <div class="forms-grid">
     <!-- Public review -->
     <section class="panel">
       <p class="panel-title">Leave a Review</p>
@@ -424,6 +432,7 @@
         <p class="form-msg" id="privateFormMsg"></p>
       </form>
     </section>
+    </div>
   </div>
 </main>
 
@@ -584,7 +593,7 @@
   function renderReviews(reviews) {
     reviewListEl.innerHTML = '';
     if (!reviews.length) {
-      reviewListEl.innerHTML = '<p class="reviews-empty">Nicio recenzie momentan. Fii primul care lasă una!</p>';
+      reviewListEl.innerHTML = '<p class="reviews-empty">There are no reviews yet. Be the first to leave one!</p>';
       reviewPrevBtn.classList.add('is-hidden');
       reviewNextBtn.classList.add('is-hidden');
       return;
