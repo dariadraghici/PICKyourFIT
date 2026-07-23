@@ -16,6 +16,8 @@
     --sage: #7C8C72;
     --line: #D9D0BD;
     --side-bg: rgba(42, 34, 27, 0.85);
+    --sidebar-w: clamp(64px, 6vw, 88px);
+    --gutter: clamp(16px, 4vw, 40px);
   }
 
   *{ box-sizing: border-box; margin: 0; padding: 0; }
@@ -34,8 +36,8 @@
   /* ---------- Sidebar ---------- */
   .sidebar{
     position:fixed;top:0;left:0;bottom:0;z-index:5;
-    width:88px; display:flex;flex-direction:column;align-items:center;
-    padding:22px 0 20px; background:var(--side-bg);
+    width:var(--sidebar-w); display:flex;flex-direction:column;align-items:center;
+    padding:clamp(14px, 2.5vw, 22px) 0 20px; background:var(--side-bg);
     backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
     border-right:1px solid rgba(255,255,255,0.08);
   }
@@ -58,8 +60,8 @@
   .side-avatar svg{width:22px;height:22px;}
 
   /* ---------- Main Layout & Header ---------- */
-  .main-content { flex: 1; margin-left: 88px; display: flex; flex-direction: column; }
-  header{ display:flex;align-items:center;justify-content:space-between; padding:26px 44px; position:relative; z-index:4; }
+  .main-content { flex: 1; margin-left: var(--sidebar-w); display: flex; flex-direction: column; min-width:0; }
+  header{ display:flex;align-items:center;justify-content:space-between; gap:12px; padding:clamp(16px, 2.6vw, 26px) clamp(20px, 4vw, 44px); position:relative; z-index:4; }
   .logo{ font-family:'Fraunces',serif; font-size:14px;font-weight:600;letter-spacing:0.16em; text-transform:uppercase;color:var(--ink); }
   nav.main-nav{display:flex;gap:clamp(10px, 2vw, 34px); flex-shrink:1; min-width:0; align-items:center;}
   nav.main-nav a{ font-size:clamp(9px, 1.3vw, 12.5px);font-weight:600;letter-spacing:0.03em; text-transform:uppercase;color:var(--ink-soft); transition:color .15s ease; white-space:nowrap; }
@@ -78,20 +80,19 @@
   .btn-header-dark:hover{opacity:0.9;background:var(--ink);}
 
   /* ---------- Page shell ---------- */
-  .contact-container{ padding: 30px 40px 100px; max-width: 1680px; margin: 0 auto; width: 100%; }
+  .contact-container{ padding: clamp(20px, 4vw, 30px) var(--gutter) clamp(70px, 10vw, 100px); max-width: 1680px; margin: 0 auto; width: 100%; }
 
   /* ---------- Two-column layout for review + private message forms ---------- */
-  .forms-grid{ display:grid; grid-template-columns: 1fr 1fr; gap:24px; align-items:start; }
+  /* auto-fit lets the two panels reflow to a single column gradually as space runs out,
+     instead of snapping at one fixed breakpoint. */
+  .forms-grid{ display:grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap:clamp(16px, 2.5vw, 24px); align-items:start; }
   .forms-grid .panel{ margin-bottom:0; }
-  @media (max-width: 980px){
-    .forms-grid{ grid-template-columns: 1fr; }
-  }
-  .page-heading{ font-family:'Fraunces', serif; font-weight:600; font-size:32px; margin:0 0 8px; text-align:center; }
-  .page-sub{ text-align:center; color:var(--ink-soft); font-size:13.5px; margin-bottom:36px; }
+  .page-heading{ font-family:'Fraunces', serif; font-weight:600; font-size:clamp(22px, 4vw, 32px); margin:0 0 8px; text-align:center; }
+  .page-sub{ text-align:center; color:var(--ink-soft); font-size:clamp(12px, 1.6vw, 13.5px); margin-bottom:clamp(18px, 4vw, 36px); }
 
   .panel{
     background: var(--linen-card); border:1px solid var(--line); border-radius:14px;
-    padding:26px; margin-bottom:34px;
+    padding:clamp(16px, 3vw, 26px); margin-bottom:clamp(20px, 4vw, 34px);
   }
   .panel-title{ font-family:'Fraunces',serif; font-weight:600; font-size:19px; margin-bottom:4px; }
   .panel-note{ font-size:12.5px; color:var(--ink-soft); margin-bottom:20px; line-height:1.5; }
@@ -149,33 +150,48 @@
     border:1px solid var(--line); background:#fff; color:var(--ink);
   }
 
-  .review-carousel{ position:relative; }
+  /* container-type lets the card width react to the space this panel actually has
+     (tablet split-screen, phone, wide desktop) instead of jumping at fixed viewport
+     breakpoints. On narrow containers exactly one review is visible at a time. */
+  .review-carousel{ position:relative; container-type:inline-size; container-name:reviews; padding:0 clamp(6px, 4vw, 18px); }
   .review-track{
     display:flex; gap:14px; overflow-x:auto; scroll-behavior:smooth; scroll-snap-type:x mandatory;
+    scroll-padding-left:2px;
     padding:2px 2px 6px;
     -ms-overflow-style:none; scrollbar-width:none;
   }
   .review-track::-webkit-scrollbar{ display:none; }
   .review-card{
     background:#fff; border:1px solid var(--line); border-radius:12px; padding:16px 18px;
-    flex:0 0 280px; scroll-snap-align:start;
+    flex:0 0 100%; scroll-snap-align:start; scroll-snap-stop:always;
+  }
+  /* Gradual steps: as the carousel gets more room, more cards share the row. */
+  @container reviews (min-width: 480px){
+    .review-card{ flex-basis:calc(50% - 7px); }
+  }
+  @container reviews (min-width: 760px){
+    .review-card{ flex-basis:calc(33.333% - 10px); }
+  }
+  @container reviews (min-width: 1040px){
+    .review-card{ flex-basis:calc(25% - 11px); }
   }
   .carousel-arrow{
     position:absolute; top:50%; transform:translateY(-50%); z-index:3;
-    width:34px; height:34px; border-radius:50%; border:1px solid var(--line);
+    width:clamp(30px, 4vw, 34px); height:clamp(30px, 4vw, 34px); border-radius:50%; border:1px solid var(--line);
     background:var(--linen-card); color:var(--ink); display:flex; align-items:center; justify-content:center;
     box-shadow:0 6px 14px rgba(20,15,10,0.12); transition:background .15s ease, color .15s ease, border-color .15s ease;
   }
   .carousel-arrow svg{ width:16px; height:16px; }
   .carousel-arrow:hover{ background:var(--ink); border-color:var(--ink); color:#fff; }
-  .carousel-arrow.prev{ left:-14px; }
-  .carousel-arrow.next{ right:-14px; }
+  .carousel-arrow.prev{ left:0; }
+  .carousel-arrow.next{ right:0; }
   .carousel-arrow.is-hidden{ display:none; }
-  @media (max-width: 700px){
-    .carousel-arrow.prev{ left:-8px; }
-    .carousel-arrow.next{ right:-8px; }
-    .review-card{ flex-basis:240px; }
+  .review-dots{ display:flex; justify-content:center; align-items:center; gap:7px; margin-top:12px; }
+  .review-dot{
+    width:6px; height:6px; border-radius:50%; padding:0; border:none;
+    background:var(--line); transition:background .15s ease, transform .15s ease, width .15s ease;
   }
+  .review-dot.active{ background:var(--thread); width:16px; border-radius:4px; }
   .review-top{ display:flex; align-items:flex-start; justify-content:space-between; gap:10px; margin-bottom:6px; }
   .review-subject{ font-family:'Fraunces',serif; font-weight:600; font-size:15px; }
   .review-stars{ display:flex; gap:1px; color:var(--thread); flex-shrink:0; }
@@ -188,12 +204,6 @@
     text-transform:uppercase; color:var(--sage); border:1px solid var(--line); border-radius:6px; padding:3px 7px;
   }
   .reviews-empty{ text-align:center; color:var(--ink-soft); font-size:13px; padding:20px 0; }
-
-  @media (max-width: 980px){
-    .sidebar{width:64px;}
-    .main-content{margin-left:64px;}
-    header{padding:22px 24px;}
-  }
 
   /* Toast */
   .toast{
@@ -256,9 +266,7 @@
     }
 
     .contact-container{ padding-top:44px; padding-bottom:96px; }
-    .page-heading{ font-size:22px; margin:0 0 4px; }
-    .page-sub{ font-size:12.5px; margin-bottom:16px; }
-    .panel{ padding:18px; }
+    .page-heading{ margin:0 0 4px; }
   }
 </style>
 </head>
@@ -364,6 +372,7 @@
           <svg viewBox="0 0 24 24" fill="none"><path d="M9 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
       </div>
+      <div class="review-dots" id="reviewDots"></div>
     </section>
 
     <div class="forms-grid">
@@ -557,18 +566,65 @@
   const reviewListEl = document.getElementById('reviewList');
   const reviewPrevBtn = document.getElementById('reviewPrevBtn');
   const reviewNextBtn = document.getElementById('reviewNextBtn');
+  const reviewDotsEl = document.getElementById('reviewDots');
+
+  function getCards() {
+    return Array.from(reviewListEl.children).filter((el) => el.classList.contains('review-card'));
+  }
+
+  // How many cards fit in one "page" at the current container width (1 on phone,
+  // more as the panel gets wider) — drives both paging steps and the dot count.
+  function cardsPerView() {
+    const cards = getCards();
+    if (!cards.length) return 1;
+    const cardWidth = cards[0].getBoundingClientRect().width + 14;
+    return Math.max(1, Math.round(reviewListEl.clientWidth / cardWidth));
+  }
+
+  function buildDots() {
+    const cards = getCards();
+    const perView = cardsPerView();
+    const pageCount = Math.ceil(cards.length / perView);
+    reviewDotsEl.innerHTML = '';
+    if (pageCount <= 1) return;
+    for (let i = 0; i < pageCount; i++) {
+      const dot = document.createElement('button');
+      dot.type = 'button';
+      dot.className = 'review-dot';
+      dot.setAttribute('aria-label', 'Go to review ' + (i + 1));
+      dot.addEventListener('click', () => {
+        const cardWidth = cards[0].getBoundingClientRect().width + 14;
+        reviewListEl.scrollTo({ left: i * perView * cardWidth, behavior: 'smooth' });
+      });
+      reviewDotsEl.appendChild(dot);
+    }
+    updateActiveDot();
+  }
+
+  function updateActiveDot() {
+    const dots = Array.from(reviewDotsEl.children);
+    if (!dots.length) return;
+    const perView = cardsPerView();
+    const cards = getCards();
+    if (!cards.length) return;
+    const cardWidth = cards[0].getBoundingClientRect().width + 14;
+    const activeIndex = Math.min(dots.length - 1, Math.round(reviewListEl.scrollLeft / (perView * cardWidth)));
+    dots.forEach((d, i) => d.classList.toggle('active', i === activeIndex));
+  }
 
   function updateCarouselArrows() {
     // Only show the arrows once there's actually more content than fits in view.
     const hasOverflow = reviewListEl.scrollWidth > reviewListEl.clientWidth + 4;
     reviewPrevBtn.classList.toggle('is-hidden', !hasOverflow);
     reviewNextBtn.classList.toggle('is-hidden', !hasOverflow);
+    buildDots();
   }
 
   function scrollCarousel(direction) {
-    const cards = Array.from(reviewListEl.children).filter((el) => el.classList.contains('review-card'));
+    const cards = getCards();
     if (!cards.length) return;
-    const step = cards[0].getBoundingClientRect().width + 14; // card width + gap
+    const perView = cardsPerView();
+    const step = (cards[0].getBoundingClientRect().width + 14) * perView; // one page of cards
     const maxScroll = reviewListEl.scrollWidth - reviewListEl.clientWidth;
 
     if (direction > 0) {
@@ -588,6 +644,10 @@
 
   reviewPrevBtn.addEventListener('click', () => scrollCarousel(-1));
   reviewNextBtn.addEventListener('click', () => scrollCarousel(1));
+  reviewListEl.addEventListener('scroll', () => {
+    window.clearTimeout(reviewListEl._dotTimer);
+    reviewListEl._dotTimer = window.setTimeout(updateActiveDot, 60);
+  });
   window.addEventListener('resize', updateCarouselArrows);
 
   function renderReviews(reviews) {
@@ -596,6 +656,7 @@
       reviewListEl.innerHTML = '<p class="reviews-empty">There are no reviews yet. Be the first to leave one!</p>';
       reviewPrevBtn.classList.add('is-hidden');
       reviewNextBtn.classList.add('is-hidden');
+      reviewDotsEl.innerHTML = '';
       return;
     }
     reviews.forEach((review) => {
