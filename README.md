@@ -10,7 +10,7 @@
 
 **Your digital wardrobe. Your style, planned.**
 
-Pick Your Fit is a full-stack web application that turns a physical wardrobe into a digital one: you scan your clothes once, the app automatically recognizes their category, and you get outfit suggestions and the ability to plan them on a calendar - without ever pulling anything off a hanger.
+Pick Your Fit is a full-stack web application that turns a physical wardrobe into a digital one: you scan your clothes once, the app automatically recognizes their category, and you get outfit suggestions and the ability to plan them on a calendar without ever pulling anything off a hanger.
 
 <div align="center">
   <table>
@@ -27,12 +27,11 @@ Pick Your Fit is a full-stack web application that turns a physical wardrobe int
 
 It started with a mundane but recurring frustration: packing for a trip.
 
-At the beginning of July 2026, while getting ready for a trip to Rome, I did what I always do - took almost everything out of my wardrobe - and still couldn't find anything I actually loved. The problem was never a shortage of clothes; it was the absence of any structured overview of what I already owned and how those pieces could be combined.
+At the beginning of July 2026, while getting ready for a trip to Rome, I did what I always do: took almost everything out of my wardrobe and still couldn't find anything I actually loved. The problem was never a shortage of clothes; it was the absence of any structured overview of what I already owned and how those pieces could be combined.
 
 > "What if my whole wardrobe lived in one place, and I could plan outfits without ever pulling a single thing off its hanger?"
-> - the question asked the night before packing for Rome, July 2026
 
-That question is where Pick Your Fit began: an app where you digitize your wardrobe once, item by item, and then get outfit suggestions on demand - removing both the guesswork and the time lost in the process.
+That question is where Pick Your Fit began: an app where you digitize your wardrobe once, item by item, and then get outfit suggestions on demand, removing both the guesswork and the time lost in the process.
 
 ### Before / After
 
@@ -84,7 +83,7 @@ H_norm = H(p) / H_max
 2. If the highest individual class probability is at least 72%, the prediction is shown directly.
 3. If it falls below 72%, the interface shows several candidate categories with their confidence percentages and lets the user make the final call.
 
-This proof-of-concept had no backend, database, or persistence - the wardrobe existed only in browser memory, for the duration of the session. Its sole purpose was to validate the classification pipeline before it became the foundation of the full application, **Pick Your Fit**.
+This proof-of-concept had no backend, database, or persistence: the wardrobe existed only in browser memory, for the duration of the session. Its sole purpose was to validate the classification pipeline before it became the foundation of the full application, **Pick Your Fit**.
 
 ---
 
@@ -93,11 +92,11 @@ This proof-of-concept had no backend, database, or persistence - the wardrobe ex
 ### 1. Scanning and AI recognition
 Every scan runs the same five steps, whether the user is a guest or logged in:
 
-1. **Upload photo** - take or upload a photo of the item.
-2. **Teachable Machine** - the trained model analyzes the image.
-3. **Category prediction** - the algorithm predicts the most likely category.
-4. **Review and edit** - confirm or manually correct the category.
-5. **Save to wardrobe** - add the item if logged in.
+1. **Upload photo**: take or upload a photo of the item.
+2. **Teachable Machine**: the trained model analyzes the image.
+3. **Category prediction**: the algorithm predicts the most likely category.
+4. **Review and edit**: confirm or manually correct the category.
+5. **Save to wardrobe**: add the item if logged in.
 
 Under the hood: **Google Teachable Machine** (classification), **remove.bg** (background removal), **Firebase** (auth and data), **Cloudinary** (image storage).
 
@@ -144,11 +143,11 @@ Under the hood: **Google Teachable Machine** (classification), **remove.bg** (ba
 
 | Level | What you can do |
 |---|---|
-| **Guest** (no account) | Scan clothes and get AI recognition; browse the landing page and features; read about the app, reviews, contact info. Cannot save anything - everything is lost at the end of the session. |
+| **Guest** (no account) | Scan clothes and get AI recognition; browse the landing page and features; read about the app, reviews, contact info. Cannot save anything: everything is lost at the end of the session. |
 | **Registered** (email not confirmed) | Can save clothes to the wardrobe, but everything is capped: **2 items per category, 2 favorites, 2 planned outfits**, until the email is confirmed. |
 | **Verified** (email confirmed) | Unlimited wardrobe and favorites; unlimited outfit planning and calendar; full archives and statistics; everything unlocked, no limits. |
 
-The cap on unconfirmed accounts is enforced **at the backend level, across all route files**, not just in the UI - so the limits cannot be bypassed with direct API calls.
+The cap on unconfirmed accounts is enforced **at the backend level, across all route files**, not just in the UI, so the limits cannot be bypassed with direct API calls.
 
 ---
 
@@ -156,17 +155,17 @@ The cap on unconfirmed accounts is enforced **at the backend level, across all r
 
 **Frontend**
 - HTML, CSS, and vanilla JavaScript, multi-page (no framework)
-- `calendar-core.js` / `calendar-picker.js` - shared modules for calendar views (week/month/year)
+- `calendar-core.js` / `calendar-picker.js`: shared modules for calendar views (week/month/year)
 - Google Fonts: Fraunces, Inter, JetBrains Mono
 
 **Backend**
 - Node.js and Express
 - Authentication: **Firebase Authentication** (JWT passed as a Bearer token in authorization headers)
-- Database: **Firebase Firestore** - profile, wardrobe item metadata (brand, category, description, createdAt), outfits, favorites, calendar
+- Database: **Firebase Firestore**: profile, wardrobe item metadata (brand, category, description, createdAt), outfits, favorites, calendar
 - Firestore security rules: each user can read, write, or delete only their own data
 
 **Images**
-- **Cloudinary** - storage and encrypted CDN delivery for avatars and wardrobe photos, organized under a `wardrobe/{uid}` folder
+- **Cloudinary**: storage and encrypted CDN delivery for avatars and wardrobe photos, organized under a `wardrobe/{uid}` folder
 - **remove.bg (Kaleido AI)**, called through a secure backend proxy, for automatic background removal (ephemeral processing, no image retention by the third party)
 - Avatar images are cropped and optimized client-side (Cropper.js) to 512x512px, JPEG, 88% quality
 
@@ -180,7 +179,7 @@ The cap on unconfirmed accounts is enforced **at the backend level, across all r
 
 - **Account data:** first name, last name, email.
 - **Authentication:** hashed password (Firebase), IP address logged temporarily at sign-up to enforce a 2-accounts-per-IP limit.
-- **Local session:** `pyf_idToken`, `pyf_uid`, `pyf_userPhoto` stored in LocalStorage - strictly functional, no tracking or advertising cookies.
+- **Local session:** `pyf_idToken`, `pyf_uid`, `pyf_userPhoto` stored in LocalStorage (strictly functional, no tracking or advertising cookies)
 - **Account deletion (cascade delete):** irreversibly removes the wardrobe from Firestore, images from Cloudinary, the profile document, and credentials from Firebase Authentication, plus local browser data. The process cannot be undone and no backups are kept.
 - **Minimum age:** 13 (16 within the EU/EEA), per GDPR/COPPA.
 
@@ -221,7 +220,7 @@ npm run dev
 ```
 
 ### Frontend
-The frontend is plain HTML/CSS/JS and is served statically by the Express backend, so no separate build step is required - once the server is running, the pages are available at the same host and port.
+The frontend is plain HTML/CSS/JS and is served statically by the Express backend, so no separate build step is required. Once the server is running, the pages are available at the same host and port.
 
 ---
 
