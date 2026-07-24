@@ -12,17 +12,6 @@
 
 Pick Your Fit is a full-stack web application that turns a physical wardrobe into a digital one: you scan your clothes once, the app automatically recognizes their category, and you get outfit suggestions and the ability to plan them on a calendar without ever pulling anything off a hanger.
 
-<div align="center">
-  <table>
-    <tr>
-      <td align="center">
-        <strong>Test the app live right now:</strong><br>
-        <a href="https://pickyourfit.onrender.com/"><strong>https://pickyourfit.onrender.com/</strong></a>
-      </td>
-    </tr>
-  </table>
-</div>
-
 ## The Story
 
 It started with a mundane but recurring frustration: packing for a trip.
