@@ -31,12 +31,15 @@ if (!process.env.FIREBASE_WEB_API_KEY) {
   process.exit(1);
 }
 
+const UI_DIR = path.join(__dirname, '..', 'UI');
+
 // Serve landing.html when the site root is opened, instead of index.html
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'landing.html'));
+  res.sendFile(path.join(UI_DIR, 'landing.html'));
 });
 
 // index: false so express.static doesn't fall back to index.html on '/'
+app.use(express.static(UI_DIR, { index: false }));
 app.use(express.static(path.join(__dirname, '..'), { index: false }));
 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));

@@ -1,0 +1,1186 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Features - Pick Your Fit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --linen: #F3EEE3;
+    --linen-card: #FAF7EF;
+    --ink: #22222b;
+    --ink-soft: #6B6258;
+    --thread: #B5442F;
+    --thread-dark: #8A331F;
+    --sage: #52463f;
+    --denim: #46566B;
+    --line: #D9D0BD;
+    --side-bg: rgba(42, 34, 27, 0.85);
+  }
+
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html{ scroll-behavior:smooth; }
+  body{
+    background:var(--linen);
+    color:var(--ink);
+    font-family:'Inter', sans-serif;
+    min-height:100vh;
+    display:flex;
+  }
+  a{ text-decoration:none; color:inherit; }
+  button{ font-family:inherit; }
+  ul{ list-style:none; }
+
+  h1,h2,h3{ font-family:'Fraunces', serif; letter-spacing:-0.01em; }
+
+  .eyebrow{
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px;
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    color:var(--thread);
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:14px;
+  }
+  .eyebrow::before{ content:''; width:18px; height:1px; background:var(--thread); }
+
+  /* ---------- Sidebar ---------- */
+  .sidebar{
+    position:fixed;top:0;left:0;bottom:0;z-index:50;
+    width:88px;
+    display:flex;flex-direction:column;align-items:center;
+    padding:0px 0 20px;
+    background:var(--side-bg);
+    backdrop-filter:blur(14px);
+    -webkit-backdrop-filter:blur(14px);
+    border-right:1px solid rgba(255,255,255,0.08);
+    transition: all 0.3s ease;
+  }
+  .side-logo{
+    width:44px;height:44px;border-radius:12px;
+    display:flex;align-items:center;justify-content:center;
+    color:#fff;margin-bottom:26px;
+  }
+  .side-logo svg{width:24px;height:24px;}
+  .side-nav{ display:flex;flex-direction:column;gap:8px; flex:1; }
+  .side-link{
+    width:46px;height:46px;border-radius:12px;
+    display:flex;align-items:center;justify-content:center;
+    color:rgba(255,255,255,0.62);
+    transition:background .15s ease, color .15s ease;
+  }
+  .side-link svg{width:20px;height:20px;}
+  .side-link:hover{color:#fff;background:rgba(255,255,255,0.08);}
+  .side-link.active{background:#fdfcf9;color:var(--ink);}
+  .side-bottom{ display:flex;flex-direction:column;align-items:center;gap:16px; margin-top:auto; }
+  .side-avatar{
+    width:38px;height:38px;border-radius:50%;
+    overflow:hidden;
+    border:1.5px solid rgba(255,255,255,0.5);
+    display:flex;align-items:center;justify-content:center;
+    background:#c9c2b4; color:#5b5346; cursor:pointer;
+  }
+  .side-avatar img{width:100%;height:100%;object-fit:cover;display:block;}
+  .side-avatar svg{width:22px;height:22px;}
+
+  /* ---------- Main layout ---------- */
+  .main-content{ 
+    flex:1; 
+    margin-left:88px; 
+    position:relative; 
+    display:flex; 
+    flex-direction:column; 
+    transition: margin-left .2s ease;
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  header{
+    position:sticky; top:0; z-index:12;
+    display:flex;align-items:center;justify-content:space-between;
+    gap:14px;
+    padding:16px 40px;
+    background:rgba(243,238,227,0.86);
+    backdrop-filter:blur(16px);
+    -webkit-backdrop-filter:blur(16px);
+    border-bottom:1px solid rgba(217,208,189,0.7);
+  }
+  .logo{
+    font-family:'Fraunces',serif;
+    font-size:13px;font-weight:600;letter-spacing:0.08em;
+    text-transform:uppercase;color:var(--ink);
+    white-space:nowrap;
+  }
+  nav.main-nav{display:flex;gap:clamp(14px, 2vw, 30px); align-items:center;}
+  nav.main-nav a{
+    font-size:11.5px;font-weight:600;letter-spacing:0.02em;
+    text-transform:uppercase;color:var(--ink-soft);
+    transition:color .15s ease;
+    white-space:nowrap;
+  }
+  nav.main-nav a:hover{color:var(--ink);}
+  nav.main-nav a.active{color:var(--thread);}
+  .header-actions{display:flex;align-items:center;gap:10px;}
+  .btn-header{
+    display:inline-flex;align-items:center;justify-content:center;gap:4px;
+    padding:8px 16px;border-radius:6px;
+    font-size:11.5px;font-weight:600;
+    letter-spacing:0.02em;text-transform:uppercase;
+    cursor:pointer;border:1px solid var(--ink);
+    background:transparent;color:var(--ink);
+    transition:background .15s ease, opacity .15s ease;
+    white-space:nowrap;
+  }
+  .btn-header:hover{background:rgba(0,0,0,0.05);}
+  .btn-header-dark{background:var(--ink);border-color:var(--ink);color:var(--linen-card);}
+  .btn-header-dark:hover{opacity:0.9;}
+
+  /* ---------- Page hero ---------- */
+  .page-hero {
+    max-width: 760px;
+    margin: 0 auto; 
+    padding: 40px 40px 32px; 
+    text-align: center; 
+    display: flex;
+    flex-direction: column;
+    align-items: center; 
+  }
+  .page-hero h1 { 
+    font-size: clamp(20px, 6vw, 40px); 
+    font-weight: 600; 
+    line-height: 1.1; 
+  }
+  .page-hero h1 em { 
+    font-style: italic; 
+    color: var(--thread); 
+    font-weight: 500; 
+  }
+  .page-hero p { 
+    margin-top: 16px; 
+    font-size: 15.5px; 
+    line-height: 1.7; 
+    color: var(--ink-soft); 
+    max-width: 560px; 
+  }
+
+  /* ---------- Generic section shell ---------- */
+  section.block{
+    padding:40px 40px;
+    max-width:1240px;
+    width:100%;
+    margin:0 auto;
+    box-sizing: border-box;
+  }
+  section.block + section.block{ border-top:1px solid var(--line); }
+  .block-head{ display:flex; align-items:flex-end; justify-content:space-between; gap:24px; margin-bottom:34px; flex-wrap:wrap; }
+  .block-head h2{ font-size:clamp(24px,2.6vw,32px); font-weight:600; }
+  .block-head p{ color:var(--ink-soft); font-size:14px; max-width:420px; line-height:1.6; }
+
+  .card{
+    background:var(--linen-card);
+    border:1px solid var(--line);
+    border-radius:14px;
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  /* ---------- 1. AI Scan timeline ---------- */
+  .scan-flow{
+    display:grid;
+    grid-template-columns:repeat(5, 1fr);
+    gap:0;
+    align-items:stretch;
+  }
+  .flow-step{
+    padding:18px 18px;
+    text-align:center;
+    position:relative;
+    border-right:1px dashed var(--line);
+  }
+  .flow-step:last-child{ border-right:none; }
+  .flow-num{
+    display:none;
+  }
+  .flow-icon{
+    width:64px;height:64px;border-radius:16px;
+    display:flex;align-items:center;justify-content:center;
+    background:#FFFFFF; border:1px solid var(--line);
+    margin:0 auto 16px;
+    color:var(--ink);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+  }
+  .flow-icon svg{ width:34px; height:34px; }
+  .flow-step h3{ font-size:15px; font-weight:600; margin-bottom:8px; color:var(--ink); }
+  .flow-step p{ font-size:12.5px; color:var(--ink-soft); line-height:1.55; }
+  .flow-arrow{
+    position:absolute; top:50px; right:-10px; z-index:2;
+    width:20px;height:20px;border-radius:50%;
+    background:var(--linen); border:1px solid var(--line);
+    display:flex;align-items:center;justify-content:center;
+    color:var(--ink-soft);
+  }
+  .flow-arrow svg{ width:10px; height:10px; }
+
+  .branch-note{
+    margin-top:22px;
+    display:flex; gap:14px; flex-wrap:wrap;
+  }
+  .branch-pill{
+    flex:1; min-width:240px;
+    display:flex; align-items:flex-start; gap:12px;
+    padding:6px 18px; border-radius:12px;
+    background:var(--linen-card); border:1px solid var(--line);
+  }
+  .branch-pill .dot{
+    width:26px;height:26px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    flex-shrink:0; margin-top:1px;
+    background:var(--ink); color:var(--linen-card);
+  }
+  .branch-pill.alt .dot{ background:var(--sage); }
+  .branch-pill .dot svg{ width:13px;height:13px; }
+  .branch-pill strong{ display:block; font-size:13.5px; margin-bottom:3px; }
+  .branch-pill span{ font-size:12.5px; color:var(--ink-soft); line-height:1.5; }
+
+  .powered-by{
+    margin-top:26px; padding-top:10px; border-top:1px solid var(--line);
+    display:flex; align-items:center; gap:18px; flex-wrap:wrap;
+    font-size:11px; color:var(--ink-soft);
+  }
+  .powered-by b{
+    font-family:'JetBrains Mono', monospace;
+    letter-spacing:0.06em; text-transform:uppercase; color:var(--ink); font-size:10.5px;
+  }
+  .powered-by .stack{ display:flex; gap:10px; flex-wrap:wrap; }
+  .powered-by .stack span{
+    padding:5px 11px; border-radius:20px; border:1px solid var(--line); background:var(--linen);
+  }
+
+  /* ---------- 2. Access tiers ---------- */
+  .tier-grid{ display:grid; grid-template-columns:repeat(3, 1fr); gap:20px; align-items:stretch; }
+  .tier{
+    padding:8px 26px; border-radius:16px;
+    background:var(--linen-card); border:1px solid var(--line);
+    display:flex; flex-direction:column;
+  }
+  .tier.highlight{
+    background:var(--ink); color:var(--linen-card); border-color:var(--ink);
+    box-shadow:0 22px 50px rgba(20,15,10,0.18);
+    transform:translateY(-6px);
+  }
+  .tier-icon{
+    width:38px;height:38px;border-radius:10px;
+    display:flex;align-items:center;justify-content:center;
+    background:var(--linen); border:1px solid var(--line);
+    margin-bottom:16px; color:var(--thread);
+  }
+  .tier.highlight .tier-icon{ background:rgba(255,255,255,0.1); border-color:rgba(255,255,255,0.2); color:#e9a88f; }
+  .tier-icon svg{ width:18px;height:18px; }
+  .tier h3{ font-size:17px; font-weight:600; margin-bottom:4px; }
+  .tier .tier-sub{ font-size:11.5px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:0.04em; margin-bottom:18px; }
+  .tier.highlight .tier-sub{ color:rgba(255,255,255,0.6); }
+  .tier ul{ display:flex; flex-direction:column; gap:10px; margin-bottom:18px; flex:1; }
+  .tier li{ display:flex; align-items:flex-start; gap:9px; font-size:13px; line-height:1.4; }
+  .tier li svg{ width:14px;height:14px; flex-shrink:0; margin-top:2px; color:var(--sage); }
+  .tier.highlight li svg{ color:#e9a88f; }
+  .tier li.limit svg{ color:var(--thread); }
+  .tier.highlight li.limit svg{ color:#e9a88f; }
+  .tier-limits{
+    font-size:11.5px; color:var(--ink-soft); padding:12px 14px; border-radius:9px;
+    background:var(--linen); border:1px solid var(--line); margin-bottom:14px;
+  }
+  .tier.highlight .tier-limits{ background:rgba(255,255,255,0.08); border-color:rgba(255,255,255,0.16); color:rgba(255,255,255,0.72); }
+  .tier-foot{ font-size:11.5px; color:var(--ink-soft); margin-top:auto; }
+  .tier.highlight .tier-foot{ color:rgba(255,255,255,0.62); }
+
+  /* ---------- 3 / 4. two-column feature + mock ---------- */
+  .split{ display:grid; grid-template-columns:1fr 1fr; gap:56px; align-items:center; }
+  .split.reverse .mock{ order:2; }
+  .split.reverse .feature-copy{ order:1; }
+  .feature-copy h2{ font-size:clamp(22px,2.4vw,28px); font-weight:600; margin-bottom:14px; }
+  .feature-copy > p{ color:var(--ink-soft); font-size:14.5px; line-height:1.65; margin-bottom:22px; max-width:440px; }
+  .feature-list{ display:flex; flex-direction:column; gap:13px; }
+  .feature-list li{ display:flex; align-items:flex-start; gap:11px; font-size:14px; }
+  .feature-list li svg{ width:16px;height:16px; margin-top:2px; color:var(--thread); flex-shrink:0; }
+  .quick-links{ display:flex; gap:10px; margin-top:24px; flex-wrap: wrap;}
+  .quick-links span{
+    display:inline-flex; align-items:center; gap:7px;
+    padding:8px 14px; border-radius:20px; border:1px solid var(--line);
+    background:var(--linen-card); font-size:12px; font-weight:600;
+  }
+  .quick-links svg{ width:14px;height:14px; color:var(--thread); }
+
+  /* photo mock styling */
+  .mock{ padding:22px; }
+  .mock-photo {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 10px;
+    object-fit: cover;
+  }
+
+  /* ---------- 7. Archives timeline (CORECTAT) ---------- */
+  .archive-timeline{ 
+    display:flex; gap:0; padding-bottom:6px; 
+    overflow-x:auto; 
+    scrollbar-width: none; 
+  }
+  .archive-timeline::-webkit-scrollbar { display: none; }
+  .archive-node{
+    flex:1; min-width:150px; text-align:center; position:relative; padding:0;
+  }
+  .archive-node:not(:last-child)::after{
+    content:''; position:absolute; top:19px; left:50%; width:100%; height:1px;
+    background:repeating-linear-gradient(90deg, var(--line) 0 6px, transparent 6px 11px);
+    z-index:1;
+  }
+  .archive-dot{
+    width:38px;height:38px;border-radius:50%; margin:0 auto 12px;
+    display:flex;align-items:center;justify-content:center;
+    background:var(--linen-card); border:1px solid var(--line); color:var(--thread);
+    font-family:'JetBrains Mono', monospace; font-size:10px; font-weight:600;
+    position:relative; z-index:2;
+  }
+  .archive-node h4{ font-size:13.5px; font-weight:600; margin-bottom:3px; }
+  .archive-node p{ font-size:11.5px; color:var(--ink-soft); }
+
+  /* ---------- Contact ---------- */
+  .contact-grid{ display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+  .contact-card{ padding:30px; display:flex; flex-direction:column; gap:14px; }
+  .contact-icon{
+    width:44px;height:44px;border-radius:12px;
+    display:flex;align-items:center;justify-content:center;
+    background:var(--linen); border:1px solid var(--line); color:var(--thread);
+  }
+  .contact-icon svg{ width:20px;height:20px; }
+  .contact-card h3{ font-size:18px; font-weight:600; }
+  .contact-card p{ font-size:13.5px; color:var(--ink-soft); line-height:1.6; }
+  .contact-card ul{ display:flex; flex-direction:column; gap:8px; margin:4px 0 6px; }
+  .contact-card li{ font-size:13px; display:flex; gap:9px; align-items:flex-start; }
+  .contact-card li svg{ width:13px;height:13px; margin-top:2px; color:var(--sage); }
+
+  /* ---------- Privacy ---------- */
+  .privacy-block{
+    background:var(--ink); color:var(--linen-card);
+    border-radius:20px; padding:48px;
+    display:grid; grid-template-columns:1.1fr 0.9fr; gap:48px; align-items:center;
+  }
+  .privacy-copy .eyebrow{ color:#e9a88f; }
+  .privacy-copy .eyebrow::before{ background:#e9a88f; }
+  .privacy-copy h2{ font-size:clamp(22px,2.4vw,28px); font-weight:600; margin-bottom:14px; }
+  .privacy-copy p{ font-size:14px; line-height:1.65; color:rgba(255,255,255,0.72); max-width:440px; }
+  .privacy-card{
+    background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.14);
+    border-radius:16px; padding:26px;
+  }
+  .privacy-card h4{ font-size:14px; font-weight:600; margin-bottom:14px; }
+  .privacy-card ul{ display:flex; flex-direction:column; gap:9px; margin-bottom:20px; }
+  .privacy-card li{ display:flex; gap:9px; align-items:flex-start; font-size:13px; color:rgba(255,255,255,0.78); }
+  .privacy-card li svg{ width:13px;height:13px; margin-top:2px; color:#e9a88f; flex-shrink:0; }
+  .privacy-note{
+    font-size:12px; line-height:1.6; color:rgba(255,255,255,0.6);
+    padding:12px 14px; border-radius:10px; background:rgba(255,255,255,0.05);
+    border-left:2px solid #e9a88f; margin-bottom:18px;
+  }
+  .btn-delete{
+    display:inline-flex; align-items:center; justify-content:center;
+    padding:11px 20px; border-radius:8px; border:1px solid rgba(255,255,255,0.3);
+    background:transparent; color:#fff; font-size:12px; font-weight:600;
+    letter-spacing:0.02em; text-transform:uppercase; cursor:pointer;
+    transition:background .15s ease;
+  }
+  .btn-delete:hover{ background:rgba(255,255,255,0.1); }
+
+  /* ---------- Footer stats ---------- */
+  footer.stats-footer{
+    margin-top:auto;
+    background:var(--ink); color:var(--linen-card);
+    padding:34px 40px;
+    display:grid; grid-template-columns:repeat(4, 1fr); gap:20px;
+  }
+  .stat-item{ display:flex; align-items:center; gap:14px; }
+  .stat-item .icon{
+    width:42px;height:42px;border-radius:11px; flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;
+    background:rgba(255,255,255,0.08); color:#e9a88f;
+  }
+  .stat-item .icon svg{ width:19px;height:19px; }
+  .stat-item h5{ font-size:14px; font-weight:600; margin-bottom:2px; }
+  .stat-item p{ font-size:11.5px; color:rgba(255,255,255,0.55); }
+
+  /* =========================================
+     MOBILE MENU & FOOTER NAV
+     ========================================= */
+
+  .mobile-footer-nav{ display:none; }
+  .footer-nav-link{
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:3px; flex:1; padding:6px 2px 4px;
+    color:var(--ink-soft);
+    font-family:'JetBrains Mono', monospace;
+    font-size:8.5px; letter-spacing:0.02em; text-transform:uppercase;
+    transition:color .15s ease;
+  }
+  .footer-nav-link svg{ width:19px; height:19px; }
+  .footer-nav-link:hover{ color:var(--ink); }
+  .footer-nav-link.active{ color:var(--thread); }
+
+  .menu-toggle{
+    display:none;
+    position:fixed; top:16px; left:16px; z-index:40;
+    width:38px;height:38px;border-radius:9px;
+    align-items:center;justify-content:center;
+    background:var(--ink); color:#fff;
+    border:none; cursor:pointer;
+    box-shadow:0 4px 14px rgba(0,0,0,0.25);
+  }
+  .menu-toggle svg{width:19px;height:19px;}
+  .sidebar-backdrop{
+    display:none;
+    position:fixed;inset:0;z-index:15;
+    background:rgba(20,15,10,0.45);
+  }
+
+  /* =========================================
+     RESPONSIVE DESIGN
+     ========================================= */
+
+  @media (max-width: 1080px){
+    section.block { padding: 48px 32px; }
+    .scan-flow { grid-template-columns: repeat(2, 1fr); }
+    .flow-step { border-right: 1px dashed var(--line); border-bottom: 1px dashed var(--line); }
+    .flow-step:nth-child(2n) { border-right: none; }
+    .flow-step:last-child { border-bottom: none; border-right: none; }
+    .flow-arrow { display: none; }
+    
+    .tier-grid { grid-template-columns: 1fr; }
+    .tier.highlight { transform: none; box-shadow: none; }
+    
+    .split { grid-template-columns: 1fr; gap: 40px; }
+    
+    .split .feature-copy, .split.reverse .feature-copy { order: 1 !important; }
+    .split .mock, .split.reverse .mock { order: 2 !important; }
+
+    .contact-grid { grid-template-columns: 1fr; }
+    .privacy-block { grid-template-columns: 1fr; gap: 32px; padding: 40px; }
+    footer.stats-footer { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media (max-width: 700px){
+    .menu-toggle{ display:flex; top:8px; left:8px; width:32px; height:32px; }
+    .menu-toggle svg{ width:16px; height:16px; }
+    
+    .sidebar{ transform:translateX(-100%); transition:transform .25s ease; z-index:50; padding-bottom:calc(70px + env(safe-area-inset-bottom)); }
+    .sidebar.open{ transform:translateX(0); box-shadow:8px 0 30px rgba(0,0,0,0.3); }
+    .sidebar-backdrop.open{ display:block; }
+    
+    .main-content{ margin-left:0; padding-bottom: 68px; }
+
+    header{ display:none; }
+
+    .mobile-footer-nav{
+      display:flex;
+      position:fixed; left:0; right:0; bottom:0; z-index:30;
+      background:rgba(243,238,227,0.92);
+      backdrop-filter:blur(16px);
+      -webkit-backdrop-filter:blur(16px);
+      border-top:1px solid rgba(217,208,189,0.7);
+      padding:6px 4px calc(6px + env(safe-area-inset-bottom));
+      justify-content:space-around;
+      align-items:center;
+    }
+    
+    .page-hero { padding: 76px 20px 16px; } 
+    section.block { padding: 32px 16px; } 
+    .block-head { gap: 12px; margin-bottom: 20px; }
+    
+    .split { gap: 32px; }
+    
+    .scan-flow { grid-template-columns: 1fr; }
+    .flow-step { border-right: none !important; border-bottom: 1px dashed var(--line); padding: 20px 14px; }
+    .flow-step:last-child { border-bottom: none; }
+    
+    .privacy-block { padding: 24px 20px; border-radius: 16px; }
+    .contact-card { padding: 24px 20px; }
+    
+    footer.stats-footer { grid-template-columns: 1fr; padding: 32px 20px; gap: 24px; }
+  }
+
+  @media (max-width: 480px){
+    .side-nav { gap: 2px; }
+    .side-link { width: 38px; height: 38px; }
+    .side-link svg { width: 18px; height: 18px; }
+    .branch-note { flex-direction: column; }
+    .branch-pill { min-width: 100%; }
+  }
+
+  /* ===== Unified header / sidebar / mobile-nav (exact copy of features.html) ===== */
+  :root{
+    --linen-card: #FAF7EF;
+    --ink: #22222b;
+    --ink-soft: #6B6258;
+    --thread: #B5442F;
+    --side-bg: rgba(42, 34, 27, 0.85);
+  }
+  body{ display:flex; }
+
+  /* ---------- Sidebar ---------- */
+  .sidebar{
+    position:fixed;top:0;left:0;bottom:0;z-index:50;
+    width:88px;
+    display:flex;flex-direction:column;align-items:center;
+    padding:0px 0 20px;
+    background:var(--side-bg);
+    backdrop-filter:blur(14px);
+    -webkit-backdrop-filter:blur(14px);
+    border-right:1px solid rgba(255,255,255,0.08);
+    transition: all 0.3s ease;
+  }
+  .side-logo{
+    width:44px;height:44px;border-radius:12px;
+    display:flex;align-items:center;justify-content:center;
+    color:#fff;margin-bottom:26px;
+  }
+  .side-logo svg{width:24px;height:24px;}
+  .side-nav{ display:flex;flex-direction:column;gap:8px; flex:1; }
+  .side-link{
+    width:46px;height:46px;border-radius:12px;
+    display:flex;align-items:center;justify-content:center;
+    color:rgba(255,255,255,0.62);
+    transition:background .15s ease, color .15s ease;
+  }
+  .side-link svg{width:20px;height:20px;}
+  .side-link:hover{color:#fff;background:rgba(255,255,255,0.08);}
+  .side-link.active{background:#fdfcf9;color:var(--ink);}
+  .side-bottom{ display:flex;flex-direction:column;align-items:center;gap:16px; margin-top:auto; }
+  .side-avatar{
+    width:38px;height:38px;border-radius:50%;
+    overflow:hidden;
+    border:1.5px solid rgba(255,255,255,0.5);
+    display:flex;align-items:center;justify-content:center;
+    background:#c9c2b4; color:#5b5346; cursor:pointer;
+  }
+  .side-avatar img{width:100%;height:100%;object-fit:cover;display:block;}
+  .side-avatar svg{width:22px;height:22px;}
+  .side-avatar.active{ box-shadow: 0 0 0 2px #fdfcf9; }
+
+  /* ---------- Main layout ---------- */
+  .main-content{
+    flex:1;
+    margin-left:88px;
+    position:relative;
+    display:flex;
+    flex-direction:column;
+    transition: margin-left .2s ease;
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  header{
+    position:sticky; top:0; z-index:12;
+    display:flex;align-items:center;justify-content:space-between;
+    gap:14px;
+    padding:16px 40px;
+    background:rgba(243,238,227,0.86);
+    backdrop-filter:blur(16px);
+    -webkit-backdrop-filter:blur(16px);
+    border-bottom:1px solid rgba(217,208,189,0.7);
+  }
+  .logo{
+    font-family:'Fraunces',serif;
+    font-size:13px;font-weight:600;letter-spacing:0.08em;
+    text-transform:uppercase;color:var(--ink);
+    white-space:nowrap;
+  }
+  nav.main-nav{display:flex;gap:clamp(14px, 2vw, 30px); align-items:center;}
+  nav.main-nav a{
+    font-size:11.5px;font-weight:600;letter-spacing:0.02em;
+    text-transform:uppercase;color:var(--ink-soft);
+    transition:color .15s ease;
+    white-space:nowrap;
+  }
+  nav.main-nav a:hover{color:var(--ink);}
+  nav.main-nav a.active{color:var(--thread);}
+  .header-actions{display:flex;align-items:center;gap:10px;}
+  .btn-header{
+    display:inline-flex;align-items:center;justify-content:center;gap:4px;
+    padding:8px 16px;border-radius:6px;
+    font-size:11.5px;font-weight:600;
+    letter-spacing:0.02em;text-transform:uppercase;
+    cursor:pointer;border:1px solid var(--ink);
+    background:transparent;color:var(--ink);
+    transition:background .15s ease, opacity .15s ease;
+    white-space:nowrap;
+  }
+  .btn-header:hover{background:rgba(0,0,0,0.05);}
+  .btn-header-dark{background:var(--ink);border-color:var(--ink);color:var(--linen-card);}
+  .btn-header-dark:hover{opacity:0.9;}
+
+  /* ---------- Mobile menu & footer nav ---------- */
+  .mobile-footer-nav{ display:none; }
+  .footer-nav-link{
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:3px; flex:1; padding:6px 2px 4px;
+    color:var(--ink-soft);
+    font-family:'JetBrains Mono', monospace;
+    font-size:8.5px; letter-spacing:0.02em; text-transform:uppercase;
+    transition:color .15s ease;
+  }
+  .footer-nav-link svg{ width:19px; height:19px; }
+  .footer-nav-link:hover{ color:var(--ink); }
+  .footer-nav-link.active{ color:var(--thread); }
+
+  .menu-toggle{
+    display:none;
+    position:fixed; top:16px; left:16px; z-index:40;
+    width:38px;height:38px;border-radius:9px;
+    align-items:center;justify-content:center;
+    background:var(--ink); color:#fff;
+    border:none; cursor:pointer;
+    box-shadow:0 4px 14px rgba(0,0,0,0.25);
+  }
+  .menu-toggle svg{width:19px;height:19px;}
+  .sidebar-backdrop{
+    display:none;
+    position:fixed;inset:0;z-index:15;
+    background:rgba(20,15,10,0.45);
+  }
+
+  @media (max-width: 700px){
+    .menu-toggle{ display:flex; top:8px; left:8px; width:32px; height:32px; }
+    .menu-toggle svg{ width:16px; height:16px; }
+
+    .sidebar{ transform:translateX(-100%); transition:transform .25s ease; z-index:50; padding-bottom:calc(70px + env(safe-area-inset-bottom)); }
+    .sidebar.open{ transform:translateX(0); box-shadow:8px 0 30px rgba(0,0,0,0.3); }
+    .sidebar-backdrop.open{ display:block; }
+
+    .main-content{ margin-left:0; padding-bottom: 68px; }
+
+    header{ display:none; }
+
+    .mobile-footer-nav{
+      display:flex;
+      position:fixed; left:0; right:0; bottom:0; z-index:30;
+      background:rgba(243,238,227,0.92);
+      backdrop-filter:blur(16px);
+      -webkit-backdrop-filter:blur(16px);
+      border-top:1px solid rgba(217,208,189,0.7);
+      padding:6px 4px calc(6px + env(safe-area-inset-bottom));
+      justify-content:space-around;
+      align-items:center;
+    }
+  }
+
+  @media (max-width: 480px){
+    .side-nav { gap: 2px; }
+    .side-link { width: 38px; height: 38px; }
+    .side-link svg { width: 18px; height: 18px; }
+  }
+
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="side-logo">
+    <svg viewBox="0 0 24 24" fill="none"><path d="M12 3 L15.5 5.5 L12 8 L8.5 5.5 Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M12 8 L3 13 L3 14 L21 14 L21 13 Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+  </div>
+  <nav class="side-nav">
+    <a href="landing.html" class="side-link" title="Home">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M4 11.5 L12 5 L20 11.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 10.5 V19 a1 1 0 0 0 1 1 h10 a1 1 0 0 0 1 -1 V10.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
+    <a href="favorites.html" class="side-link" title="Favorites">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M12 20 C6.5 15.8, 3.5 12, 3.5 8.2 C3.5 5.1, 5.8 3, 8.5 3 C10.3 3, 11.7 4, 12 5.6 C12.3 4, 13.7 3, 15.5 3 C18.2 3, 20.5 5.1, 20.5 8.2 C20.5 12, 17.5 15.8, 12 20 Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+    </a>
+    <a href="calendar.html" class="side-link" title="Calendar">
+      <svg viewBox="0 0 24 24" fill="none"><rect x="4" y="5.5" width="16" height="14.5" rx="2" stroke="currentColor" stroke-width="1.6"/><line x1="4" y1="10" x2="20" y2="10" stroke="currentColor" stroke-width="1.6"/><line x1="8.3" y1="3" x2="8.3" y2="7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><line x1="15.7" y1="3" x2="15.7" y2="7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+    </a>
+    <a href="wardrobe.html" class="side-link" title="Wardrobe">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M8.5 4 L10 6 h4 l1.5 -2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M8.5 4 L4 7.5 L6.5 10.5 L8 9.3 V20 h8 V9.3 l1.5 1.2 L20 7.5 L15.5 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
+    <a href="outfits.html" class="side-link" title="Outfits">
+      <svg viewBox="0 0 24 24" fill="none"><rect x="7.5" y="3" width="11" height="14" rx="2" stroke="currentColor" stroke-width="1.6" transform="rotate(8 13 10)"/><rect x="5" y="6.5" width="14" height="15" rx="2" stroke="currentColor" stroke-width="1.6"/></svg>
+    </a>
+    <a href="create-outfit.html" class="side-link" title="Create your own outfit">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M4 20 L4 16.5 L15 5.5 a1.8 1.8 0 0 1 2.5 0 l1 1 a1.8 1.8 0 0 1 0 2.5 L7.5 20 Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M13.5 7 L16 9.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+    </a>
+    <a href="index.html" class="side-link" title="Scan an item">
+      <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/><path d="M9.3 9.5a2.7 2.7 0 0 1 5.2-1c0 1.7-2.5 1.9-2.5 3.7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="16.3" r="0.9" fill="currentColor"/></svg>
+    </a>
+  </nav>
+  <div class="side-bottom">
+    <a href="profile.html" id="sideAvatarLink" class="side-avatar" title="Account">
+      <svg id="defaultAvatarIcon" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8.5" r="3.6" stroke="currentColor" stroke-width="1.6"/><path d="M4.5 20 c0 -4.2 3.4 -6.3 7.5 -6.3 s7.5 2.1 7.5 6.3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      <img id="userAvatarImg" src="" alt="" style="display:none;">
+    </a>
+  </div>
+</aside>
+
+<button id="mobileMenuToggle" class="menu-toggle" type="button" aria-label="Deschide meniul">
+  <svg viewBox="0 0 24 24" fill="none"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+</button>
+<div id="sidebarBackdrop" class="sidebar-backdrop"></div>
+<script>
+  (function(){
+    var toggle = document.getElementById('mobileMenuToggle');
+    var sidebar = document.querySelector('.sidebar');
+    var backdrop = document.getElementById('sidebarBackdrop');
+    if(!toggle || !sidebar || !backdrop) return;
+    function closeMenu(){ sidebar.classList.remove('open'); backdrop.classList.remove('open'); }
+    function openMenu(){ sidebar.classList.add('open'); backdrop.classList.add('open'); }
+    toggle.addEventListener('click', function(){
+      if (sidebar.classList.contains('open')) { closeMenu(); } else { openMenu(); }
+    });
+    backdrop.addEventListener('click', closeMenu);
+    sidebar.querySelectorAll('a').forEach(function(a){
+      a.addEventListener('click', closeMenu);
+    });
+  })();
+</script>
+
+
+<main class="main-content">
+
+  <header>
+    <div class="logo">Pick Your Fit</div>
+    <nav class="main-nav">
+      <a href="features.html" class="active">Features</a>
+      <a href="about.html">About</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+    <div class="header-actions" id="headerActions">
+      <a href="login.html" class="btn-header">Log in</a>
+      <a href="signup.html" class="btn-header btn-header-dark">Register</a>
+    </div>
+  </header>
+
+  <!-- ============ PAGE HERO ============ -->
+  <div class="page-hero">
+    <h1>Everything <em>your wardrobe</em> can do.</h1>
+    <p>From AI clothing recognition to outfit planning: every screen, every limit, and every unlock, explained in one place.</p>
+  </div>
+
+  <!-- ============ 1. AI SCAN & RECOGNITION ============ -->
+  <section class="block" id="scan">
+    <div class="block-head">
+      <div>
+        <div class="eyebrow">01 — Scanning</div>
+        <h2>How a photo becomes a wardrobe item.</h2>
+      </div>
+      <p>Every scan runs the same five steps, whether you're a guest just trying it out or logged into your account.</p>
+    </div>
+
+    <div class="card">
+      <div class="scan-flow">
+        
+        <!-- STEP 1: Upload Photo -->
+        <div class="flow-step">
+          <div class="flow-icon">
+            <svg viewBox="0 0 32 32" fill="none">
+              <path d="M4 8l2.5-1.5c1 0.8 2 0.8 3 0L12 8l-1 2-1.5-0.5V14H6.5V9.5L5 10L4 8z" fill="currentColor"/>
+              <path d="M4 18l2.5-1.5c1 0.8 2 0.8 3 0L12 18l-1 2-1.5-0.5V24H6.5v-4.5L5 20l-1-2z" fill="currentColor"/>
+              <rect x="15" y="4" width="14" height="24" rx="2.5" stroke="currentColor" stroke-width="1.8"/>
+              <line x1="20" y1="6.5" x2="24" y2="6.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+              <path d="M18 12l2-1h4l2 1l1 5-2 1v8h-6v-8l-2-1l1-5z" fill="currentColor"/>
+            </svg>
+          </div>
+          <h3>1. Upload Photo</h3>
+          <p>Take or upload a photo of your item.</p>
+          <div class="flow-arrow"><svg viewBox="0 0 12 12" fill="none"><path d="M2 6h8M6 2l4 4-4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        </div>
+
+        <!-- STEP 2: Teachable Machine -->
+        <div class="flow-step">
+          <div class="flow-icon">
+            <svg viewBox="0 0 44 28" fill="none">
+              <g transform="translate(1, 2) scale(0.85)">
+                <path d="M12 13.2c0-.7-.1-1.4-.2-2H12v3.8h5.3c-.2 1.2-.9 2.2-2 2.9v2.4h3.2c1.9-1.7 3-4.3 3-7.1z" fill="#4285F4"/>
+                <path d="M12 21c2.7 0 5-.9 6.7-2.4l-3.2-2.4c-.9.6-2.1 1-3.5 1-2.7 0-5-1.8-5.8-4.3H2.9v2.5C4.6 18.8 8 21 12 21z" fill="#34A853"/>
+                <path d="M6.2 12.9c-.2-.6-.3-1.3-.3-2s.1-1.4.3-2V6.4H2.9C2.2 7.8 1.8 9.3 1.8 11.0s.4 3.2 1.1 4.6l3.3-2.7z" fill="#FBBC05"/>
+                <path d="M12 5c1.5 0 2.8.5 3.8 1.5l2.9-2.9C16.9 1.9 14.6 1 12 1 8 1 4.6 3.2 2.9 6.4l3.3 2.5C7 6.8 9.3 5 12 5z" fill="#EA4335"/>
+              </g>
+              <g stroke="currentColor" stroke-width="1.4" opacity="0.85">
+                <line x1="25" y1="10" x2="32" y2="5"/>
+                <line x1="25" y1="10" x2="32" y2="15"/>
+                <line x1="25" y1="20" x2="32" y2="15"/>
+                <line x1="25" y1="20" x2="32" y2="23"/>
+                <line x1="32" y1="15" x2="39" y2="11"/>
+                <line x1="32" y1="23" x2="39" y2="11"/>
+              </g>
+              <g fill="currentColor">
+                <circle cx="25" cy="10" r="2.2"/>
+                <circle cx="25" cy="20" r="2.2"/>
+                <circle cx="32" cy="5" r="2.2"/>
+                <circle cx="32" cy="15" r="2.2"/>
+                <circle cx="32" cy="23" r="2.2"/>
+                <circle cx="39" cy="11" r="2.2"/>
+              </g>
+            </svg>
+          </div>
+          <h3>2. Teachable Machine</h3>
+          <p>Our model built in Google Teachable Machine analyzes the image.</p>
+          <div class="flow-arrow"><svg viewBox="0 0 12 12" fill="none"><path d="M2 6h8M6 2l4 4-4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        </div>
+
+        <!-- STEP 3: Category Prediction -->
+        <div class="flow-step">
+          <div class="flow-icon">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path d="M8 4l2.5 1.5c.9.6 2.1.6 3 0L16 4l4 3-1.5 4L16 10v10H8V10L5.5 11 4 7l4-3z"/>
+            </svg>
+          </div>
+          <h3>3. Category Prediction</h3>
+          <p>The algorithm predicts the most likely category.</p>
+          <div class="flow-arrow"><svg viewBox="0 0 12 12" fill="none"><path d="M2 6h8M6 2l4 4-4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        </div>
+
+        <!-- STEP 4: Review & Edit -->
+        <div class="flow-step">
+          <div class="flow-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 6l2 2 4-4" />
+              <line x1="13" y1="6" x2="20" y2="6" stroke-width="2.2"/>
+              <path d="M4 12l2 2 4-4" />
+              <line x1="13" y1="12" x2="20" y2="12" stroke-width="2.2"/>
+              <path d="M4 18l2 2 4-4" />
+              <line x1="13" y1="18" x2="20" y2="18" stroke-width="2.2"/>
+            </svg>
+          </div>
+          <h3>4. Review &amp; Edit</h3>
+          <p>You can confirm or change the category.</p>
+          <div class="flow-arrow"><svg viewBox="0 0 12 12" fill="none"><path d="M2 6h8M6 2l4 4-4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        </div>
+
+        <!-- STEP 5: Save to Wardrobe -->
+        <div class="flow-step">
+          <div class="flow-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="5" y="2" width="14" height="18" rx="1" />
+              <line x1="4" y1="2" x2="20" y2="2" stroke-width="2"/>
+              <line x1="12" y1="2" x2="12" y2="20" />
+              <rect x="6.5" y="4" width="3.5" height="14" rx="0.5" stroke-width="0.8" />
+              <rect x="14" y="4" width="3.5" height="14" rx="0.5" stroke-width="0.8" />
+              <circle cx="10.5" cy="12" r="0.6" fill="currentColor"/>
+              <circle cx="13.5" cy="12" r="0.6" fill="currentColor"/>
+              <path d="M7 20v2M17 20v2" stroke-width="2"/>
+            </svg>
+          </div>
+          <h3>5. Save to Wardrobe</h3>
+          <p>Add the item to your wardrobe if you're logged in.</p>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="branch-note">
+      <div class="branch-pill">
+        <div class="dot"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8.5" r="3.6" stroke="currentColor" stroke-width="1.8"/><path d="M4.5 20 c0 -4.2 3.4 -6.3 7.5 -6.3 s7.5 2.1 7.5 6.3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+        <div>
+          <strong>Logged in</strong>
+          <span>Choose "Add to wardrobe" to save the item, or keep scanning more pieces before you stop.</span>
+        </div>
+      </div>
+      <div class="branch-pill alt">
+        <div class="dot"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M9.3 9.5a2.7 2.7 0 0 1 5.2-1c0 1.7-2.5 1.9-2.5 3.7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="16.3" r="0.9" fill="currentColor"/></svg></div>
+        <div>
+          <strong>Not logged in?</strong>
+          <span>Continue scanning or create an account to save your items.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="powered-by">
+      <b>Under the hood</b>
+      <div class="stack">
+        <span>Google Teachable Machine: classification</span>
+        <span>remove.bg: background removal</span>
+        <span>Firebase: auth &amp; data</span>
+        <span>Cloudinary: image storage</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 2. ACCESS TIERS ============ -->
+  <section class="block" id="tiers">
+    <div class="block-head">
+      <div>
+        <div class="eyebrow">02 — Access</div>
+        <h2>Guest, registered, or verified.</h2>
+      </div>
+      <p>What you can do depends on where your account stands:every limit lifts once your email is confirmed.</p>
+    </div>
+
+    <div class="tier-grid">
+      <div class="tier">
+        <div class="tier-icon"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8.5" r="3.6" stroke="currentColor" stroke-width="1.7"/><path d="M4.5 20 c0 -4.2 3.4 -6.3 7.5 -6.3 s7.5 2.1 7.5 6.3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></div>
+        <h3>Guest</h3>
+        <div class="tier-sub">No account</div>
+        <ul>
+          <li><svg viewBox="0 0 24 24" fill="none"><path d="M4 12.5 L9.5 18 L20 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Scan clothes &amp; get AI recognition</li>
+          <li><svg viewBox="0 0 24 24" fill="none"><path d="M4 12.5 L9.5 18 L20 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Browse the landing page &amp; features</li>
+          <li><svg viewBox="0 0 24 24" fill="none"><path d="M4 12.5 L9.5 18 L20 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Read about, reviews &amp; contact us</li>
+        </ul>
+        <div class="tier-foot">Cannot save any items: nothing is kept after the session.</div>
+      </div>
+
+      <div class="tier">
+        <div class="tier-icon"><svg viewBox="0 0 24 24" fill="none"><rect x="4" y="10.5" width="16" height="10" rx="2" stroke="currentColor" stroke-width="1.7"/><path d="M8 10.5 V7.5 a4 4 0 0 1 8 0 v3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></div>
+        <h3>Registered</h3>
+        <div class="tier-sub">Email not confirmed</div>
+        <ul>
+          <li><svg viewBox="0 0 24 24" fill="none"><path d="M4 12.5 L9.5 18 L20 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Save clothes to your wardrobe</li>
+          <li class="limit"><svg viewBox="0 0 24 24" fill="none"><path d="M12 8 v5 M12 16 h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.7"/></svg>Everything is capped until you confirm</li>
+        </ul>
+        <div class="tier-limits">
+          Limit: 2 items per category · 2 favorites · 2 planned outfits. The limit can't be exceeded until confirmation.
+        </div>
+        <div class="tier-foot">Check your inbox to unlock the rest.</div>
+      </div>
+
+      <div class="tier highlight">
+        <div class="tier-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M4 8 l3.5 2.5 L12 5 l4.5 5.5 L20 8 l-1.6 9 H5.6 Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg></div>
+        <h3>Verified account</h3>
+        <div class="tier-sub">Email confirmed</div>
+        <ul>
+          <li><svg viewBox="0 0 24 24" fill="none"><path d="M4 12.5 L9.5 18 L20 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Unlimited wardrobe &amp; favorites</li>
+          <li><svg viewBox="0 0 24 24" fill="none"><path d="M4 12.5 L9.5 18 L20 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Unlimited outfit planning &amp; calendar</li>
+          <li><svg viewBox="0 0 24 24" fill="none"><path d="M4 12.5 L9.5 18 L20 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Full archives &amp; statistics</li>
+          <li><svg viewBox="0 0 24 24" fill="none"><path d="M4 12.5 L9.5 18 L20 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Everything unlocked, no limits</li>
+        </ul>
+        <div class="tier-foot">The full experience: this is what registering is for.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 3. DIGITAL WARDROBE ============ -->
+  <section class="block" id="wardrobe">
+    <div class="split">
+      <div class="mock card">
+        <img src="../frontend_photos/photo_of_wardrobe.png" alt="Your Digital Wardrobe" class="mock-photo" />
+      </div>
+      <div class="feature-copy">
+        <div class="eyebrow">03 — Wardrobe</div>
+        <h2>Your digital wardrobe.</h2>
+        <p>Every scanned item lives here organized, searchable, and ready for outfit building the moment you save it.</p>
+        <ul class="feature-list">
+          <li><svg viewBox="0 0 24 24" fill="none"><path d="M4 12.5 L9.5 18 L20 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Unlimited clothing organization</li>
+          <li><svg viewBox="0 0 24 24" fill="none"><path d="M4 12.5 L9.5 18 L20 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Search instantly across your closet</li>
+          <li><svg viewBox="0 0 24 24" fill="none"><path d="M4 12.5 L9.5 18 L20 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Filter by category</li>
+          <li><svg viewBox="0 0 24 24" fill="none"><path d="M4 12.5 L9.5 18 L20 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Mark favorite pieces</li>
+          <li><svg viewBox="0 0 24 24" fill="none"><path d="M4 12.5 L9.5 18 L20 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Get outfit suggestions from what you own</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 4. OUTFIT BUILDER ============ -->
+  <section class="block" id="builder">
+    <div class="split reverse">
+      <div class="feature-copy">
+        <div class="eyebrow">04 — Create</div>
+        <h2>Build outfits visually.</h2>
+        <p>Drag pieces from your wardrobe onto the canvas and put an outfit together the way you'd lay it out on the bed.</p>
+        <ul class="feature-list">
+          <li><svg viewBox="0 0 24 24" fill="none"><path d="M4 12.5 L9.5 18 L20 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Drag &amp; drop clothes onto the canvas</li>
+          <li><svg viewBox="0 0 24 24" fill="none"><path d="M4 12.5 L9.5 18 L20 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Create unlimited outfits and save them</li>
+          <li><svg viewBox="0 0 24 24" fill="none"><path d="M4 12.5 L9.5 18 L20 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Edit an outfit later, or duplicate it as a starting point</li>
+        </ul>
+        <div class="quick-links">
+          <span><svg viewBox="0 0 24 24" fill="none"><path d="M12 20 C6.5 15.8, 3.5 12, 3.5 8.2 C3.5 5.1, 5.8 3, 8.5 3 C10.3 3, 11.7 4, 12 5.6 C12.3 4, 13.7 3, 15.5 3 C18.2 3, 20.5 5.1, 20.5 8.2 C20.5 12, 17.5 15.8, 12 20 Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>Favorite</span>
+          <span><svg viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="16" height="16" rx="2" stroke="currentColor" stroke-width="1.6"/><circle cx="9" cy="10" r="1.6" stroke="currentColor" stroke-width="1.6"/><path d="M5 17 l4.5 -4.5 3 3 4 -4.5 2.5 3" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>Gallery</span>
+          <span><svg viewBox="0 0 24 24" fill="none"><rect x="4" y="5.5" width="16" height="14.5" rx="2" stroke="currentColor" stroke-width="1.6"/><line x1="4" y1="10" x2="20" y2="10" stroke="currentColor" stroke-width="1.6"/></svg>Calendar</span>
+        </div>
+      </div>
+      <div class="mock card">
+        <img src="../frontend_photos/photo_of_create.png" alt="Build outfits visually" class="mock-photo" />
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 5. OUTFIT GALLERY ============ -->
+  <section class="block" id="gallery">
+    <div class="split">
+      <div class="mock card">
+        <img src="../frontend_photos/photo_of_outfits.png" alt="Outfit Gallery" class="mock-photo" />
+      </div>
+      <div class="feature-copy">
+        <div class="eyebrow">05 — Gallery</div>
+        <h2>Every outfit, in one gallery.</h2>
+        <p>Every outfit you create is stored inside your personal gallery, ready to browse whenever you need inspiration.</p>
+        <ul class="feature-list">
+          <li><svg viewBox="0 0 24 24" fill="none"><path d="M4 12.5 L9.5 18 L20 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Open any outfit to edit, favorite, or plan it</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 6. CALENDAR ============ -->
+  <section class="block" id="calendar">
+    <div class="split reverse">
+      <div class="feature-copy">
+        <div class="eyebrow">06 — Calendar</div>
+        <h2>Plan what you'll wear.</h2>
+        <p>Assign outfits to any day on the calendar, so you always know what's coming up, and never repeat yourself by accident.</p>
+        <ul class="feature-list">
+          <li><svg viewBox="0 0 24 24" fill="none"><path d="M4 12.5 L9.5 18 L20 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Choose any day and assign an outfit</li>
+          <li><svg viewBox="0 0 24 24" fill="none"><path d="M4 12.5 L9.5 18 L20 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Never wear the same outfit twice</li>
+          <li><svg viewBox="0 0 24 24" fill="none"><path d="M4 12.5 L9.5 18 L20 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Plan holidays, work weeks, or a single trip</li>
+          <li><svg viewBox="0 0 24 24" fill="none"><path d="M4 12.5 L9.5 18 L20 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>See every upcoming outfit at a glance</li>
+        </ul>
+      </div>
+      <div class="mock card">
+        <img src="../frontend_photos/photo_of_calendar.png" alt="Outfit Calendar" class="mock-photo" />
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 7. ARCHIVES ============ -->
+  <section class="block" id="archives">
+    <div class="block-head">
+      <div>
+        <div class="eyebrow">07 — Archives</div>
+        <h2>Your wardrobe remembers.</h2>
+      </div>
+      <p>Every outfit you've ever created stays on record: browse previous months and years anytime.</p>
+    </div>
+    <div class="card" style="padding:32px;">
+      <div class="archive-timeline">
+        <div class="archive-node"><div class="archive-dot">'26</div><h4>2026</h4><p>Current year</p></div>
+        <div class="archive-node"><div class="archive-dot">SUM</div><h4>Summer</h4><p>Season</p></div>
+        <div class="archive-node"><div class="archive-dot">JUL</div><h4>July</h4><p>31 outfits</p></div>
+        <div class="archive-node"><div class="archive-dot">AUG</div><h4>August</h4><p>Vacation</p></div>
+        <div class="archive-node"><div class="archive-dot">SEP</div><h4>September</h4><p>University</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 8. CONTACT ============ -->
+  <section class="block" id="contact">
+    <div class="block-head">
+      <div>
+        <div class="eyebrow">08 — Contact</div>
+        <h2>Talk to us, or the community.</h2>
+      </div>
+    </div>
+    <div class="contact-grid">
+      <div class="card contact-card">
+        <div class="contact-icon"><svg viewBox="0 0 24 24" fill="none"><rect x="3.5" y="6" width="17" height="12" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M4.5 7.5 L12 13 L19.5 7.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <h3>Contact our team</h3>
+        <p>Need help? Reach the people who built Pick Your Fit directly.</p>
+        <ul>
+          <li><svg viewBox="0 0 24 24" fill="none"><path d="M4 12.5 L9.5 18 L20 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Report a bug</li>
+          <li><svg viewBox="0 0 24 24" fill="none"><path d="M4 12.5 L9.5 18 L20 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Ask a question</li>
+          <li><svg viewBox="0 0 24 24" fill="none"><path d="M4 12.5 L9.5 18 L20 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Send a suggestion</li>
+        </ul>
+      </div>
+      <div class="card contact-card">
+        <div class="contact-icon"><svg viewBox="0 0 24 24" fill="none"><circle cx="9" cy="8" r="3" stroke="currentColor" stroke-width="1.6"/><circle cx="17" cy="9.5" r="2.3" stroke="currentColor" stroke-width="1.6"/><path d="M3.5 20 c0 -3.6 2.7 -5.4 5.5 -5.4 s5.5 1.8 5.5 5.4 M15 15.5 c2.3 0.2 4 1.7 4 4.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></div>
+        <h3>Community</h3>
+        <p>Trade ideas with other people building out their own digital wardrobe.</p>
+        <ul>
+          <li><svg viewBox="0 0 24 24" fill="none"><path d="M4 12.5 L9.5 18 L20 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Share ideas</li>
+          <li><svg viewBox="0 0 24 24" fill="none"><path d="M4 12.5 L9.5 18 L20 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Fashion inspiration</li>
+          <li><svg viewBox="0 0 24 24" fill="none"><path d="M4 12.5 L9.5 18 L20 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>General discussions</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 9. PRIVACY ============ -->
+  <section class="block" id="privacy">
+    <div class="privacy-block">
+      <div class="privacy-copy">
+        <div class="eyebrow">09 — Privacy</div>
+        <h2>Privacy first.</h2>
+        <p>No images are shared. Only you can access your wardrobe. You decide what stays and what gets deleted, permanently.</p>
+      </div>
+      <div class="privacy-card">
+        <h4>Delete account</h4>
+        <p style="font-size:12.5px;color:rgba(255,255,255,0.6);margin-bottom:14px;">One click. Everything is permanently removed:</p>
+        <ul>
+          <li><svg viewBox="0 0 24 24" fill="none"><path d="M4 12.5 L9.5 18 L20 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Clothing images</li>
+          <li><svg viewBox="0 0 24 24" fill="none"><path d="M4 12.5 L9.5 18 L20 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Outfits &amp; favorites</li>
+          <li><svg viewBox="0 0 24 24" fill="none"><path d="M4 12.5 L9.5 18 L20 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Calendar &amp; profile</li>
+          <li><svg viewBox="0 0 24 24" fill="none"><path d="M4 12.5 L9.5 18 L20 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Account information</li>
+        </ul>
+        <div class="privacy-note">Once your account is deleted, every piece of personal data associated with it is permanently erased.</div>
+        <button class="btn-delete" type="button">Delete my account</button>
+      </div>
+    </div>
+  </section>
+
+  <footer class="stats-footer">
+    <div class="stat-item">
+      <div class="icon"><svg viewBox="0 0 24 24" fill="none"><path d="M8.5 4 L10 6 h4 l1.5 -2 M8.5 4 L4 7.5 L6.5 10.5 L8 9.3 V20 h8 V9.3 l1.5 1.2 L20 7.5 L15.5 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div><h5>Unlimited clothing</h5><p>Add as many items as you want.</p></div>
+    </div>
+    <div class="stat-item">
+      <div class="icon"><svg viewBox="0 0 24 24" fill="none"><path d="M12 20 C6.5 15.8, 3.5 12, 3.5 8.2 C3.5 5.1, 5.8 3, 8.5 3 C10.3 3, 11.7 4, 12 5.6 C12.3 4, 13.7 3, 15.5 3 C18.2 3, 20.5 5.1, 20.5 8.2 C20.5 12, 17.5 15.8, 12 20 Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg></div>
+      <div><h5>Unlimited favorites</h5><p>Save every outfit you love.</p></div>
+    </div>
+    <div class="stat-item">
+      <div class="icon"><svg viewBox="0 0 24 24" fill="none"><rect x="4" y="5.5" width="16" height="14.5" rx="2" stroke="currentColor" stroke-width="1.6"/><line x1="4" y1="10" x2="20" y2="10" stroke="currentColor" stroke-width="1.6"/></svg></div>
+      <div><h5>Unlimited planning</h5><p>Plan your days, weeks and months.</p></div>
+    </div>
+    <div class="stat-item">
+      <div class="icon"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="2.4" stroke="currentColor" stroke-width="1.6"/><circle cx="5" cy="6" r="1.8" stroke="currentColor" stroke-width="1.6"/><circle cx="19" cy="6" r="1.8" stroke="currentColor" stroke-width="1.6"/><circle cx="5" cy="18" r="1.8" stroke="currentColor" stroke-width="1.6"/><circle cx="19" cy="18" r="1.8" stroke="currentColor" stroke-width="1.6"/></svg></div>
+      <div><h5>AI-powered recognition</h5><p>Smart, fast, and getting better every day.</p></div>
+    </div>
+  </footer>
+
+</main>
+
+<nav class="mobile-footer-nav" aria-label="Meniu principal">
+  <a href="landing.html" class="footer-nav-link" title="Home">
+    <svg viewBox="0 0 24 24" fill="none"><path d="M4 11.5 L12 5 L20 11.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 10.5 V19 a1 1 0 0 0 1 1 h10 a1 1 0 0 0 1 -1 V10.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <span>Home</span>
+  </a>
+  <a href="features.html" class="footer-nav-link active" title="Features">
+    <svg viewBox="0 0 24 24" fill="none"><path d="M12 3 L13.4 9 L19.5 10.4 L13.4 11.8 L12 18 L10.6 11.8 L4.5 10.4 L10.6 9 Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
+    <span>Features</span>
+  </a>
+  <a href="index.html" class="footer-nav-link" title="Scan">
+    <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/><path d="M9.3 9.5a2.7 2.7 0 0 1 5.2-1c0 1.7-2.5 1.9-2.5 3.7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="16.3" r="0.9" fill="currentColor"/></svg>
+    <span>Scan</span>
+  </a>
+  <a href="about.html" class="footer-nav-link" title="About">
+    <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/><line x1="12" y1="11" x2="12" y2="16.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="7.8" r="1" fill="currentColor"/></svg>
+    <span>About</span>
+  </a>
+  <a href="contact.html" class="footer-nav-link" title="Contact">
+    <svg viewBox="0 0 24 24" fill="none"><rect x="3.5" y="6" width="17" height="12" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M4.5 7.5 L12 13 L19.5 7.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <span>Contact</span>
+  </a>
+</nav>
+
+<script>
+  (function(){
+    const idToken = localStorage.getItem('pyf_idToken');
+    const userPhoto = localStorage.getItem('pyf_userPhoto');
+    const avatarLink = document.getElementById('sideAvatarLink');
+    const defaultIcon = document.getElementById('defaultAvatarIcon');
+    const userImg = document.getElementById('userAvatarImg');
+    const headerActions = document.getElementById('headerActions');
+
+    if (idToken) {
+      if (userPhoto) {
+        userImg.src = userPhoto;
+        userImg.style.display = 'block';
+        defaultIcon.style.display = 'none';
+      }
+      avatarLink.setAttribute('href', 'profile.html');
+      avatarLink.setAttribute('title', 'My account');
+      if (headerActions) {
+        headerActions.innerHTML = '<a href="index.html" class="btn-header btn-header-dark">My Closet</a>';
+      }
+    }
+  })();
+</script>
+
+</body>
+</html>

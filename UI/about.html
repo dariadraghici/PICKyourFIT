@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About - Pick Your Fit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500;1,9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --linen: #F3EEE3;
+    --linen-card: #FAF7EF;
+    --ink: #22222b;
+    --ink-soft: #6B6258;
+    --thread: #B5442F;
+    --thread-dark: #8A331F;
+    --thread-tint: #F1DCCF;
+    --sage: #7C8C72;
+    --denim: #46566B;
+    --line: #D9D0BD;
+    --side-bg: rgba(42, 34, 27, 0.85);
+    --sidebar-w: clamp(64px, 6vw, 88px);
+    --gutter: clamp(16px, 4vw, 40px);
+  }
+
+  *{ box-sizing: border-box; margin: 0; padding: 0; }
+  html{ scroll-behavior: smooth; }
+  body{
+    background: var(--linen);
+    background-image: repeating-linear-gradient(0deg, rgba(0,0,0,0.018) 0px, rgba(0,0,0,0.018) 1px, transparent 1px, transparent 3px);
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    min-height:100vh;
+    display: flex;
+  }
+
+  a { text-decoration: none; color: inherit; }
+  button { font-family: inherit; cursor: pointer; }
+
+  /* ---------- Sidebar ---------- */
+  .sidebar{
+    position:fixed;top:0;left:0;bottom:0;z-index:5;
+    width:var(--sidebar-w); display:flex;flex-direction:column;align-items:center;
+    padding:clamp(14px, 2.5vw, 22px) 0 20px; background:var(--side-bg);
+    backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+    border-right:1px solid rgba(255,255,255,0.08);
+  }
+  .side-logo{ width:44px;height:44px;border-radius:12px; display:flex;align-items:center;justify-content:center; color:#fff;margin-bottom:26px; }
+  .side-logo svg{width:24px;height:24px;}
+  .side-nav{ display:flex;flex-direction:column;gap:8px; flex:1; }
+  .side-link{
+    width:46px;height:46px;border-radius:12px; display:flex;align-items:center;justify-content:center;
+    color:rgba(255,255,255,0.62); transition:background .15s ease, color .15s ease;
+  }
+  .side-link svg{width:20px;height:20px;}
+  .side-link:hover{color:#fff;background:rgba(255,255,255,0.08);}
+  .side-link.active{background:#fdfcf9;color:var(--ink);}
+  .side-bottom{ display:flex;flex-direction:column;align-items:center;gap:16px; margin-top:auto; }
+  .side-avatar{
+    width:38px;height:38px;border-radius:50%; overflow:hidden; border:1.5px solid rgba(255,255,255,0.5);
+    display:flex;align-items:center;justify-content:center; background:#c9c2b4; color:#5b5346;
+  }
+  .side-avatar img{width:100%;height:100%;object-fit:cover;display:block;}
+  .side-avatar svg{width:22px;height:22px;}
+
+  /* ---------- Main Layout & Header ---------- */
+  .main-content { flex: 1; margin-left: var(--sidebar-w); display: flex; flex-direction: column; min-width:0; }
+  header{ display:flex;align-items:center;justify-content:space-between; gap:12px; padding:clamp(16px, 2.6vw, 26px) clamp(20px, 4vw, 44px); position:relative; z-index:4; }
+  .logo{ font-family:'Fraunces',serif; font-size:12.3px;font-weight:600;letter-spacing:0.16em; text-transform:uppercase;color:var(--ink); }
+  nav.main-nav{display:flex;gap:clamp(10px, 2vw, 34px); flex-shrink:1; min-width:0; align-items:center;}
+  nav.main-nav a{ font-size:clamp(7.9px, 1.3vw, 11px);font-weight:600;letter-spacing:0.03em; text-transform:uppercase;color:var(--ink-soft); transition:color .15s ease; white-space:nowrap; }
+  nav.main-nav a:hover{color:var(--ink);}
+  nav.main-nav a.active{color:var(--thread);}
+
+  .header-actions{display:flex;align-items:center;gap:12px;}
+  .btn-header {
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    padding:10px 20px;border-radius:8px;font-size:11px;font-weight:600;
+    letter-spacing:0.02em;text-transform:uppercase; border:1px solid var(--ink);
+    background:transparent;color:var(--ink); transition:background .15s ease, opacity .15s ease;
+  }
+  .btn-header:hover{background:rgba(0,0,0,0.05);}
+  .btn-header-dark{background:var(--ink);color:var(--linen-card);}
+  .btn-header-dark:hover{opacity:0.9;background:var(--ink);}
+
+  /* ================= PAGE ================= */
+  .about-wrap{ max-width: 1220px; margin: 0 auto; width: 100%; padding: 0 var(--gutter) clamp(40px, 6vw, 60px); }
+
+  .eyebrow{
+    font-family:'JetBrains Mono', monospace;
+    font-size:9.7px; letter-spacing:0.14em; text-transform:uppercase; color:var(--thread);
+    display:flex; align-items:center; gap:9px; margin-bottom:14px;
+  }
+  .eyebrow::before{ content:''; width:16px; height:1px; background:var(--thread); }
+
+  /* ---------- Hero ---------- */
+  .hero{
+    display:grid; grid-template-columns: 1fr 1.05fr; gap:clamp(24px, 5vw, 60px);
+    align-items:center; padding: clamp(20px, 4vw, 36px) 0 clamp(40px, 6vw, 64px);
+  }
+  .hero h1{
+    font-family:'Fraunces', serif; font-weight:400; font-size:clamp(26.4px, 4.4vw, 44px);
+    line-height:1.06; letter-spacing:-0.01em; margin:0 0 18px;
+  }
+  .hero h1 em{ display:block; font-style:italic; font-weight:500; color:var(--thread); }
+  .hero p{ color:var(--ink-soft); font-size:12.8px; line-height:1.75; margin:0 0 14px; max-width:460px; }
+  .hero-actions{ display:flex; gap:12px; margin-top:26px; flex-wrap:wrap; }
+  .btn-primary{
+    display:inline-flex; align-items:center; gap:8px; padding:13px 24px; border-radius:9px;
+    font-size:10.6px; font-weight:600; letter-spacing:0.04em; text-transform:uppercase;
+    background:var(--ink); color:var(--linen-card); border:1px solid var(--ink); transition:opacity .15s ease;
+  }
+  .btn-primary:hover{ opacity:0.9; }
+  .btn-ghost{
+    display:inline-flex; align-items:center; gap:8px; padding:13px 24px; border-radius:9px;
+    font-size:10.6px; font-weight:600; letter-spacing:0.04em; text-transform:uppercase;
+    background:transparent; color:var(--ink); border:1px solid var(--ink); transition:background .15s ease;
+  }
+  .btn-ghost:hover{ background:rgba(0,0,0,0.05); }
+
+  /* Hero visual */
+  .hero-visual{ position:relative; height:clamp(320px, 40vw, 460px); display:flex; align-items:center; justify-content:center; }
+  .hero-rings{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; pointer-events:none; }
+  .hero-rings span{ position:absolute; border-radius:50%; border:1px solid var(--line); }
+  .hero-rings span:nth-child(1){ width:62%; height:62%; }
+  .hero-rings span:nth-child(2){ width:84%; height:84%; opacity:0.7; }
+  .hero-rings span:nth-child(3){ width:104%; height:104%; opacity:0.4; }
+
+  .phone{
+    position:relative; z-index:3; width:clamp(160px, 17vw, 200px); height:clamp(330px, 34vw, 410px);
+    background:var(--ink); border-radius:32px; padding:8px; box-shadow:0 30px 60px rgba(30,20,10,0.22);
+  }
+  .phone-screen{ width:100%; height:100%; background:var(--linen-card); border-radius:24px; overflow:hidden; position:relative; }
+  .phone-screen img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .sw1{ background:#DCCDBB; } .sw2{ background:#B9C4B0; } .sw3{ background:#C7B3A6; }
+  .sw4{ background:#AEB8C4; } .sw5{ background:#E3D3C2; } .sw6{ background:#8E8577; }
+  .sw7{ background:#D3B8A3; } .sw8{ background:#9BA79A; } .sw9{ background:#C9BBAE; }
+
+  .float-card{
+    position:absolute; z-index:2; width:52px; height:52px; border-radius:13px;
+    background:var(--linen-card); border:1px solid var(--line); box-shadow:0 12px 24px rgba(40,28,16,0.1);
+    display:flex; align-items:center; justify-content:center; color:var(--thread);
+  }
+  .float-card svg{ width:24px; height:24px; }
+  .fc1{ top:6%; left:2%; } .fc2{ top:2%; right:14%; } .fc3{ bottom:22%; left:0%; }
+  .fc4{ bottom:4%; right:4%; } .fc5{ top:38%; right:0%; }
+
+  @media (max-width: 860px){
+    .hero{ grid-template-columns:1fr; text-align:center; }
+    .hero p{ margin-left:auto; margin-right:auto; }
+    .hero-actions{ justify-content:center; }
+    .float-card{ display:none; }
+  }
+
+  /* ---------- Individual numbered story sections ---------- */
+  .story-section{
+    position:relative; overflow:hidden; background:var(--linen-card); border:1px solid var(--line);
+    border-radius:18px; padding:clamp(28px, 5vw, 52px); margin-bottom:clamp(18px, 3vw, 26px);
+  }
+  .story-index{
+    position:absolute; top:clamp(-10px, -1vw, 0px); right:clamp(16px, 3vw, 34px);
+    font-family:'Fraunces', serif; font-weight:700; font-size:clamp(70.4px, 11vw, 130.2px); line-height:1;
+    color:transparent; -webkit-text-stroke:1.5px var(--line); z-index:0; pointer-events:none; user-select:none;
+  }
+  .story-head{ position:relative; z-index:1; max-width:640px; margin-bottom:clamp(26px, 4.5vw, 40px); }
+  .story-head .eyebrow{ justify-content:flex-start; }
+  .story-head h2{ font-family:'Fraunces', serif; font-weight:600; font-size:clamp(19.4px, 3.2vw, 28.2px); margin:0 0 12px; line-height:1.15; }
+  .story-head p{ color:var(--ink-soft); font-size:12.3px; line-height:1.75; margin:0; }
+  .story-body{ position:relative; z-index:1; }
+
+  .story-body-split{ display:grid; grid-template-columns: 0.85fr 1.15fr; gap:clamp(28px, 5vw, 56px); align-items:center; }
+  @media (max-width: 780px){ .story-body-split{ grid-template-columns:1fr; } }
+
+  .loc-badge{
+    display:inline-flex; align-items:center; gap:7px; background:var(--linen); border:1px solid var(--line);
+    border-radius:999px; padding:7px 14px 7px 10px; font-family:'JetBrains Mono', monospace; font-size:9.2px;
+    letter-spacing:0.05em; text-transform:uppercase; color:var(--ink-soft); margin-bottom:18px;
+  }
+  .loc-badge svg{ width:13px; height:13px; color:var(--thread); }
+
+  .pull-quote-lg{ border-left:3px solid var(--thread); padding-left:18px; margin:0 0 20px; }
+  .pull-quote-lg p{ font-family:'Fraunces', serif; font-style:italic; font-weight:500; font-size:clamp(14.1px, 2.2vw, 17.6px); color:var(--ink); line-height:1.5; margin:0; }
+
+  .stat-row{ display:flex; gap:14px; margin-top:clamp(24px, 4vw, 34px); flex-wrap:wrap; }
+  .stat-chip{ background:var(--linen); border:1px solid var(--line); border-radius:12px; padding:14px 18px; flex:1; min-width:150px; }
+  .stat-chip .num{ font-family:'Fraunces', serif; font-weight:600; font-size:19.4px; color:var(--thread); display:block; margin-bottom:3px; }
+  .stat-chip .lbl{ font-size:10.1px; color:var(--ink-soft); line-height:1.4; }
+
+  /* Flow diagram (icon -> icon -> icon) */
+  .flow{ display:flex; align-items:flex-start; gap:6px; margin-top:4px; flex-wrap:wrap; }
+  .flow-step{ position:relative; display:flex; flex-direction:column; align-items:center; text-align:center; width:118px; }
+  .flow-icon{
+    position:relative; width:64px; height:64px; border-radius:16px; background:var(--linen); border:1px solid var(--line);
+    display:flex; align-items:center; justify-content:center; color:var(--thread); margin-bottom:10px;
+  }
+  .flow-icon svg{ width:28px; height:28px; }
+  .flow-step .flow-num{
+    position:absolute; top:-7px; right:16px; width:18px; height:18px; border-radius:50%; background:var(--thread);
+    color:var(--linen-card); font-family:'JetBrains Mono', monospace; font-size:8.4px; font-weight:600;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .flow-step strong{ font-family:'Fraunces', serif; font-weight:600; font-size:11px; display:block; margin-bottom:3px; }
+  .flow-step small{ font-size:9.2px; color:var(--ink-soft); line-height:1.4; }
+  .flow-step .cap-sub{ font-family:'JetBrains Mono', monospace; font-size:7.9px; text-transform:uppercase; letter-spacing:0.03em; color:var(--sage); margin-top:3px; display:block; }
+  .flow-arrow{ align-self:center; color:var(--line); margin-top:26px; flex-shrink:0; }
+  .flow-arrow svg{ width:18px; height:18px; }
+
+  /* mini app-screen mockup used inside rows */
+  .mini-screen{
+    background:var(--linen); border:1px solid var(--line); border-radius:16px; padding:18px;
+    box-shadow:0 20px 40px rgba(40,28,16,0.06);
+  }
+  .mini-screen .ms-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+  .mini-screen .ms-title{ font-family:'Fraunces', serif; font-weight:600; font-size:12.3px; }
+  .mini-screen .ms-dots{ display:flex; gap:3px; }
+  .mini-screen .ms-dots span{ width:5px; height:5px; border-radius:50%; background:var(--line); }
+  .mini-screen-img{ padding:0; overflow:hidden; display:flex; }
+  .mini-screen-photo{ width:100%; height:100%; object-fit:cover; display:block; border-radius:15px; }
+  .mini-items{ display:flex; gap:10px; margin-bottom:8px; }
+  .mini-items div{ flex:1; height:84px; border-radius:10px; }
+  .mini-labels{ display:flex; gap:10px; margin-bottom:14px; }
+  .mini-labels span{ flex:1; text-align:center; font-size:8.4px; color:var(--ink-soft); font-weight:600; letter-spacing:0.02em; text-transform:uppercase; }
+  .mini-cta{ height:30px; border-radius:8px; background:var(--ink); color:var(--linen-card); font-size:8.8px; font-weight:600; letter-spacing:0.04em; text-transform:uppercase; display:flex; align-items:center; justify-content:center; }
+
+  /* ---------- Result: 4 mini cards ---------- */
+  .result-grid{ display:grid; grid-template-columns:repeat(4, 1fr); gap:16px; }
+  .result-card{ background:var(--linen); border:1px solid var(--line); border-radius:14px; padding:16px; }
+  .result-card .ms-title{ font-family:'Fraunces', serif; font-weight:600; font-size:11.4px; margin-bottom:10px; }
+  .result-thumbs{ display:grid; grid-template-columns:repeat(2,1fr); gap:5px; margin-bottom:14px; }
+  .result-thumbs div{ height:30px; border-radius:6px; }
+  .result-cap{ display:flex; align-items:center; gap:6px; font-size:9.7px; font-weight:600; color:var(--ink); margin-bottom:4px; }
+  .result-cap svg{ width:15px; height:15px; color:var(--thread); }
+  .result-desc{ font-size:9.2px; color:var(--ink-soft); line-height:1.5; margin:0; }
+  .result-grid-5{ grid-template-columns:repeat(5, 1fr); }
+  .result-card-img .result-photo{ width:100%; aspect-ratio:1/1; border-radius:8px; overflow:hidden; margin-bottom:14px; background:var(--linen-card); }
+  .result-card-img .result-photo img{ width:100%; height:100%; object-fit:cover; display:block; }
+  @media (max-width: 780px){ .result-grid-5{ grid-template-columns:repeat(2, 1fr); } }
+  @media (max-width: 780px){ .result-grid{ grid-template-columns:repeat(2, 1fr); } }
+
+  /* ---------- Why cards ---------- */
+  .section-block{ margin-bottom:clamp(16px, 3vw, 22px); }
+  .section-block .eyebrow{ justify-content:flex-start; }
+  .section-heading{ display:flex; align-items:flex-end; justify-content:space-between; gap:20px; margin-bottom:22px; flex-wrap:wrap; }
+  .section-heading h2{ font-family:'Fraunces', serif; font-weight:600; font-size:clamp(17.6px, 3vw, 23.8px); margin:0; }
+  .section-heading p{ color:var(--ink-soft); font-size:11.9px; max-width:420px; margin:0; line-height:1.6; }
+
+  .cards-4{ display:grid; grid-template-columns:repeat(4, 1fr); gap:14px; }
+  .why-card{ background:var(--linen-card); border:1px solid var(--line); border-radius:14px; padding:22px 18px; text-align:center; }
+  .why-icon{ width:44px; height:44px; border-radius:12px; margin:0 auto 14px; background:var(--linen); color:var(--thread); display:flex; align-items:center; justify-content:center; }
+  .why-icon svg{ width:22px; height:22px; }
+  .why-card h3{ font-family:'Fraunces', serif; font-weight:600; font-size:13.2px; margin:0 0 6px; }
+  .why-card p{ color:var(--ink-soft); font-size:11px; line-height:1.55; margin:0; }
+  @media (max-width: 860px){ .cards-4{ grid-template-columns:repeat(2, 1fr); } }
+
+  /* ---------- Before / After ---------- */
+  .ba-grid{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  .ba-panel{ border-radius:16px; padding:clamp(20px, 3vw, 30px); border:1px solid var(--line); }
+  .ba-before{ background:#EFE6DC; }
+  .ba-after{ background:var(--linen-card); }
+  .ba-label{ display:flex; align-items:center; gap:10px; margin-bottom:16px; }
+  .ba-label .dot{ width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; }
+  .ba-before .dot{ background:#DCC9B4; color:var(--thread-dark); }
+  .ba-after .dot{ background:var(--thread-tint); color:var(--thread); }
+  .ba-label span{ font-family:'JetBrains Mono', monospace; font-size:9.7px; letter-spacing:0.1em; text-transform:uppercase; color:var(--ink-soft); }
+  .ba-panel ul{ list-style:none; display:flex; flex-direction:column; gap:11px; }
+  .ba-panel li{ display:flex; align-items:flex-start; gap:9px; font-size:11.9px; color:var(--ink); line-height:1.5; }
+  .ba-panel li svg{ width:15px; height:15px; margin-top:2px; flex-shrink:0; }
+  .ba-before li svg{ color:var(--thread-dark); }
+  .ba-after li svg{ color:var(--sage); }
+  @media (max-width: 780px){ .ba-grid{ grid-template-columns:1fr; } }
+
+  /* ---------- For everyone who ---------- */
+  .cards-6{ display:grid; grid-template-columns:repeat(6, 1fr); gap:12px; }
+  .who-card{ background:var(--linen-card); border:1px solid var(--line); border-radius:14px; padding:18px 12px; text-align:center; }
+  .who-icon{ width:38px; height:38px; border-radius:10px; margin:0 auto 12px; background:var(--linen); color:var(--thread); display:flex; align-items:center; justify-content:center; }
+  .who-icon svg{ width:19px; height:19px; }
+  .who-card p{ font-size:10.1px; color:var(--ink-soft); line-height:1.5; margin:0; }
+  @media (max-width: 940px){ .cards-6{ grid-template-columns:repeat(3, 1fr); } }
+  @media (max-width: 560px){ .cards-6{ grid-template-columns:repeat(2, 1fr); } }
+
+  /* ---------- Final ---------- */
+  .final-row{ display:grid; grid-template-columns: 1.2fr 1fr; gap:1px; background:var(--line); border:1px solid var(--line); border-radius:16px; overflow:hidden; }
+  .final-row > div{ background:var(--linen-card); padding:clamp(26px, 4vw, 42px); }
+  .final-row h2{ font-family:'Fraunces', serif; font-weight:600; font-size:clamp(17.6px, 3vw, 23.8px); margin:6px 0 12px; line-height:1.2; }
+  .final-row p{ color:var(--ink-soft); font-size:11.9px; line-height:1.7; }
+  .note-panel{ display:flex; flex-direction:column; justify-content:center; align-items:flex-start; }
+  .note-heart{ width:40px; height:40px; border-radius:50%; background:var(--thread-tint); color:var(--thread); display:flex; align-items:center; justify-content:center; margin-bottom:16px; }
+  .note-heart svg{ width:19px; height:19px; }
+  .note-panel p{ font-size:12.3px; color:var(--ink); margin-bottom:14px; }
+  .signature{ font-family:'Fraunces', serif; font-style:italic; font-weight:500; font-size:19.4px; color:var(--thread); }
+  @media (max-width: 780px){ .final-row{ grid-template-columns:1fr; } }
+
+  /* ---------- Bottom strip ---------- */
+  .bottom-strip{
+    margin-top:clamp(24px, 4vw, 36px); border-radius:16px; background:var(--ink); color:var(--linen-card);
+    padding:16px clamp(18px, 3vw, 32px); display:flex; align-items:center; justify-content:space-between;
+    gap:16px; flex-wrap:wrap;
+  }
+  .strip-steps{ display:flex; gap:clamp(14px, 3vw, 30px); flex-wrap:wrap; }
+  .strip-step{ display:flex; align-items:center; gap:7px; font-size:10.1px; font-weight:600; letter-spacing:0.02em; color:rgba(250,247,239,0.85); }
+  .strip-step svg{ width:15px; height:15px; color:var(--thread); }
+  .strip-tag{ font-family:'Fraunces', serif; font-size:11px; color:rgba(250,247,239,0.7); text-align:right; line-height:1.4; }
+  .strip-tag strong{ color:var(--linen-card); font-weight:600; }
+
+  /* ---------- Mobile footer nav (phone only, replaces header) ---------- */
+  .mobile-footer-nav{ display:none; }
+  .footer-nav-link{
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:3px; flex:1; padding:6px 2px 4px;
+    color:var(--ink-soft);
+    font-family:'JetBrains Mono', monospace;
+    font-size:7.5px; letter-spacing:0.02em; text-transform:uppercase;
+    transition:color .15s ease;
+  }
+  .footer-nav-link svg{ width:19px; height:19px; }
+  .footer-nav-link:hover{ color:var(--ink); }
+  .footer-nav-link.active{ color:var(--thread); }
+
+  /* ---------- Mobile menu toggle (phone only) ---------- */
+  .menu-toggle{
+    display:none;
+    position:fixed; top:16px; left:16px; z-index:40;
+    width:38px;height:38px;border-radius:9px;
+    align-items:center;justify-content:center;
+    background:var(--ink); color:#fff;
+    border:none; cursor:pointer;
+    box-shadow:0 4px 14px rgba(0,0,0,0.25);
+  }
+  .menu-toggle svg{width:19px;height:19px;}
+  .sidebar-backdrop{
+    display:none;
+    position:fixed;inset:0;z-index:15;
+    background:rgba(20,15,10,0.45);
+  }
+  @media (max-width: 700px){
+    .menu-toggle{ display:flex; }
+    .sidebar{ transform:translateX(-100%); transition:transform .25s ease; z-index:20; padding-bottom:calc(70px + env(safe-area-inset-bottom)); }
+    .sidebar.open{ transform:translateX(0); box-shadow:8px 0 30px rgba(0,0,0,0.3); }
+    .sidebar-backdrop.open{ display:block; }
+    .main-content{ margin-left:0; }
+
+    header{ display:none; }
+
+    .mobile-footer-nav{
+      display:flex;
+      position:fixed; left:0; right:0; bottom:0; z-index:30;
+      background:rgba(243,238,227,0.92);
+      backdrop-filter:blur(16px);
+      -webkit-backdrop-filter:blur(16px);
+      border-top:1px solid rgba(217,208,189,0.7);
+      padding:6px 4px calc(6px + env(safe-area-inset-bottom));
+      justify-content:space-around;
+      align-items:center;
+    }
+
+    .about-wrap{ padding-top:44px; padding-bottom:96px; }
+    .result-grid{ grid-template-columns:repeat(2, 1fr); }
+    .story-index{ font-size:56.3px; top:8px; }
+    .flow{ justify-content:center; }
+    .flow-arrow{ transform:rotate(90deg); margin:4px 0; }
+  }
+
+  /* ===== Unified header / sidebar / mobile-nav (exact copy of features.html) ===== */
+  :root{
+    --linen-card: #FAF7EF;
+    --ink: #22222b;
+    --ink-soft: #6B6258;
+    --thread: #B5442F;
+    --side-bg: rgba(42, 34, 27, 0.85);
+  }
+  body{ display:flex; }
+
+  /* ---------- Sidebar ---------- */
+  .sidebar{
+    position:fixed;top:0;left:0;bottom:0;z-index:50;
+    width:88px;
+    display:flex;flex-direction:column;align-items:center;
+    padding:0px 0 20px;
+    background:var(--side-bg);
+    backdrop-filter:blur(14px);
+    -webkit-backdrop-filter:blur(14px);
+    border-right:1px solid rgba(255,255,255,0.08);
+    transition: all 0.3s ease;
+  }
+  .side-logo{
+    width:44px;height:44px;border-radius:12px;
+    display:flex;align-items:center;justify-content:center;
+    color:#fff;margin-bottom:26px;
+  }
+  .side-logo svg{width:24px;height:24px;}
+  .side-nav{ display:flex;flex-direction:column;gap:8px; flex:1; }
+  .side-link{
+    width:46px;height:46px;border-radius:12px;
+    display:flex;align-items:center;justify-content:center;
+    color:rgba(255,255,255,0.62);
+    transition:background .15s ease, color .15s ease;
+  }
+  .side-link svg{width:20px;height:20px;}
+  .side-link:hover{color:#fff;background:rgba(255,255,255,0.08);}
+  .side-link.active{background:#fdfcf9;color:var(--ink);}
+  .side-bottom{ display:flex;flex-direction:column;align-items:center;gap:16px; margin-top:auto; }
+  .side-avatar{
+    width:38px;height:38px;border-radius:50%;
+    overflow:hidden;
+    border:1.5px solid rgba(255,255,255,0.5);
+    display:flex;align-items:center;justify-content:center;
+    background:#c9c2b4; color:#5b5346; cursor:pointer;
+  }
+  .side-avatar img{width:100%;height:100%;object-fit:cover;display:block;}
+  .side-avatar svg{width:22px;height:22px;}
+  .side-avatar.active{ box-shadow: 0 0 0 2px #fdfcf9; }
+
+  /* ---------- Main layout ---------- */
+  .main-content{
+    flex:1;
+    margin-left:88px;
+    position:relative;
+    display:flex;
+    flex-direction:column;
+    transition: margin-left .2s ease;
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  header{
+    position:sticky; top:0; z-index:12;
+    display:flex;align-items:center;justify-content:space-between;
+    gap:14px;
+    padding:16px 40px;
+    background:rgba(243,238,227,0.86);
+    backdrop-filter:blur(16px);
+    -webkit-backdrop-filter:blur(16px);
+    border-bottom:1px solid rgba(217,208,189,0.7);
+  }
+  .logo{
+    font-family:'Fraunces',serif;
+    font-size:13px;font-weight:600;letter-spacing:0.08em;
+    text-transform:uppercase;color:var(--ink);
+    white-space:nowrap;
+  }
+  nav.main-nav{display:flex;gap:clamp(14px, 2vw, 30px); align-items:center;}
+  nav.main-nav a{
+    font-size:11.5px;font-weight:600;letter-spacing:0.02em;
+    text-transform:uppercase;color:var(--ink-soft);
+    transition:color .15s ease;
+    white-space:nowrap;
+  }
+  nav.main-nav a:hover{color:var(--ink);}
+  nav.main-nav a.active{color:var(--thread);}
+  .header-actions{display:flex;align-items:center;gap:10px;}
+  .btn-header{
+    display:inline-flex;align-items:center;justify-content:center;gap:4px;
+    padding:8px 16px;border-radius:6px;
+    font-size:11.5px;font-weight:600;
+    letter-spacing:0.02em;text-transform:uppercase;
+    cursor:pointer;border:1px solid var(--ink);
+    background:transparent;color:var(--ink);
+    transition:background .15s ease, opacity .15s ease;
+    white-space:nowrap;
+  }
+  .btn-header:hover{background:rgba(0,0,0,0.05);}
+  .btn-header-dark{background:var(--ink);border-color:var(--ink);color:var(--linen-card);}
+  .btn-header-dark:hover{opacity:0.9;}
+
+  /* ---------- Mobile menu & footer nav ---------- */
+  .mobile-footer-nav{ display:none; }
+  .footer-nav-link{
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:3px; flex:1; padding:6px 2px 4px;
+    color:var(--ink-soft);
+    font-family:'JetBrains Mono', monospace;
+    font-size:8.5px; letter-spacing:0.02em; text-transform:uppercase;
+    transition:color .15s ease;
+  }
+  .footer-nav-link svg{ width:19px; height:19px; }
+  .footer-nav-link:hover{ color:var(--ink); }
+  .footer-nav-link.active{ color:var(--thread); }
+
+  .menu-toggle{
+    display:none;
+    position:fixed; top:16px; left:16px; z-index:40;
+    width:38px;height:38px;border-radius:9px;
+    align-items:center;justify-content:center;
+    background:var(--ink); color:#fff;
+    border:none; cursor:pointer;
+    box-shadow:0 4px 14px rgba(0,0,0,0.25);
+  }
+  .menu-toggle svg{width:19px;height:19px;}
+  .sidebar-backdrop{
+    display:none;
+    position:fixed;inset:0;z-index:15;
+    background:rgba(20,15,10,0.45);
+  }
+
+  @media (max-width: 700px){
+    .menu-toggle{ display:flex; top:8px; left:8px; width:32px; height:32px; }
+    .menu-toggle svg{ width:16px; height:16px; }
+
+    .sidebar{ transform:translateX(-100%); transition:transform .25s ease; z-index:50; padding-bottom:calc(70px + env(safe-area-inset-bottom)); }
+    .sidebar.open{ transform:translateX(0); box-shadow:8px 0 30px rgba(0,0,0,0.3); }
+    .sidebar-backdrop.open{ display:block; }
+
+    .main-content{ margin-left:0; padding-bottom: 68px; }
+
+    header{ display:none; }
+
+    .mobile-footer-nav{
+      display:flex;
+      position:fixed; left:0; right:0; bottom:0; z-index:30;
+      background:rgba(243,238,227,0.92);
+      backdrop-filter:blur(16px);
+      -webkit-backdrop-filter:blur(16px);
+      border-top:1px solid rgba(217,208,189,0.7);
+      padding:6px 4px calc(6px + env(safe-area-inset-bottom));
+      justify-content:space-around;
+      align-items:center;
+    }
+  }
+
+  @media (max-width: 480px){
+    .side-nav { gap: 2px; }
+    .side-link { width: 38px; height: 38px; }
+    .side-link svg { width: 18px; height: 18px; }
+  }
+
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="side-logo">
+    <svg viewBox="0 0 24 24" fill="none"><path d="M12 3 L15.5 5.5 L12 8 L8.5 5.5 Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M12 8 L3 13 L3 14 L21 14 L21 13 Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+  </div>
+  <nav class="side-nav">
+    <a href="landing.html" class="side-link" title="Home">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M4 11.5 L12 5 L20 11.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 10.5 V19 a1 1 0 0 0 1 1 h10 a1 1 0 0 0 1 -1 V10.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
+    <a href="favorites.html" class="side-link" title="Favorites">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M12 20 C6.5 15.8, 3.5 12, 3.5 8.2 C3.5 5.1, 5.8 3, 8.5 3 C10.3 3, 11.7 4, 12 5.6 C12.3 4, 13.7 3, 15.5 3 C18.2 3, 20.5 5.1, 20.5 8.2 C20.5 12, 17.5 15.8, 12 20 Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+    </a>
+    <a href="calendar.html" class="side-link" title="Calendar">
+      <svg viewBox="0 0 24 24" fill="none"><rect x="4" y="5.5" width="16" height="14.5" rx="2" stroke="currentColor" stroke-width="1.6"/><line x1="4" y1="10" x2="20" y2="10" stroke="currentColor" stroke-width="1.6"/><line x1="8.3" y1="3" x2="8.3" y2="7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><line x1="15.7" y1="3" x2="15.7" y2="7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+    </a>
+    <a href="wardrobe.html" class="side-link" title="Wardrobe">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M8.5 4 L10 6 h4 l1.5 -2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M8.5 4 L4 7.5 L6.5 10.5 L8 9.3 V20 h8 V9.3 l1.5 1.2 L20 7.5 L15.5 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
+    <a href="outfits.html" class="side-link" title="Outfits">
+      <svg viewBox="0 0 24 24" fill="none"><rect x="7.5" y="3" width="11" height="14" rx="2" stroke="currentColor" stroke-width="1.6" transform="rotate(8 13 10)"/><rect x="5" y="6.5" width="14" height="15" rx="2" stroke="currentColor" stroke-width="1.6"/></svg>
+    </a>
+    <a href="create-outfit.html" class="side-link" title="Create your own outfit">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M4 20 L4 16.5 L15 5.5 a1.8 1.8 0 0 1 2.5 0 l1 1 a1.8 1.8 0 0 1 0 2.5 L7.5 20 Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M13.5 7 L16 9.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+    </a>
+    <a href="index.html" class="side-link" title="Scan an item">
+      <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/><path d="M9.3 9.5a2.7 2.7 0 0 1 5.2-1c0 1.7-2.5 1.9-2.5 3.7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="16.3" r="0.9" fill="currentColor"/></svg>
+    </a>
+  </nav>
+  <div class="side-bottom">
+    <a href="profile.html" id="sideAvatarLink" class="side-avatar" title="Account">
+      <svg id="defaultAvatarIcon" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8.5" r="3.6" stroke="currentColor" stroke-width="1.6"/><path d="M4.5 20 c0 -4.2 3.4 -6.3 7.5 -6.3 s7.5 2.1 7.5 6.3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      <img id="userAvatarImg" src="" alt="" style="display:none;">
+    </a>
+  </div>
+</aside>
+
+<button id="mobileMenuToggle" class="menu-toggle" type="button" aria-label="Deschide meniul">
+  <svg viewBox="0 0 24 24" fill="none"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+</button>
+<div id="sidebarBackdrop" class="sidebar-backdrop"></div>
+<script>
+  (function(){
+    var toggle = document.getElementById('mobileMenuToggle');
+    var sidebar = document.querySelector('.sidebar');
+    var backdrop = document.getElementById('sidebarBackdrop');
+    if(!toggle || !sidebar || !backdrop) return;
+    function closeMenu(){ sidebar.classList.remove('open'); backdrop.classList.remove('open'); }
+    function openMenu(){ sidebar.classList.add('open'); backdrop.classList.add('open'); }
+    toggle.addEventListener('click', function(){
+      if (sidebar.classList.contains('open')) { closeMenu(); } else { openMenu(); }
+    });
+    backdrop.addEventListener('click', closeMenu);
+    sidebar.querySelectorAll('a').forEach(function(a){
+      a.addEventListener('click', closeMenu);
+    });
+  })();
+</script>
+
+
+<main class="main-content">
+  <header>
+    <div class="logo">Pick Your Fit</div>
+    <nav class="main-nav">
+      <a href="features.html">Features</a>
+      <a href="about.html" class="active">About</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+    <div class="header-actions" id="headerActions">
+      <a href="login.html" class="btn-header">Log in</a>
+      <a href="signup.html" class="btn-header btn-header-dark">Register</a>
+    </div>
+  </header>
+
+  <div class="about-wrap">
+
+    <!-- ===== HERO ===== -->
+    <section class="hero">
+      <div>
+        <p class="eyebrow">Our Story</p>
+        <h1>The story behind<em>Pick Your Fit</em></h1>
+        <p>Pick Your Fit was born from a real problem we all have: too many clothes, not enough clarity.</p>
+        <p>At the beginning of July 2026, I was getting ready for a trip to Rome, Italy. Like every time I traveled, I ended up taking everything out of my wardrobe... and still couldn't find anything I loved.</p>
+        <p>So I decided to build the app I always needed: a smarter, faster and easier way to see, organize, and plan my outfits.</p>
+        <div class="hero-actions">
+          <a href="index.html" class="btn-primary">Try It Now</a>
+          <a href="features.html" class="btn-ghost">See Features</a>
+        </div>
+      </div>
+
+      <div class="hero-visual">
+        <div class="hero-rings"><span></span><span></span><span></span></div>
+
+        <div class="float-card fc1" title="Outerwear"><svg viewBox="0 0 24 24" fill="none"><path d="M9 3.5 L12 6 L15 3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 3.5 L4.5 6.5 L6.5 9.5 L8 8.4 V20.5 H16 V8.4 L17.5 9.5 L19.5 6.5 L15 3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="float-card fc2" title="Accessories"><svg viewBox="0 0 24 24" fill="none"><circle cx="6.5" cy="13" r="3" stroke="currentColor" stroke-width="1.6"/><circle cx="17.5" cy="13" r="3" stroke="currentColor" stroke-width="1.6"/><path d="M9.5 13h5M3.5 11l1.7-3.5h13.6L20.5 11" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></div>
+        <div class="float-card fc3" title="Footwear"><svg viewBox="0 0 24 24" fill="none"><path d="M3.5 15.5 V11 c0-.8.6-1.4 1.4-1.6l4-.9 3.6-3 c.5-.4 1.2-.5 1.8-.2l.7.4c.6.3.9 1 .7 1.6l-.8 2.4 3 1.4c1.3.6 2.1 1.9 2.1 3.3v1.1 H3.5Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M3.5 15.5 h17 v1.6 c0 .8 -.6 1.4 -1.4 1.4 H4.9 c-.8 0 -1.4 -.6 -1.4 -1.4 Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg></div>
+        <div class="float-card fc4" title="Dresses"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 3.5 h5 l1 3 -1.7 1 .7 1.4 3 10.6 h-11 l3-10.6 .7-1.4 -1.7-1Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M9.5 3.5 c.5 1.6 1.5 2.5 2.5 2.5 s2 -.9 2.5 -2.5" stroke="currentColor" stroke-width="1.6"/></svg></div>
+        <div class="float-card fc5" title="Bags"><svg viewBox="0 0 24 24" fill="none"><rect x="4.5" y="9" width="15" height="11" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M8.5 9 V7 a3.5 3.5 0 0 1 7 0 v2" stroke="currentColor" stroke-width="1.6"/></svg></div>
+
+        <div class="phone">
+          <div class="phone-screen">
+            <img src="../frontend_photos/phone.png" alt="Pick Your Fit app screen">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 01 THE PROBLEM ===== -->
+    <section class="story-section">
+      <div class="story-head">
+        <p class="eyebrow">01 · The Problem</p>
+        <h2>Every vacation started the same.</h2>
+        <p>No matter the destination, packing always turned into the same chaotic ritual and I never actually felt ready when it was done.</p>
+      </div>
+      <div class="story-body">
+        <div class="flow">
+          <div class="flow-step">
+            <span class="flow-num">1</span>
+            <div class="flow-icon"><svg viewBox="0 0 24 24" fill="none"><rect x="4" y="3" width="16" height="18" rx="1.5" stroke="currentColor" stroke-width="1.6"/><line x1="4" y1="7.5" x2="20" y2="7.5" stroke="currentColor" stroke-width="1.4"/><line x1="9" y1="3" x2="9" y2="7.5" stroke="currentColor" stroke-width="1.4"/><circle cx="15" cy="12" r="0.9" fill="currentColor"/></svg></div>
+            <strong>Full closet</strong>
+            <small>A full wardrobe but nothing to wear.</small>
+          </div>
+          <div class="flow-arrow"><svg viewBox="0 0 24 24" fill="none"><path d="M4 12h15M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="flow-step">
+            <span class="flow-num">2</span>
+            <div class="flow-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M8 4l2 2h4l2-2M6 9l2.5 11h7L18 9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 8.5l3-3M21 8.5l-3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></div>
+            <strong>Everything out</strong>
+            <small>Taking everything out, again and again.</small>
+          </div>
+          <div class="flow-arrow"><svg viewBox="0 0 24 24" fill="none"><path d="M4 12h15M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="flow-step">
+            <span class="flow-num">3</span>
+            <div class="flow-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M3.5 20 h17 M4.5 20 V9 a1 1 0 0 1 1 -1 h13 a1 1 0 0 1 1 1 v11" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 8 V6 a1.5 1.5 0 0 1 1.5 -1.5 h5 A1.5 1.5 0 0 1 16 6 v2" stroke="currentColor" stroke-width="1.6"/><path d="M4.5 13 h15" stroke="currentColor" stroke-width="1.3"/></svg></div>
+            <strong>Messy room</strong>
+            <small>A messy room and hours lost.</small>
+          </div>
+          <div class="flow-arrow"><svg viewBox="0 0 24 24" fill="none"><path d="M4 12h15M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="flow-step">
+            <span class="flow-num">4</span>
+            <div class="flow-icon"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/><path d="M9.3 9.3a2.7 2.7 0 0 1 5.2-1c0 1.8-2.5 1.9-2.5 3.9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="16.5" r="0.9" fill="currentColor"/></svg></div>
+            <strong>Still stuck</strong>
+            <small>Still not finding the right outfit.</small>
+          </div>
+          <div class="flow-arrow"><svg viewBox="0 0 24 24" fill="none"><path d="M4 12h15M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="flow-step">
+            <span class="flow-num">5</span>
+            <div class="flow-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M12 4v6l4 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/></svg></div>
+            <strong>Breakdown</strong>
+            <small>Watching the minutes disappear.</small>
+          </div>
+          <div class="flow-arrow"><svg viewBox="0 0 24 24" fill="none"><path d="M4 12h15M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="flow-step">
+            <span class="flow-num">6</span>
+            <div class="flow-icon"><svg viewBox="0 0 24 24" fill="none"><rect x="3.5" y="6" width="17" height="12" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M4.5 7.5 L12 13 L19.5 7.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <strong>Calling friends</strong>
+            <small>Asking everyone for a second opinion.</small>
+          </div>
+          <div class="flow-arrow"><svg viewBox="0 0 24 24" fill="none"><path d="M4 12h15M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="flow-step">
+            <span class="flow-num">7</span>
+            <div class="flow-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M8.5 4 L10 6 h4 l1.5 -2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M8.5 4 L4 7.5 L6.5 10.5 L8 9.3 V20 h8 V9.3 l1.5 1.2 L20 7.5 L15.5 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <strong>Take something you do not love</strong>
+            <small>Settling for an outfit you don't enjoy.</small>
+          </div>
+        </div>
+        <div class="stat-row">
+          <div class="stat-chip"><span class="num">45+ min</span><span class="lbl">lost per packing session</span></div>
+          <div class="stat-chip"><span class="num">100%</span><span class="lbl">of trips, without fail</span></div>
+          <div class="stat-chip"><span class="num">0</span><span class="lbl">outfits I actually loved</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 02 JULY 2026 ===== -->
+    <section class="story-section">
+      <div class="story-head">
+        <p class="eyebrow">02 · July 2026</p>
+        <h2>Before my trip to Rome...</h2>
+        <p>I wanted to be organized, save time and actually enjoy choosing my outfits. That's when the idea for Pick Your Fit came to life.</p>
+      </div>
+      <div class="story-body story-body-split">
+        <div>
+          <div class="loc-badge">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M12 21s7-6.3 7-11.5A7 7 0 0 0 5 9.5C5 14.7 12 21 12 21Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><circle cx="12" cy="9.5" r="2.3" stroke="currentColor" stroke-width="1.6"/></svg>
+            Rome, Italy — July 2026
+          </div>
+          <div class="pull-quote-lg">
+            <p>"What if my whole wardrobe lived in one place, and I could plan outfits without ever pulling a single thing off its hanger?"</p>
+          </div>
+          <p style="color:var(--ink-soft); font-size:11.9px; line-height:1.7;">That question, asked the night before packing for Rome, is where Pick Your Fit began.</p>
+        </div>
+        <div class="mini-screen mini-screen-img">
+          <img src="../frontend_photos/create.png" alt="Create Outfit" class="mini-screen-photo">
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 03 THE IDEA ===== -->
+    <section class="story-section">
+      <div class="story-head">
+        <p class="eyebrow">03 · The Idea</p>
+        <h2>What if everything could be digital?</h2>
+        <p>Scan. Recognize. Organize. See everything. Create anything: a wardrobe that lives on your phone instead of your floor.</p>
+      </div>
+      <div class="story-body">
+        <div class="flow">
+          <div class="flow-step">
+            <span class="flow-num">1</span>
+            <div class="flow-icon"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/><path d="M9.3 9.3a2.7 2.7 0 0 1 5.2-1c0 1.8-2.5 1.9-2.5 3.9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="16.5" r="0.9" fill="currentColor"/></svg></div>
+            <strong>Scan item</strong>
+            <small>Snap a photo of anything you own.</small>
+          </div>
+          <div class="flow-arrow"><svg viewBox="0 0 24 24" fill="none"><path d="M4 12h15M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="flow-step">
+            <span class="flow-num">2</span>
+            <div class="flow-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M9 4a3 3 0 0 0-3 3v.3A2.7 2.7 0 0 0 4.5 9.8 2.8 2.8 0 0 0 5.4 14a3 3 0 0 0 2.9 3.6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 4a3 3 0 0 1 3 3v.3a2.7 2.7 0 0 1 1.5 2.5A2.8 2.8 0 0 1 18.6 14a3 3 0 0 1-2.9 3.6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 4v13.6M15 4v13.6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M9 20.5h6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></div>
+            <strong>Category recognition</strong>
+            <small>Identified automatically.</small>
+            <span class="cap-sub">Teachable Machine</span>
+          </div>
+          <div class="flow-arrow"><svg viewBox="0 0 24 24" fill="none"><path d="M4 12h15M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="flow-step">
+            <span class="flow-num">3</span>
+            <div class="flow-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M8.5 4 L10 6 h4 l1.5 -2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M8.5 4 L4 7.5 L6.5 10.5 L8 9.3 V20 h8 V9.3 l1.5 1.2 L20 7.5 L15.5 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <strong>Wardrobe</strong>
+            <small>Added and ready to browse.</small>
+          </div>
+          <div class="flow-arrow"><svg viewBox="0 0 24 24" fill="none"><path d="M4 12h15M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="flow-step">
+            <span class="flow-num">4</span>
+            <div class="flow-icon"><svg viewBox="0 0 24 24" fill="none"><rect x="7.5" y="3" width="11" height="14" rx="2" stroke="currentColor" stroke-width="1.6" transform="rotate(8 13 10)"/><rect x="5" y="6.5" width="14" height="15" rx="2" stroke="currentColor" stroke-width="1.6"/></svg></div>
+            <strong>Outfits</strong>
+            <small>Mixed and matched in seconds.</small>
+          </div>
+          <div class="flow-arrow"><svg viewBox="0 0 24 24" fill="none"><path d="M4 12h15M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="flow-step">
+            <span class="flow-num">5</span>
+            <div class="flow-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M4 20 L4 16.5 L15 5.5 a1.8 1.8 0 0 1 2.5 0 l1 1 a1.8 1.8 0 0 1 0 2.5 L7.5 20 Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg></div>
+            <strong>Save</strong>
+            <small>Keep your favorite outfits ready to go.</small>
+          </div>
+          <div class="flow-arrow"><svg viewBox="0 0 24 24" fill="none"><path d="M4 12h15M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="flow-step">
+            <span class="flow-num">6</span>
+            <div class="flow-icon"><svg viewBox="0 0 24 24" fill="none"><rect x="4" y="5.5" width="16" height="14.5" rx="2" stroke="currentColor" stroke-width="1.6"/><line x1="4" y1="10" x2="20" y2="10" stroke="currentColor" stroke-width="1.6"/></svg></div>
+            <strong>Plan</strong>
+            <small>Assign outfits to days and trips.</small>
+          </div>
+          <div class="flow-arrow"><svg viewBox="0 0 24 24" fill="none"><path d="M4 12h15M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="flow-step">
+            <span class="flow-num">7</span>
+            <div class="flow-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M9 3l3 2.5L15 3l4 3-2 2.5v11.5H7V8.5L5 6Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg></div>
+            <strong>Wear</strong>
+            <small>Step out the door, fully ready.</small>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 04 THE RESULT ===== -->
+    <section class="story-section">
+      <div class="story-head">
+        <p class="eyebrow">04 · The Result</p>
+        <h2>Everything in one app.</h2>
+        <p>Your wardrobe, your style, your schedule. All in one beautiful place: built to be used before, during and long after any trip.</p>
+      </div>
+      <div class="story-body">
+        <div class="result-grid result-grid-5">
+          <div class="result-card result-card-img">
+            <p class="ms-title">Scan Item</p>
+            <div class="result-photo"><img src="../frontend_photos/photo_of_index.png" alt="Scan Item"></div>
+            <div class="result-cap"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/><path d="M9.3 9.3a2.7 2.7 0 0 1 5.2-1c0 1.8-2.5 1.9-2.5 3.9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="16.5" r="0.9" fill="currentColor"/></svg>Scan</div>
+            <p class="result-desc">Snap a photo and let AI recognize it.</p>
+          </div>
+          <div class="result-card result-card-img">
+            <p class="ms-title">My Wardrobe</p>
+            <div class="result-photo"><img src="../frontend_photos/photo_of_wardrobe.png" alt="My Wardrobe"></div>
+            <div class="result-cap"><svg viewBox="0 0 24 24" fill="none"><path d="M8.5 4 L10 6 h4 l1.5 -2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M8.5 4 L4 7.5 L6.5 10.5 L8 9.3 V20 h8 V9.3 l1.5 1.2 L20 7.5 L15.5 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Organize</div>
+            <p class="result-desc">See every item you own, sorted by category.</p>
+          </div>
+          <div class="result-card result-card-img">
+            <p class="ms-title">Outfit Gallery</p>
+            <div class="result-photo"><img src="../frontend_photos/photo_of_outfits.png" alt="Outfit Gallery"></div>
+            <div class="result-cap"><svg viewBox="0 0 24 24" fill="none"><path d="M4 20 L4 16.5 L15 5.5 a1.8 1.8 0 0 1 2.5 0 l1 1 a1.8 1.8 0 0 1 0 2.5 L7.5 20 Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>Create</div>
+            <p class="result-desc">Mix pieces into outfits and save your favorites.</p>
+          </div>
+          <div class="result-card result-card-img">
+            <p class="ms-title">Calendar</p>
+            <div class="result-photo"><img src="../frontend_photos/photo_of_calendar.png" alt="Calendar"></div>
+            <div class="result-cap"><svg viewBox="0 0 24 24" fill="none"><rect x="4" y="5.5" width="16" height="14.5" rx="2" stroke="currentColor" stroke-width="1.6"/><line x1="4" y1="10" x2="20" y2="10" stroke="currentColor" stroke-width="1.6"/></svg>Plan</div>
+            <p class="result-desc">Assign outfits to days, trips and events.</p>
+          </div>
+          <div class="result-card result-card-img">
+            <p class="ms-title">Create Outfit</p>
+            <div class="result-photo"><img src="../frontend_photos/photo_of_create.png" alt="Create Outfit"></div>
+            <div class="result-cap"><svg viewBox="0 0 24 24" fill="none"><path d="M4 4v5h5M20 20v-5h-5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M5.5 15A7.5 7.5 0 0 0 19 12M18.5 9A7.5 7.5 0 0 0 5 12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>Repeat</div>
+            <p class="result-desc">Rewear and remix outfits you already loved.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 05 WHY ===== -->
+    <div class="section-block">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">05 · Why Pick Your Fit?</p>
+          <h2>Four reasons people stop dreading their closet.</h2>
+        </div>
+      </div>
+      <div class="cards-4">
+        <div class="why-card">
+          <div class="why-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3v4M9 5.5l1.5 1.5M15 5.5l-1.5 1.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M4 20l8-6 8 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <h3>Organize</h3>
+          <p>See every item you own. Find anything, anytime.</p>
+        </div>
+        <div class="why-card">
+          <div class="why-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M12 20 C6.5 15.8, 3.5 12, 3.5 8.2 C3.5 5.1, 5.8 3, 8.5 3 C10.3 3, 11.7 4, 12 5.6 C12.3 4, 13.7 3, 15.5 3 C18.2 3, 20.5 5.1, 20.5 8.2 C20.5 12, 17.5 15.8, 12 20 Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg></div>
+          <h3>Style</h3>
+          <p>Get inspired and discover new outfit ideas.</p>
+        </div>
+        <div class="why-card">
+          <div class="why-icon"><svg viewBox="0 0 24 24" fill="none"><rect x="4" y="5.5" width="16" height="14.5" rx="2" stroke="currentColor" stroke-width="1.6"/><line x1="4" y1="10" x2="20" y2="10" stroke="currentColor" stroke-width="1.6"/><line x1="8.3" y1="3" x2="8.3" y2="7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><line x1="15.7" y1="3" x2="15.7" y2="7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></div>
+          <h3>Plan</h3>
+          <p>Plan your days, trips and week in advance.</p>
+        </div>
+        <div class="why-card">
+          <div class="why-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M6 10.5c0-3 2.7-5.5 6.5-5.5 3 0 5 1.4 5.9 3.2h1.1c.6 0 1 .5.9 1l-.4 1.6a1 1 0 0 1-1 .8h-.6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 10.5c-1.6.4-2.5 1.6-2.5 3 0 2 2 3.5 5 4v2.5h3V18c1.7-.1 3-.5 4-1.2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="15.5" cy="9.5" r="0.8" fill="currentColor"/></svg></div>
+          <h3>Save</h3>
+          <p>Buy smarter. Spend less. Wear more of what you have.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== 06 BEFORE/AFTER ===== -->
+    <div class="section-block">
+      <p class="eyebrow">06 · Before / After</p>
+      <div class="ba-grid">
+        <div class="ba-panel ba-before">
+          <div class="ba-label">
+            <div class="dot"><svg viewBox="0 0 24 24" fill="none" width="14" height="14"><path d="M8 15c1-1 2-1.5 4-1.5s3 .5 4 1.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="9" cy="9.5" r="1" fill="currentColor"/><circle cx="15" cy="9.5" r="1" fill="currentColor"/></svg></div>
+            <span>Before</span>
+          </div>
+          <ul>
+            <li><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/><path d="M9 9l6 6M15 9l-6 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>"I have nothing to wear."</li>
+            <li><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/><path d="M9 9l6 6M15 9l-6 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>Searching for 45+ minutes.</li>
+            <li><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/><path d="M9 9l6 6M15 9l-6 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>A messy room, every time.</li>
+            <li><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/><path d="M9 9l6 6M15 9l-6 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>Overpacking for every trip.</li>
+            <li><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/><path d="M9 9l6 6M15 9l-6 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>Stress before every trip.</li>
+          </ul>
+        </div>
+        <div class="ba-panel ba-after">
+          <div class="ba-label">
+            <div class="dot"><svg viewBox="0 0 24 24" fill="none" width="14" height="14"><path d="M8 9.5c1 1 2 1.5 4 1.5s3-.5 4-1.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="9" cy="9.5" r="1" fill="currentColor"/><circle cx="15" cy="9.5" r="1" fill="currentColor"/></svg></div>
+            <span>After</span>
+          </div>
+          <ul>
+            <li><svg viewBox="0 0 24 24" fill="none"><path d="M4 12.5l5 5L20 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Open Pick Your Fit.</li>
+            <li><svg viewBox="0 0 24 24" fill="none"><path d="M4 12.5l5 5L20 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Find what you love in seconds.</li>
+            <li><svg viewBox="0 0 24 24" fill="none"><path d="M4 12.5l5 5L20 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Create the perfect outfit.</li>
+            <li><svg viewBox="0 0 24 24" fill="none"><path d="M4 12.5l5 5L20 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Pack only what you need.</li>
+            <li><svg viewBox="0 0 24 24" fill="none"><path d="M4 12.5l5 5L20 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>More time for the trip itself.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== 07 FOR EVERYONE ===== -->
+    <div class="section-block">
+      <p class="eyebrow">07 · For Everyone Who...</p>
+      <div class="cards-6">
+        <div class="who-card">
+          <div class="who-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M9 3l3 2.5L15 3l4 3-2 2.5v11.5H7V8.5L5 6Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg></div>
+          <p>Says "I have nothing to wear."</p>
+        </div>
+        <div class="who-card">
+          <div class="who-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M8.5 4 L10 6 h4 l1.5 -2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M8.5 4 L4 7.5 L6.5 10.5 L8 9.3 V20 h8 V9.3 l1.5 1.2 L20 7.5 L15.5 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <p>Has a lot of clothes but still feels stuck.</p>
+        </div>
+        <div class="who-card">
+          <div class="who-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M10.5 3.5L21 12l-10.5 8.5-2-1.6L15.3 12 8.5 5.1z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M3 12h5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></div>
+          <p>Loves traveling and packing smart.</p>
+        </div>
+        <div class="who-card">
+          <div class="who-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M6 10.5c0-3 2.7-5.5 6.5-5.5 3 0 5 1.4 5.9 3.2h1.1c.6 0 1 .5.9 1l-.4 1.6a1 1 0 0 1-1 .8h-.6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 10.5c-1.6.4-2.5 1.6-2.5 3 0 2 2 3.5 5 4v2.5h3V18c1.7-.1 3-.5 4-1.2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="15.5" cy="9.5" r="0.8" fill="currentColor"/></svg></div>
+          <p>Wants to save money.</p>
+        </div>
+        <div class="who-card">
+          <div class="who-icon"><svg viewBox="0 0 24 24" fill="none"><rect x="4" y="3" width="16" height="18" rx="1.5" stroke="currentColor" stroke-width="1.6"/><line x1="4" y1="7.5" x2="20" y2="7.5" stroke="currentColor" stroke-width="1.4"/><line x1="9" y1="3" x2="9" y2="7.5" stroke="currentColor" stroke-width="1.4"/><circle cx="15" cy="12" r="0.9" fill="currentColor"/></svg></div>
+          <p>Wants a more organized life.</p>
+        </div>
+        <div class="who-card">
+          <div class="who-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M18.5 15l.9 2.4 2.4.9-2.4.9-.9 2.4-.9-2.4-2.4-.9 2.4-.9Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg></div>
+          <p>Loves fashion and creativity.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== 08 FINAL ===== -->
+    <div class="section-block">
+      <div class="final-row">
+        <div>
+          <p class="eyebrow">08 · Made With Purpose</p>
+          <h2>Created from a personal problem. Designed for everyone.</h2>
+          <p>Pick Your Fit is more than an app. It's your personal stylist, planner and wardrobe assistant &mdash; built for everyone who has ever said "I have nothing to wear."</p>
+        </div>
+        <div class="note-panel">
+          <div class="note-heart"><svg viewBox="0 0 24 24" fill="none"><path d="M12 20 C6.5 15.8, 3.5 12, 3.5 8.2 C3.5 5.1, 5.8 3, 8.5 3 C10.3 3, 11.7 4, 12 5.6 C12.3 4, 13.7 3, 15.5 3 C18.2 3, 20.5 5.1, 20.5 8.2 C20.5 12, 17.5 15.8, 12 20 Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg></div>
+          <p>Thank you for being here.<br>Let's build amazing outfits together.</p>
+          <span class="signature">Daria</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== Bottom strip ===== -->
+    <div class="bottom-strip">
+      <div class="strip-steps">
+        <div class="strip-step"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/><path d="M9.3 9.3a2.7 2.7 0 0 1 5.2-1c0 1.8-2.5 1.9-2.5 3.9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="16.5" r="0.9" fill="currentColor"/></svg>Scan.</div>
+        <div class="strip-step"><svg viewBox="0 0 24 24" fill="none"><path d="M8.5 4 L10 6 h4 l1.5 -2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M8.5 4 L4 7.5 L6.5 10.5 L8 9.3 V20 h8 V9.3 l1.5 1.2 L20 7.5 L15.5 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Organize.</div>
+        <div class="strip-step"><svg viewBox="0 0 24 24" fill="none"><path d="M4 20 L4 16.5 L15 5.5 a1.8 1.8 0 0 1 2.5 0 l1 1 a1.8 1.8 0 0 1 0 2.5 L7.5 20 Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>Create.</div>
+        <div class="strip-step"><svg viewBox="0 0 24 24" fill="none"><rect x="4" y="5.5" width="16" height="14.5" rx="2" stroke="currentColor" stroke-width="1.6"/><line x1="4" y1="10" x2="20" y2="10" stroke="currentColor" stroke-width="1.6"/></svg>Plan.</div>
+        <div class="strip-step"><svg viewBox="0 0 24 24" fill="none"><path d="M4 4v5h5M20 20v-5h-5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M5.5 15A7.5 7.5 0 0 0 19 12M18.5 9A7.5 7.5 0 0 0 5 12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>Repeat.</div>
+      </div>
+      <div class="strip-tag"><strong>Pick Your Fit.</strong><br>Pick what fits you.</div>
+    </div>
+
+  </div>
+</main>
+
+<nav class="mobile-footer-nav" aria-label="Meniu principal">
+  <a href="landing.html" class="footer-nav-link" title="Home">
+    <svg viewBox="0 0 24 24" fill="none"><path d="M4 11.5 L12 5 L20 11.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 10.5 V19 a1 1 0 0 0 1 1 h10 a1 1 0 0 0 1 -1 V10.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <span>Home</span>
+  </a>
+  <a href="features.html" class="footer-nav-link" title="Features">
+    <svg viewBox="0 0 24 24" fill="none"><path d="M12 3 L13.4 9 L19.5 10.4 L13.4 11.8 L12 18 L10.6 11.8 L4.5 10.4 L10.6 9 Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
+    <span>Features</span>
+  </a>
+  <a href="index.html" class="footer-nav-link" title="Scan">
+    <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/><path d="M9.3 9.5a2.7 2.7 0 0 1 5.2-1c0 1.7-2.5 1.9-2.5 3.7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="16.3" r="0.9" fill="currentColor"/></svg>
+    <span>Scan</span>
+  </a>
+  <a href="about.html" class="footer-nav-link active" title="About">
+    <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/><line x1="12" y1="11" x2="12" y2="16.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="7.8" r="1" fill="currentColor"/></svg>
+    <span>About</span>
+  </a>
+  <a href="contact.html" class="footer-nav-link" title="Contact">
+    <svg viewBox="0 0 24 24" fill="none"><rect x="3.5" y="6" width="17" height="12" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M4.5 7.5 L12 13 L19.5 7.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <span>Contact</span>
+  </a>
+</nav>
+
+<script>
+  (function(){
+    const idToken = localStorage.getItem('pyf_idToken');
+    const userPhoto = localStorage.getItem('pyf_userPhoto'); // Retrieve the user's photo URL from localStorage
+    const avatarLink = document.getElementById('sideAvatarLink');
+    const defaultIcon = document.getElementById('defaultAvatarIcon');
+    const userImg = document.getElementById('userAvatarImg');
+    const headerActions = document.getElementById('headerActions');
+    const getStartedBtn = document.getElementById('getStartedBtn');
+
+    if (idToken) {
+      if (userPhoto) {
+        userImg.src = userPhoto;
+        userImg.style.display = 'block';
+        defaultIcon.style.display = 'none';
+      }
+      avatarLink.setAttribute('href', 'profile.html');
+      avatarLink.setAttribute('title', 'Contul meu');
+      if (headerActions) {
+        headerActions.innerHTML = '<a href="index.html" class="btn btn-dark">My Closet</a>';
+      }
+      if (getStartedBtn) {
+        getStartedBtn.setAttribute('href', 'index.html');
+      }
+    }
+  })();
+</script>
+
+</body>
+</html>
